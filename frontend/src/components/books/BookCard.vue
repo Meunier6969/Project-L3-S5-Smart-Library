@@ -1,12 +1,8 @@
 <template>
-  <div class="card h-100" @click="openBookModal()">
-    <img class="card-img-top" src="" alt="Book cover (failed to load)" v-if="!imageLoaded || imageFailed"/>
+  <div class="card text-bg-dark" @click="openBookModal()">
     <img
-        v-else
         :src="this.book.cover"
         :alt="this.book.title"
-        @load="onImageLoaded"
-        @error="onImageFailed"
         class="card-img-top"
     />
     <div class="favorite-icon" v-if="isLoggedIn">
@@ -16,8 +12,8 @@
           aria-hidden="true"
       ></i>
     </div>
-    <div class="card-body">
-      <h5 class="card-title">{{ this.book.title }}</h5>
+    <div class="card-footer">
+      <h5 class="card-text">{{ this.book.title }}</h5>
     </div>
     <BookModal :book="book"></BookModal>
   </div>
@@ -48,12 +44,6 @@ export default {
     openBookModal() {
       $('#bookModal-' + this.book.id).modal('show');
     },
-    onImageLoaded() {
-      this.imageLoaded = true;
-    },
-    onImageFailed() {
-      this.imageFailed = true;
-    }
   },
 };
 </script>
@@ -64,7 +54,7 @@ export default {
   cursor: pointer;
 }
 .card-img-top {
-  height: 200px;
+  height: 350px;
   object-fit: cover;
 }
 .favorite-icon {

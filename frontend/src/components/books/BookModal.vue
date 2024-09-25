@@ -15,8 +15,8 @@ const props = defineProps({
   <div class="modal fade" :id="'bookModal-' + book.id" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ this.book.title }}</h5>
+        <div class="modal-header text-center">
+          <h4 class="modal-title w-100">{{ this.book.title }}</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -41,11 +41,7 @@ const props = defineProps({
                 {{ category }}<span v-if="index < this.book.categories.length - 1">, </span>
               </span>
               </h6>
-              <p style="text-align: justify">
-                Paul Atreides, un jeune homme brillant et doué au destin plus grand que lui-même, doit se rendre sur la
-                planète la plus dangereuse de l'univers afin d'assurer l'avenir de sa famille et de son peuple. Cette
-                planète est la source exclusive de la ressource la plus précieuse qui soit pour laquelle des forces
-                sinistres déclenchent un conflit dont seuls ceux sachant maîtriser leurs peurs survivront.
+              <p style="text-align: justify">{{this.book.description}}
               </p>
             </div>
 
