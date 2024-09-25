@@ -14,7 +14,7 @@ import Book from "@/models/book.js";
 
 export default {
   name: 'Home',
-  components: {BookGrid, NavBar,Login},
+  components: {BookGrid, NavBar},
   methods: {
     handleSearch(query) {
       this.searchQuery = query;

@@ -64,6 +64,7 @@ nav {
 }
 .icon {
   font-size: 2rem;
+  cursor: pointer;
 }
 </style>
 
