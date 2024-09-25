@@ -5,14 +5,16 @@ const userStore = useUserStore();
 </script>
 
 <template>
-  <nav class="col align-items-center">
+  <nav class="col">
     <h1 class="text-white">Smart Library</h1>
     <div class="row align-items-center">
-      <div class=" text-white text-center" v-if="userStore.isLoggedIn">
-        <i class="bi bi-person-circle icon"></i>
-      </div>
-      <div class=" text-white text-center" @click="$emit('open-login')" v-else>
-        <i class="bi bi-box-arrow-in-right icon"></i>
+      <div>
+        <div class=" text-white text-center" v-if="userStore.isLoggedIn">
+          <i class="bi bi-person-circle icon"></i>
+        </div>
+        <div class=" text-white text-center" @click="$emit('open-login')" v-else>
+          <i class="bi bi-box-arrow-in-right icon"></i>
+        </div>
       </div>
       <div class="col text-white text-center">
         <div class="flex-grow-1" style="margin-right: 2rem; margin-left: 4rem;">
@@ -28,42 +30,44 @@ const userStore = useUserStore();
           </form>
         </div>
       </div>
-      <div class="dropdown show mrhalfrem">
-        <i class="btn btn-secondary dropdown-toggle bi bi-sort-alpha-down" role="button" id="dropdownMenuLink"
-           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        </i>
-
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <label class="dropdown-item">
-            De A à Z
-          </label>
-          <label class="dropdown-item">
-            De Z à A
-          </label>
-        </div>
-      </div>
-      <div class="text-white text-center">
-        <div class="dropdown show">
-          <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+      <div class="row">
+        <div class="dropdown show mrhalfrem">
+          <i class="btn btn-secondary dropdown-toggle bi bi-sort-alpha-down" role="button" id="dropdownMenuLink"
              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Filters
-          </a>
+          </i>
 
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
             <label class="dropdown-item">
-              Catégorie 1 <input type="checkbox">
+              De A à Z
             </label>
             <label class="dropdown-item">
-              Catégorie 2 <input type="checkbox">
+              De Z à A
             </label>
-            <label class="dropdown-item">
-              Catégorie 3 <input type="checkbox">
-            </label>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Favoris</a>
           </div>
         </div>
+        <div class="text-white text-center">
+          <div class="dropdown show">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Filters
+            </a>
 
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <label class="dropdown-item">
+                Catégorie 1 <input type="checkbox">
+              </label>
+              <label class="dropdown-item">
+                Catégorie 2 <input type="checkbox">
+              </label>
+              <label class="dropdown-item">
+                Catégorie 3 <input type="checkbox">
+              </label>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Favoris</a>
+            </div>
+          </div>
+
+        </div>
       </div>
 
     </div>
@@ -79,7 +83,6 @@ export default {
   },
   methods: {
     onSearch() {
-      console.log(this.searchTerm);
       this.$emit('search', this.searchTerm);
     }
   }
