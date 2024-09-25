@@ -22,8 +22,8 @@
           </div>
 
           <div class="text-center">
-            <router-link to="/SignUp" class="text-decoration-none">Create account</router-link> <br />
-            <a href="#" class="text-decoration-none">Forget password?</a>
+            <button @click="$emit('close')">Close</button>
+            <button @click="$emit('switchToSignUp')">No account? Sign up</button>
           </div>
 
         </form>
@@ -34,21 +34,12 @@
 </template>
 
 
-<script>
-export default {
-  data() {
-    return {
-      email: '',
-      password: ''
-    };
-  },
-  methods: {
-    submitForm() {
-      // Ajoute ici la logique de soumission du formulaire
-      // Puis redirection après validation
-    }
-  }
-};
+<script setup>
+
+import { ref } from 'vue';
+
+const email = ref('');
+const password = ref('');
 </script>
 
 <style scoped>

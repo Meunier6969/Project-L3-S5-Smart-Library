@@ -1,5 +1,5 @@
 <template>
-  <!-- Conteneur principal pour la page de login avec la classe Bootstrap `d-flex` pour centrer le contenu -->
+
   <div class="login-page  d-flex justify-content-center align-items-center">
 
     <div class="card p-4 shadow-lg">
@@ -31,7 +31,7 @@
           </div>
 
           <div class="text-center">
-            <router-link to="/Login" class="text-decoration-none" @click="closeLogin">Already account ?</router-link> <br />
+            <button @click="$emit('close')">Close</button>
           </div>
 
         </form>
@@ -42,23 +42,15 @@
 </template>
 
 
-<script>
+<script setup>
+import { ref } from 'vue';
 
-export default {
 
-  data() {
-    return {
-      email: '',
-      password: ''
-    };
-  },
-  methods: {
-    submitForm() {
-      // Ajoute ici la logique de soumission du formulaire
-      // Puis redirection après validation
-    }
-  }
-};
+const email = ref('');
+const password = ref('');
+const name = ref('');
+const confirm_password = ref('');
+
 </script>
 
 <style scoped>

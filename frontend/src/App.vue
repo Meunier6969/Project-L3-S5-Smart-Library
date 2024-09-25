@@ -1,11 +1,16 @@
 <template>
   <div id="app">
+
     <NavBar @open-login="openLogin"></NavBar>
-    <div v-if="isLoginModalVisible"  class="modal" @click.self="closeLogin" >
-      <Login @close="closeLogin"></Login>
+
+
+    <div v-if="showLogin" class="modal" @click.self="showLogin=false">
+      <Login @close="showLogin = false" @switchToSignUp="switchToSignUp" />
     </div>
-    <div v-if="isSignUpModalVisible"  class="modal" @click.self="closeLogin" >
-      <SignUp @close="closeSignUp" ></SignUp>
+
+
+    <div v-if="showSignUp" class="modal" @click.self="showSignUp=false">
+      <SignUp @close="showSignUp = false" />
     </div>
 
     <router-view></router-view>
@@ -13,34 +18,31 @@
 </template>
 
 <script>
-import NavBar from "@/components/NavBar.vue";
-import Login from "@/components/Login.vue";
-import SignUp  from "@/components/SignUp.vue";
+import Login from './components/Login.vue';
+import SignUp from './components/SignUp.vue';
+import NavBar from './components/NavBar.vue';
+
 export default {
-  name: 'App',
-  components: { NavBar ,Login,SignUp},
+  components: { Login, SignUp, NavBar },
   data() {
     return {
-      isLoginModalVisible: false ,
-      isSignUpModalVisible: false
+      showLogin: false,
+      showSignUp: false,
     };
   },
   methods: {
+    switchToSignUp() {
+      this.showLogin = false;
+      this.showSignUp = true;
+    },
     openLogin() {
-      this.isLoginModalVisible = true; // Ouvrir la modal
-    },
-    closeLogin() {
-      this.isLoginModalVisible = false; // Fermer la modal
-    },
-    openSignUp() {
-      this.isSignUpModalVisible = true; // Ouvrir la modal
-    },
-    closeSignUp() {
-      this.isSignUpModalVisible = false; // Fermer la modal
-  }}
-
+      this.showLogin = true;
+    }
+  }
 };
 </script>
+
+
 
 <style scoped>
 /* Global styles */
