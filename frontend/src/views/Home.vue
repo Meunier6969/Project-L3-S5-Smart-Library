@@ -6,7 +6,7 @@
 
 <script>
 import NavBar from "@/components/NavBar.vue";
-import BookGrid from "@/components/BookGrid.vue";
+import BookGrid from "@/components/books/BookGrid.vue";
 import Book from "@/models/book.js";
 
 export default {

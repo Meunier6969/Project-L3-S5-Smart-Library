@@ -22,7 +22,7 @@ const userStore = useUserStore();
 </template>
 
 <script>
-import BookCard from "@/components/BookCard.vue";
+import BookCard from "@/components/books/BookCard.vue";
 
 export default {
   components: {BookCard},
