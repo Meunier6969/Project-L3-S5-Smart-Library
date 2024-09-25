@@ -1,20 +1,19 @@
 <template>
   <div>
 
-
     <BookGrid :books="bookList" :searchQuery="searchQuery"></BookGrid>
   </div>
 </template>
 
 <script>
-import NavBar from "@/components/NavBar.vue";
+
 import BookGrid from "@/components/BookGrid.vue";
 import Book from "@/models/book.js";
 
 
 export default {
   name: 'Home',
-  components: {BookGrid, NavBar,Login},
+  components: {BookGrid},
   methods: {
     handleSearch(query) {
       this.searchQuery = query;

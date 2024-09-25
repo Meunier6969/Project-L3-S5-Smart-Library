@@ -1,36 +1,27 @@
 <template>
   <div id="app">
-    <NavBar @open-login="openLogin"></NavBar>
-    <div v-if="isLoginModalVisible"  class="modal" @click.self="closeLogin">
-      <Login @close="closeLogin"></Login>
-    </div>
+
+    <NavBar ></NavBar>
+
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-import NavBar from "@/components/NavBar.vue";
-import Login from "@/components/Login.vue";
+import Login from './components/Login.vue';
+import SignUp from './components/SignUp.vue';
+import NavBar from './components/NavBar.vue';
+
 export default {
-  name: 'App',
-  components: { NavBar, Login },
-  data() {
-    return {
-      isLoginModalVisible: false // État pour la modal
-    };
-  },
-  methods: {
-    openLogin() {
-      this.isLoginModalVisible = true; // Ouvrir la modal
-    },
-    closeLogin() {
-      this.isLoginModalVisible = false; // Fermer la modal
-    }
-  }
+  components: { Login, SignUp, NavBar },
+
 };
 </script>
+
+
+
 <style scoped>
-/* Global styles */
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -38,19 +29,8 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
-.modal{
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Couche semi-transparente */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1050; /* Doit être au-dessus du reste du contenu */
-}
 
-/* Styles pour centrer la modale */
+
+
 
 </style>
