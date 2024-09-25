@@ -5,7 +5,7 @@
         :alt="this.book.title"
         class="card-img-top"
     />
-    <div class="favorite-icon">
+    <div class="favorite-icon" v-if="isLoggedIn">
       <i
           :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
           :style="{ color: book.isFav ? 'red' : 'grey' }"
@@ -14,12 +14,6 @@
     </div>
     <div class="card-body">
       <h5 class="card-title">{{ this.book.title }}</h5>
-      <p class="card-text">
-        Categories:
-        <span v-for="(category, index) in this.book.categories" :key="index">
-                {{ category }}<span v-if="index < this.book.categories.length - 1">, </span>
-              </span>
-      </p>
     </div>
     <div class="modal fade" :id="'bookModal-' + book.id" tabindex="-1" role="dialog">
       <div class="modal-dialog modal-lg" role="document">
@@ -41,8 +35,14 @@
                 {{ category }}<span v-if="index < this.book.categories.length - 1">, </span>
               </span>
             </p>
-            <button class="btn btn-primary" v-if="!this.book.isFav">Réserver</button>
-            <button class="btn btn-danger" v-else>Rendre</button>
+            <div v-if="isLoggedIn">
+              <button class="btn btn-primary" v-if="!this.book.isFav">Add to favorites</button>
+              <button class="btn btn-danger" v-else>Remove from favorites</button>
+            </div>
+            <div class="col" v-else>
+              <button class="btn btn-primary" disabled>Add to favorites</button>
+              <p class="mt-1">You need to<a href="#" class="text-decoration-none" @click="">login</a> to manage favorites</p>
+            </div>
           </div>
         </div>
       </div>
@@ -51,13 +51,16 @@
 </template>
 
 <script>
-import Book from "@/models/book.js";
 export default {
   props: {
     book: {
       type: Object,
       required: true
     },
+    isLoggedIn: {
+      type: Boolean,
+      required: true,
+    }
   },
   methods: {
     openBookModal() {

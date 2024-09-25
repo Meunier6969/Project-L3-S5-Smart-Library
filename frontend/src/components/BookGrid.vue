@@ -1,12 +1,21 @@
+<script setup>
+import {useUserStore} from "@/stores/userStore.js";
+const userStore = useUserStore();
+</script>
+
 <template>
-  <div class="container">
+  <div class="container grid-container">
     <div class="row">
       <div
-          v-for="book in filteredBooks"
+          v-for="(book, index) in filteredBooks"
           :key="book.id"
-          class="col-12 col-md-6 col-lg-3 mb-4"
+          :class="[
+          'col-12 col-md-6 col-lg-3 mb-4',
+          { 'pl-0': index % 4 === 0 }, /* No padding-left for first column in a row */
+          { 'pr-0': (index + 1) % 4 === 0 } /* No padding-right for last column in a row */
+        ]"
       >
-        <BookCard :book="book"></BookCard>
+        <BookCard :book="book" :isLoggedIn="userStore.isLoggedIn"></BookCard>
       </div>
     </div>
   </div>
@@ -45,5 +54,15 @@ export default {
 </script>
 
 <style scoped>
+.grid-container {
+  width: 80%;
+}
 
+.pl-0 {
+  padding-left: 0 !important; /* Remove left padding */
+}
+
+.pr-0 {
+  padding-right: 0 !important; /* Remove right padding */
+}
 </style>
