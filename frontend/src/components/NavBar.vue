@@ -67,11 +67,16 @@ const userStore = useUserStore();
       </div>
 
     </div>
+    <ModalLogin ref="modalLogin"></ModalLogin>
   </nav>
 </template>
 
 <script>
+import ModalLogin from '@/components/Login.vue';
 export default {
+  components: {
+    ModalLogin
+  },
   data() {
     return {
       searchTerm: ''
@@ -81,8 +86,13 @@ export default {
     onSearch() {
       console.log(this.searchTerm);
       this.$emit('search', this.searchTerm);
+    },
+    openModalLogin() {
+      this.$refs.modalLogin.open();
     }
+
   }
+
 };
 </script>
 
