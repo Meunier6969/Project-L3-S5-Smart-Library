@@ -1,18 +1,16 @@
 // src/router/router.js
 
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '@/components/Login.vue';
 
-import SignUp from '@/views/SignUp.vue';
+
 import Profile from '@/views/Profile.vue';
 import Home from "@/views/Home.vue";
 
 // Configuration des routes
 const routes = [
-  { path: '/login', name: 'Login', component: Login },
+
   {path: '/', redirect:'/home'},
   {path: '/home', name: "Home",component: Home},
-  { path: '/signup', name: 'SignUp', component: SignUp },
   {
     path: '/profile',
     name: 'Profile',

@@ -1,9 +1,13 @@
 <template>
   <div id="app">
     <NavBar @open-login="openLogin"></NavBar>
-    <div v-if="isLoginModalVisible"  class="modal" @click.self="closeLogin">
+    <div v-if="isLoginModalVisible"  class="modal" @click.self="closeLogin" >
       <Login @close="closeLogin"></Login>
     </div>
+    <div v-if="isSignUpModalVisible"  class="modal" @click.self="closeLogin" >
+      <SignUp @close="closeSignUp" ></SignUp>
+    </div>
+
     <router-view></router-view>
   </div>
 </template>
@@ -11,12 +15,14 @@
 <script>
 import NavBar from "@/components/NavBar.vue";
 import Login from "@/components/Login.vue";
+import SignUp  from "@/components/SignUp.vue";
 export default {
   name: 'App',
-  components: { NavBar, Login },
+  components: { NavBar ,Login,SignUp},
   data() {
     return {
-      isLoginModalVisible: false // État pour la modal
+      isLoginModalVisible: false ,
+      isSignUpModalVisible: false
     };
   },
   methods: {
@@ -25,10 +31,17 @@ export default {
     },
     closeLogin() {
       this.isLoginModalVisible = false; // Fermer la modal
-    }
-  }
+    },
+    openSignUp() {
+      this.isSignUpModalVisible = true; // Ouvrir la modal
+    },
+    closeSignUp() {
+      this.isSignUpModalVisible = false; // Fermer la modal
+  }}
+
 };
 </script>
+
 <style scoped>
 /* Global styles */
 #app {
