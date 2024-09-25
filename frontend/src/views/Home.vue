@@ -11,16 +11,15 @@ import Book from "@/models/book.js";
 
 export default {
   name: 'Home',
-  components: {BookGrid, NavBar},
-  methods: {
-    handleSearch(query) {
-      this.searchQuery = query;
-    },
-
+  components: {BookGrid},
+  props: {
+    searchQuery: {
+      type: String,
+      required: true,
+    }
   },
   data() {
     return {
-      searchQuery: '',
       bookList: [
         new Book(1, "Foundation", "path-to-foundation-image", ["Science Fiction", "TV Adaptation"]),
         new Book(2, "Romeo et Juliette", "path-to-romeo-image", ["Classic", "Drama"]),
@@ -32,7 +31,6 @@ export default {
         new Book(8, "Foundation", "path-to-foundation-image", ["Science Fiction", "TV Adaptation"])
       ],
       favList: [1, 3, 7],
-
     };
   },
   beforeMount() {

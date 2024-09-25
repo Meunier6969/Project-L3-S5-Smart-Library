@@ -79,6 +79,7 @@ export default {
   },
   methods: {
     onSearch() {
+      console.log(this.searchTerm);
       this.$emit('search', this.searchTerm);
     }
   }
