@@ -7,13 +7,14 @@ let GLOBAL_USER_ID = 0
 let GLOBAL_BOOK_ID = 0
 
 let data = {
-	users: [],
-	books: [],
+	// users: [],
+	users: [createUser(0, "José", "bing@chilling.com", "azerty")],
+	// books: [],
+	books: [createBook(0, "L'art de la guerre", "Sun Tzu", "If you know the enemy and know yourself, you need not fear the result of a hundred battles.")]
 }
-// let data = {
-// 	users: [createUser(0, "José", "bing@chilling.com")],
-// 	books: [createBook(0, "L'art de la guerre", "Sun Tzu", "If you know the enemy and know yourself, you need not fear the result of a hundred battles.")]
-// }
+//==========================================
+
+let TOKEN = []
 
 // Middleware
 app.use(express.json())
@@ -32,12 +33,7 @@ app.get("/api/users/", (req, res) => {
 app.get("/api/users/:id", (req, res) => {
 	const { id } = req.params
 
-	sid = id * 1 // convert id to an number
-	
-	let user = data.users.find(obj => {
-		return obj.id === sid
-	})
-
+	let user = getUserByID(id)
 	if (!user) {
 		res.status(404).send({
 			"message": "User not found"
@@ -45,7 +41,7 @@ app.get("/api/users/:id", (req, res) => {
 		return
 	}
 
-	res.status(200).send(data.users[sid])
+	res.status(200).send(user)
 })
 
 app.get("/api/books/", (req, res) => {
@@ -55,12 +51,7 @@ app.get("/api/books/", (req, res) => {
 app.get("/api/books/:id", (req, res) => {
 	const { id } = req.params
 
-	sid = id * 1 // convert id to an number
-
-	let book = data.books.find(obj => {
-		return obj.id === sid
-	})
-
+	let book = getBookByID(id)
 	if (!book) {
 		res.status(404).send({
 			"message": "Book not found"
@@ -68,21 +59,21 @@ app.get("/api/books/:id", (req, res) => {
 		return
 	}
 
-	res.status(200).send(data.book[sid])
+	res.status(200).send(book)
 })
 
 // POST
 app.post("/api/users/register", (req, res) => {
-	const { name, mail } = req.body
+	const { name, mail, pwd } = req.body
 
-	if (!name || !mail) {
+	if (!name || !mail || !pwd) {
 		res.status(400).send({
-			"message": "Missing name and/or mail field."
+			"message": "Missing name, mail and/or password field."
 		})
 		return
 	}
 
-	let newUser = createUser(GLOBAL_USER_ID, name, mail)
+	let newUser = createUser(GLOBAL_USER_ID, name, mail, pwd)
 
 	GLOBAL_USER_ID++
 
@@ -94,7 +85,15 @@ app.post("/api/users/register", (req, res) => {
 	})
 })
 
+app.post("/api/users/login", (req, res) => {
+	const { username, pwd } = req.body
+	
+
+
+})
+
 app.post("/api/books", (req, res) => {
+	// TODO: Auth admin
 	const { name, author, description } = req.body
 
 	if (!name || !author || !description) {
@@ -117,8 +116,9 @@ app.post("/api/books", (req, res) => {
 })
 
 app.post("/api/books/:id/favorite", (req, res) => {
+	// TODO: Auth user
 	const { id } = req.params
-	const { userId } = req.body
+	const { user_id } = req.body
 
 	if (!id) {
 		res.status(400).send({
@@ -127,50 +127,49 @@ app.post("/api/books/:id/favorite", (req, res) => {
 		return
 	}
 
-	if (!userId) {
+	if (!user_id) {
 		res.status(400).send({
 			"message": "You must be logged in."
 		})
 		return
 	}
-
-	sid = id * 1
-	suid = userId * 1
 	
-	let book = data.books.find(obj => {
-		return obj.id === sid
-	})
-
+	let book = getBookByID(id)
 	if (!book) {
 		res.status(404).send({
 			"message": "Book not found"
 		})
 		return
 	}
+	
+	let user = getUserByID(user_id)
+	if (!user) {
+		res.status(404).send({
+			"message": "User not found"
+		})
+		return
+	}
 
-	let index = data.users[suid].favorites.indexOf(sid);
-	if (index > -1) {
+	let infav = isBookInUsersFavorite(user_id, id);
+	if (infav == true) {
 		res.status(400).send({
 			"message": "Book is already in users favorite.",
 		})
 		return
 	}
 
-	data.users[suid].favorites.push(sid)
+	addBookToUsersFavorite(user_id, id)
 
 	res.status(200).send({
 		"message": "Book has been favorited.",
 		"book": book,
-		"usersFavorite": data.users[suid].favorites
+		"usersFavorite": user.favorites
 	})
-
-
 })
 
-// TODO: Authorizations
 // DELETE
 app.delete("/api/users/:id", (req, res) => {
-	// Check autorization (admin, user)
+	// TODO: Auth admin user
 	let authorized = true
 
 	if (authorized === false) {
@@ -202,7 +201,7 @@ app.delete("/api/users/:id", (req, res) => {
 })
 
 app.delete("/api/books/:id", (req, res) => {
-	// Check autorization (admin)
+	// TODO: Auth admin
 	let authorized = true
 
 	if (authorized === false) {
@@ -234,8 +233,9 @@ app.delete("/api/books/:id", (req, res) => {
 })
 
 app.delete("/api/books/:id/favorite", (req, res) => {
+	// TODO: Auth user
 	const { id } = req.params
-	const { userId } = req.body
+	const { user_id } = req.body
 
 	if (!id) {
 		res.status(400).send({
@@ -244,20 +244,14 @@ app.delete("/api/books/:id/favorite", (req, res) => {
 		return
 	}
 
-	if (!userId) {
+	if (!user_id) {
 		res.status(400).send({
 			"message": "You must be logged in."
 		})
 		return
 	}
 
-	sid = id * 1
-	suid = userId * 1
-
-	let book = data.books.find(obj => {
-		return obj.id === sid
-	})
-
+	let book = getBookByID(id)
 	if (!book) {
 		res.status(404).send({
 			"message": "Book not found"
@@ -265,20 +259,28 @@ app.delete("/api/books/:id/favorite", (req, res) => {
 		return
 	}
 	
-	let index = data.users[suid].favorites.indexOf(sid);
-	if (index <= -1) {
+	let user = getUserByID(user_id)
+	if (!user) {
+		res.status(404).send({
+			"message": "User not found"
+		})
+		return
+	}
+
+	let infav = isBookInUsersFavorite(user_id, id);
+	if (infav == false) {
 		res.status(400).send({
 			"message": "Book is not in users favorite.",
 		})
 		return
 	}
 
-	data.users[suid].favorites.splice(index, 1);
+	removeBookFromUsersFavorite(user_id, id)
 
 	res.status(200).send({
 		"message": "Book has been unfavorited.",
 		"book": book,
-		"usersFavorite": data.users[suid].favorites
+		"usersFavorite": user.favorites
 	})
 
 
@@ -290,11 +292,12 @@ app.listen(PORT, () => {
 })
 
 // Functions
-function createUser(id, name, mail) {
+function createUser(id, name, mail, pwd) {
 	return {
 		"id": id,
 		"name": name,
 		"mail": mail,
+		"pwd": pwd,
 		"favorites": [],
 		"admin": false,
 	}
@@ -306,5 +309,62 @@ function createBook(id, name, author, description) {
 		"name": name,
 		"author": author,
 		"description": description
+	}
+}
+
+function getUserByName(name) {
+	return data.users.find(obj => {
+		return obj.name === name
+	})
+}
+
+function getUserByID(id) {
+	sid = id * 1 // Convert id to a number
+	return data.users.find(obj => {
+		return obj.id === sid
+	})
+}
+
+function getBookByID(id) {
+	sid = id * 1 // Convert id to a number
+	return data.books.find(obj => {
+		return obj.id === sid
+	})
+}
+
+// Replaced by a database
+function isBookInUsersFavorite(user_id, book_id) {
+	// Assuming proper error handling beforehand by the caller
+	let user = getUserByID(user_id)
+	let book = getBookByID(book_id)
+	
+	if (!user || !book) return false
+
+	let index = user.favorites.indexOf(book_id)
+	if (index > -1) return true
+	
+	return false
+}
+
+function addBookToUsersFavorite(user_id, book_id) {
+	// Assuming proper error handling beforehand by the caller
+	let user = getUserByID(user_id)
+	let book = getUserByID(book_id)
+
+	if (!user || !book) return false
+
+	user.favorites.push(book_id)
+}
+
+function removeBookFromUsersFavorite(user_id, book_id) {
+	// Assuming proper error handling beforehand by the caller
+	let user = getUserByID(user_id)
+	let book = getUserByID(book_id)
+
+	if (!user || !book) return false
+
+	var index = user.favorites.indexOf(book_id);
+	if (index > -1) {
+		user.favorites.splice(index, 1);
 	}
 }
