@@ -1,53 +1,73 @@
 <template>
-  <!-- Conteneur principal pour la page de login avec la classe Bootstrap `d-flex` pour centrer le contenu -->
-  <div class="login-page d-flex">
+  <div class="modal" id="modalLogin" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Log In</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModalLogin">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group mb-3">
+              <label for="emailLogIn">Email</label>
+              <input type="email" class="form-control" id="emailLogIn" v-model="emailLogIn">
+            </div>
 
-    <div class="card p-4 shadow-lg">
-      <div class="card-body mb-4">
-        <h3 class="card-title">Log In</h3>
-        <form>
-          <div class="form-group mb-3">
-            <label for="email">Email</label>
-            <input type="email" class="form-control" id="email" v-model="email">
-          </div>
+            <div class="form-group mb-3">
+              <label for="passwordLogIn">Password</label>
+              <input type="password" class="form-control" id="passwordLogIn" v-model="passwordLogIn">
+            </div>
 
-          <div class="form-group mb-3">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" v-model="password">
-          </div>
-
-          <div class="d-grid mb-3">
-
-            <button type="submit" class="btn btn-dark btn-block">Sign In</button>
-          </div>
-
-          <div class="text-center">
-            <button @click="$emit('close')">Close</button>
-            <button @click="$emit('switchToSignUp')">No account? Sign up</button>
-          </div>
-
-        </form>
+            <div class="d-grid mb-3">
+              <button type="submit" class="btn btn-dark btn-block">Sign In</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link" @click="switchToSignUp">No account? Sign up</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <ModalSignUp ref="modalSignUp"></ModalSignUp> <!-- Référence à la modal d'inscription -->
 </template>
 
-
 <script setup>
+import { ref, getCurrentInstance } from 'vue';
+import ModalSignUp from '@/components/SignUp.vue';
 
-import { ref } from 'vue';
+const emailLogIn = ref('');
+const passwordLogIn = ref('');
 
-const email = ref('');
-const password = ref('');
+// Fonction pour ouvrir la modal de connexion
+function open() {
+  $('#modalLogin').modal('show'); // Utilisation de jQuery pour afficher la modal
+}
+
+// Fonction pour fermer la modal de connexion
+function closeModalLogin() {
+  $('#modalLogin').modal('hide');
+}
+
+// Accéder aux références via getCurrentInstance
+const { proxy } = getCurrentInstance();
+
+// Fonction pour passer de la modal de login à celle de signup
+function switchToSignUp() {
+  closeModalLogin(); // Fermer la modal de login
+  proxy.$refs.modalSignUp.open(); // Ouvrir la modal de signup via $refs
+}
+
+defineExpose({ open });
 </script>
 
 <style scoped>
-.login-page {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-.card {
+.modal-content {
   background-color: white;
   backdrop-filter: blur(10px);
 }
+
 </style>

@@ -1,7 +1,7 @@
 <template>
   <nav class="row align-items-center">
     <div class="col text-white text-center p-3">
-      <i class="bi bi-person-circle icon" @click="$emit('open-login')"></i>
+      <i class="bi bi-person-circle icon" @click="openModalLogin"></i>
     </div>
     <div class="col text-white text-center p-3">
       <div class="flex-grow-1 mx-3">
@@ -39,11 +39,16 @@
       </div>
 
     </div>
+    <ModalLogin ref="modalLogin"></ModalLogin>
   </nav>
 </template>
 
 <script>
+import ModalLogin from '@/components/Login.vue';
 export default {
+  components: {
+    ModalLogin
+  },
   data() {
     return {
       searchTerm: ''
@@ -52,8 +57,13 @@ export default {
   methods: {
     onSearch() {
       this.$emit('search', this.searchTerm);
+    },
+    openModalLogin() {
+      this.$refs.modalLogin.open();
     }
+
   }
+
 };
 </script>
 
