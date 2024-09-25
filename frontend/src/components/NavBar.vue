@@ -1,6 +1,8 @@
 <template>
   <nav class="row align-items-center">
-    <div class="col text-white text-center p-3"><i class="bi bi-person-circle icon"></i></div>
+    <div class="col text-white text-center p-3">
+      <i class="bi bi-person-circle icon" @click="$emit('open-login')"></i>
+    </div>
     <div class="col text-white text-center p-3">
       <div class="flex-grow-1 mx-3">
         <form class="d-flex w-100">
