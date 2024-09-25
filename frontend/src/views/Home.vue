@@ -21,14 +21,14 @@ export default {
   data() {
     return {
       bookList: [
-        new Book(1, "Foundation", "path-to-foundation-image", ["Science Fiction", "TV Adaptation"]),
-        new Book(2, "Romeo et Juliette", "path-to-romeo-image", ["Classic", "Drama"]),
-        new Book(3, "His Dark Materials", "path-to-his-dark-materials-image", ["Fantasy", "Adventure"]),
-        new Book(4, "Harry Potter and the Chamber of Secrets", "path-to-harry-potter-image", ["Fantasy", "Magic"]),
-        new Book(5, "Romeo et Juliette", "path-to-romeo-image", ["Classic", "Drama"]),
-        new Book(6, "His Dark Materials", "path-to-his-dark-materials-image", ["Fantasy", "Adventure"]),
-        new Book(7, "Harry Potter and the Chamber of Secrets", "path-to-harry-potter-image", ["Fantasy", "Magic"]),
-        new Book(8, "Foundation", "path-to-foundation-image", ["Science Fiction", "TV Adaptation"])
+        new Book(1, "Foundation", "Isaac Asimov", "path-to-foundation-image", ["Science Fiction", "TV Adaptation"]),
+        new Book(2, "Romeo et Juliette", "Shakespeare", "path-to-romeo-image", ["Classic", "Drama"]),
+        new Book(3, "His Dark Materials", "Philipe Pullman", "path-to-his-dark-materials-image", ["Fantasy", "Adventure"]),
+        new Book(4, "Dune", "Frank Herbert", "https://m.media-amazon.com/images/I/81nq+ewtkcL._SL1500_.jpg", ["Fantasy", "Science Fiction"]),
+        new Book(5, "Romeo et Juliette", "Shakespeare","path-to-romeo-image", ["Classic", "Drama"]),
+        new Book(6, "His Dark Materials", "Philipe Pullman","path-to-his-dark-materials-image", ["Fantasy", "Adventure"]),
+        new Book(7, "Harry Potter and the Chamber of Secrets", "J.K. Rowling", "path-to-harry-potter-image", ["Fantasy", "Magic"]),
+        new Book(8, "Foundation", "Isaac Asimov", "path-to-foundation-image", ["Science Fiction", "TV Adaptation"])
       ],
       favList: [1, 3, 7],
     };
