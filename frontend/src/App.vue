@@ -1,51 +1,34 @@
 <template>
   <div id="app">
-    <NavBar @search="handleSearch"></NavBar>
-    <BookGrid :books="bookList" :searchQuery="searchQuery"></BookGrid>
+    <NavBar @open-login="openLogin"></NavBar>
+    <div v-if="isLoginModalVisible"  class="modal" @click.self="closeLogin">
+      <Login @close="closeLogin"></Login>
+    </div>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
 import NavBar from "@/components/NavBar.vue";
-import BookGrid from "@/components/BookGrid.vue";
-import Book from "@/models/book.js";
-
-
+import Login from "@/components/Login.vue";
 export default {
   name: 'App',
-  components: {BookGrid, NavBar},
-  methods: {
-    handleSearch(query) {
-      this.searchQuery = query;
-    }
-  },
+  components: { NavBar, Login },
   data() {
     return {
-      searchQuery: '',
-      bookList: [
-        new Book(1, "Foundation", "path-to-foundation-image", ["Science Fiction", "TV Adaptation"]),
-        new Book(2, "Romeo et Juliette", "path-to-romeo-image", ["Classic", "Drama"]),
-        new Book(3, "His Dark Materials", "path-to-his-dark-materials-image", ["Fantasy", "Adventure"]),
-        new Book(4, "Harry Potter and the Chamber of Secrets", "path-to-harry-potter-image", ["Fantasy", "Magic"]),
-        new Book(5, "Romeo et Juliette", "path-to-romeo-image", ["Classic", "Drama"]),
-        new Book(6, "His Dark Materials", "path-to-his-dark-materials-image", ["Fantasy", "Adventure"]),
-        new Book(7, "Harry Potter and the Chamber of Secrets", "path-to-harry-potter-image", ["Fantasy", "Magic"]),
-        new Book(8, "Foundation", "path-to-foundation-image", ["Science Fiction", "TV Adaptation"])
-      ],
-      favList: [1, 3, 7]
+      isLoginModalVisible: false // État pour la modal
     };
   },
-  beforeMount() {
-    this.bookList = this.bookList.map(book => {
-      return {
-        ...book,
-        isFav: Boolean(this.favList.includes(book.id))
-      };
-    });
+  methods: {
+    openLogin() {
+      this.isLoginModalVisible = true; // Ouvrir la modal
+    },
+    closeLogin() {
+      this.isLoginModalVisible = false; // Fermer la modal
+    }
   }
 };
 </script>
-
 <style scoped>
 /* Global styles */
 #app {
@@ -55,5 +38,19 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
-</style>
+.modal{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Couche semi-transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; /* Doit être au-dessus du reste du contenu */
+}
 
+/* Styles pour centrer la modale */
+
+</style>
