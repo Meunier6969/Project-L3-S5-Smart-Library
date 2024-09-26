@@ -62,10 +62,12 @@ const userStore = useUserStore();
               <label class="dropdown-item">
                 Catégorie 3 <input type="checkbox">
               </label>
+              <div v-if="userStore.isLoggedIn">
               <div class="dropdown-divider"></div>
               <label class="dropdown-item">
                 Favorites <input type="checkbox" v-model="favOnlyBinding">
               </label>
+              </div>
             </div>
           </div>
         </div>

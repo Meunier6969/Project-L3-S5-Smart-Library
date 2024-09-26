@@ -50,7 +50,7 @@
             </div>
 
             <!-- Save/Cancel buttons -->
-            <button class="btn btn-primary" @click="saveChanges">Sauvegarder</button>
+            <button class="btn btn-primary" @click="saveChanges" style="margin-right: 1rem;">Sauvegarder</button>
             <button class="btn btn-danger" @click="cancelChanges">Annuler</button>
           </div>
         </div>
