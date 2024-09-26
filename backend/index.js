@@ -1,6 +1,11 @@
 const express = require("express")
+const dotenv = require('dotenv');
+const jwt = require('jsonwebtoken');
+
 const app = express()
 const PORT = 1234
+
+dotenv.config()
 
 // TODO: Replace all this with the database
 let GLOBAL_USER_ID = 0
@@ -8,21 +13,45 @@ let GLOBAL_BOOK_ID = 0
 
 let data = {
 	// users: [],
-	users: [createUser(0, "José", "bing@chilling.com", "azerty")],
+	users: [createUser(0, "José", mail="bing@chilling.com", pwd="azerty")],
 	// books: [],
 	books: [createBook(0, "L'art de la guerre", "Sun Tzu", "If you know the enemy and know yourself, you need not fear the result of a hundred battles.")]
 }
 //==========================================
 
-let TOKEN = []
+let TOKENS = []
 
 // Middleware
 app.use(express.json())
 app.use((req, res, next) => {
 	console.log('%s %s %s', req.method, req.url, req.body)
 	next()
-	console.log('\t%s %s', res.statusCode)
+	console.log('\t%s', res.statusCode)
 
+})
+
+app.get("/api/test", (req, res) => {
+	// const { token } = req.body
+
+	let token = req.headers.authorization
+
+	let tttt = {
+		"normal": "no",
+		"admin": "no",
+	}
+
+	let tokenHeaderKey = process.env.TOKEN_HEADER_KEY;
+	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+
+	res.status(200).send({
+		"message": "co to ta iztota",
+		"ttt": token,
+		"sk": jwtSecretKey,
+		"hk": tokenHeaderKey,
+		"dadadadadda": tttt,
+		"auth": req.headers,
+		"eyoo": jwt.verify(token, jwtSecretKey)
+	})
 })
 
 // GET
@@ -88,8 +117,33 @@ app.post("/api/users/register", (req, res) => {
 app.post("/api/users/login", (req, res) => {
 	const { username, pwd } = req.body
 	
+	if (!username || !pwd) {
+		res.status(400).send({
+			"message": "Missing username and/or password field."
+		})
+		return
+	}
 
+	let user = getUserByName(username)
+	if (!user || user.pwd != pwd) {
+		res.status(401).send({
+			"message": "Incorrect login information"
+		})
+		return
+	}
 
+	let jwtSecretKey = process.env.JWT_SECRET_KEY
+	let data = {
+		time: Date(),
+		userId: user.id,
+	}
+
+	const token = jwt.sign(data, jwtSecretKey, {expiresIn: '1h'});
+
+	res.status(200).send({
+		"message": "Logged in 👍",
+		"token": token
+	})
 })
 
 app.post("/api/books", (req, res) => {
