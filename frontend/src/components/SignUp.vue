@@ -34,7 +34,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <!-- Footer options if needed -->
+          <button type="button" class="btn btn-link" data-dismiss="modal" @click="switchToLogin">Already have an account ? Log in</button>
         </div>
       </div>
     </div>
@@ -49,6 +49,10 @@ const email = ref('');
 const password = ref('');
 const name = ref('');
 const confirm_password = ref('');
+
+function switchToLogin() {
+  $("#modalLogin").modal('show')
+}
 </script>
 
 <style scoped>

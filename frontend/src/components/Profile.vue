@@ -1,53 +1,66 @@
 <template>
-  <div>
-    <!-- Bouton pour ouvrir la modale -->
-    <button @click="isModalVisible = true">Ouvrir le profil</button>
-
-    <!-- Modale blanche -->
-    <div
-        v-if="isModalVisible"
-        class="modal-overlay"
-        @click.self="isModalVisible = false"
-    >
+  <div
+      class="modal fade"
+      id="modalProfile"
+      tabindex="-1"
+      aria-labelledby="profileModalLabel"
+      aria-hidden="true"
+  >
+    <div class="modal-dialog">
       <div class="modal-content">
-        <h1>👤</h1>
-
-        <!-- Section affichage des infos utilisateur -->
-        <div v-if="!isEditing">
-          <p><strong>Email:</strong> {{ userInfo.email }}</p>
-          <p><strong>Nom d'utilisateur:</strong> {{ userInfo.username }}</p>
-          <p><strong>Mot de passe:</strong> ••••••••</p>
-          <button @click="toggleEdit">Modifier mes informations</button>
+        <div class="modal-header">
+          <h5 class="modal-title" id="profileModalLabel">👤 Profil</h5>
+          <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+          ></button>
         </div>
 
-        <!-- Section édition des infos utilisateur -->
-        <div v-if="isEditing">
-          <div>
-            <label for="email">Email:</label>
-            <input v-model="editInfo.email" type="email" id="email" />
+        <div class="modal-body">
+          <!-- Display user information section -->
+          <div v-if="!isEditing">
+            <p><strong>Email:</strong> {{ userInfo.email }}</p>
+            <p><strong>Nom d'utilisateur:</strong> {{ userInfo.username }}</p>
+            <p><strong>Mot de passe:</strong> ••••••••</p>
+            <button class="btn btn-secondary" @click="toggleEdit">Modifier mes informations</button>
           </div>
 
-          <div>
-            <label for="username">Nom d'utilisateur:</label>
-            <input v-model="editInfo.username" type="text" id="username" />
-          </div>
+          <!-- Edit user information section -->
+          <div v-if="isEditing">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email:</label>
+              <input v-model="editInfo.email" type="email" id="email" class="form-control" />
+            </div>
 
-          <div>
-            <label for="password">Mot de passe:</label>
-            <input
-                :type="showPassword ? 'text' : 'password'"
-                v-model="editInfo.password"
-                id="password"
-            />
-            <button type="button" @click="togglePasswordVisibility">
-              <span v-if="showPassword">👁️</span>
-              <span v-else>👁️‍🗨️</span>
-            </button>
-          </div>
+            <div class="mb-3">
+              <label for="username" class="form-label">Nom d'utilisateur:</label>
+              <input v-model="editInfo.username" type="text" id="username" class="form-control" />
+            </div>
 
-          <!-- Boutons pour sauvegarder ou annuler -->
-          <button @click="saveChanges">Sauvegarder</button>
-          <button @click="cancelChanges">Annuler</button>
+            <div class="mb-3">
+              <label for="password" class="form-label">Mot de passe:</label>
+              <input
+                  :type="showPassword ? 'text' : 'password'"
+                  v-model="editInfo.password"
+                  id="password"
+                  class="form-control"
+              />
+              <button type="button" class="btn btn-sm btn-light" @click="togglePasswordVisibility">
+                <span v-if="showPassword">👁️</span>
+                <span v-else>👁️‍🗨️</span>
+              </button>
+            </div>
+
+            <!-- Save/Cancel buttons -->
+            <button class="btn btn-primary" @click="saveChanges">Sauvegarder</button>
+            <button class="btn btn-secondary" @click="cancelChanges">Annuler</button>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
         </div>
       </div>
     </div>

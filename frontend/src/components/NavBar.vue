@@ -9,7 +9,7 @@ const userStore = useUserStore();
     <h1 class="text-white">Smart Library</h1>
     <div class="row align-items-center">
       <div>
-        <div class=" text-white text-center" v-if="userStore.isLoggedIn">
+        <div class=" text-white text-center" v-if="userStore.isLoggedIn" @click="openModalProfile">
           <i class="bi bi-person-circle icon"></i>
         </div>
         <div class="col text-white text-center p-3" @click="openModalLogin" v-else>
@@ -66,20 +66,23 @@ const userStore = useUserStore();
               <a class="dropdown-item" href="#">Favoris</a>
             </div>
           </div>
-
         </div>
       </div>
     </div>
   </nav>
-  <ModalLogin ref="modalLogin"></ModalLogin>
+  <ModalLogin></ModalLogin>
+  <ModalProfile></ModalProfile>
+  <
 </template>
 
 <script>
 import ModalLogin from '@/components/Login.vue';
+import ModalProfile from '@/components/Profile.vue';
 
 export default {
   components: {
-    ModalLogin
+    ModalLogin,
+    ModalProfile
   },
   data() {
     return {
@@ -92,6 +95,9 @@ export default {
     },
     openModalLogin() {
       $("#modalLogin").modal('show');
+    },
+    openModalProfile() {
+      $("#modalProfile").modal('show');
     }
 
   }

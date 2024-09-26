@@ -26,7 +26,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-link" data-dismiss="modal" @click="switchToSignUp">No account? Sign up</button>
+          <button type="button" class="btn btn-link" data-dismiss="modal" @click="switchToSignUp">No account ? Sign up</button>
         </div>
       </div>
     </div>
