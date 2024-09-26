@@ -7,16 +7,21 @@ const PORT = 1234
 
 dotenv.config()
 
+// MySQL 3306
 // TODO: Replace all this with the database
 let GLOBAL_USER_ID = 0
 let GLOBAL_BOOK_ID = 0
 
 let data = {
 	// users: [],
-	users: [createUser(0, "José", mail="bing@chilling.com", pwd="azerty")],
+	users: [
+		createUser(0, "José", mail="bing@chilling.com", pwd="azerty"),
+		createUser(1, "Micheal", mail="gabriel@atal.com", pwd="azerty"),
+	],
 	// books: [],
 	books: [createBook(0, "L'art de la guerre", "Sun Tzu", "If you know the enemy and know yourself, you need not fear the result of a hundred battles.")]
 }
+data.users[1].admin = true
 //==========================================
 
 // Middleware
@@ -29,21 +34,28 @@ app.use((req, res, next) => {
 })
 
 app.get("/api/test", (req, res) => {
-	// const { token } = req.body
-
 	let token = req.headers.authorization
-	
 	let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
+	console.log(token)
+	console.log(jwt.verify(token, jwtSecretKey))
+
 	res.status(200).send({
-		// "eyoo": jwt.verify(token, jwtSecretKey),
+		"admin": isTokenAdmin(token),
 		"validity": isTokenValid(token)
 	})
 })
 
 // GET
 app.get("/api/users/", (req, res) => {
-	res.status(200).send(data.users)
+
+	let publicUsers = []
+
+	data.users.forEach(user => {
+		publicUsers.push(getPublicInfoFromUser(user))
+	});
+
+	res.status(200).send(publicUsers)
 })
 
 app.get("/api/users/:id", (req, res) => {
@@ -57,7 +69,7 @@ app.get("/api/users/:id", (req, res) => {
 		return
 	}
 
-	res.status(200).send(user)
+	res.status(200).send(getPublicInfoFromUser(user))
 })
 
 app.get("/api/books/", (req, res) => {
@@ -125,7 +137,7 @@ app.post("/api/users/login", (req, res) => {
 		user_id: user.id,
 	}
 
-	const token = jwt.sign(data, jwtSecretKey, {expiresIn: '1s'});
+	const token = jwt.sign(data, jwtSecretKey, {expiresIn: '10m'});
 
 	res.status(200).send({
 		"message": "Logged in 👍",
@@ -333,6 +345,34 @@ app.listen(PORT, () => {
 })
 
 // Functions
+function isTokenValid(token) {
+	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+
+	try {
+		jwt.verify(token, jwtSecretKey)
+	} catch (error) {
+		return false
+	}
+
+	return true
+}
+
+function isTokenAdmin(token) {
+	if (!isTokenValid(token)) return false
+
+	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+
+	try {
+		var tk = jwt.verify(token, jwtSecretKey)
+	} catch (error) {
+		return false
+	}
+	let user = getUserByID(tk.user_id)
+
+	return Boolean(user.admin)
+}
+
+// Replaced by a database
 function createUser(id, name, mail, pwd) {
 	return {
 		"id": id,
@@ -353,28 +393,6 @@ function createBook(id, name, author, description) {
 	}
 }
 
-function isTokenValid(token) {
-	let jwtSecretKey = process.env.JWT_SECRET_KEY;
-
-	try {
-		jwt.verify(token, jwtSecretKey)
-	} catch (error) {
-		return false
-	}
-
-	return true
-}
-
-function isTokenAdmin(token) {
-	if (!isTokenValid) return false
-
-	let tk = jwt.verify(token, jwtSecretKey)
-	let user = getUserByID(tk.user_id)
-
-	return Boolean(user.admin)
-}
-
-// Replaced by a database
 function getUserByName(name) {
 	return data.users.find(obj => {
 		return obj.name === name
@@ -393,6 +411,17 @@ function getBookByID(id) {
 	return data.books.find(obj => {
 		return obj.id === sid
 	})
+}
+
+function getPublicInfoFromUser(user) {
+	const { id, name, mail } = user
+	let data = {
+		id: id,
+		name: name,
+		mail: mail
+	}
+
+	return data
 }
 
 function isBookInUsersFavorite(user_id, book_id) {
