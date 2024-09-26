@@ -1,5 +1,5 @@
 <template>
-  <div class="card text-bg-dark" @click="openBookModal()">
+  <div class="card bg-dark" @click="openBookModal()">
     <img
         :src="this.book.cover"
         :alt="this.book.title"
@@ -12,8 +12,8 @@
           aria-hidden="true"
       ></i>
     </div>
-    <div class="card-footer">
-      <h5 class="card-text">{{ this.book.title }}</h5>
+    <div class="card-footer" style="height: 5rem">
+      <h5 class="card-title text-white text-clamp">{{ this.book.title }}</h5>
     </div>
     <BookModal :book="book"></BookModal>
   </div>
@@ -62,5 +62,13 @@ export default {
   top: 10px;
   right: 10px;
   font-size: 24px;
+}
+
+.text-clamp {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  display: block;
+  max-height: 3rem;
 }
 </style>
