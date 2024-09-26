@@ -56,7 +56,7 @@ use flex
 
         </div>
         <div class="modal-footer">
-          <div v-if="userStore.isLoggedIn">
+          <div class="col" v-if="userStore.isLoggedIn">
             <button class="btn btn-primary" v-if="!this.book.isFav">Add to favorites</button>
             <button class="btn btn-danger" v-else>Remove from favorites</button>
           </div>

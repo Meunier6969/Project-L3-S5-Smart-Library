@@ -7,7 +7,8 @@ export const useUserStore = defineStore('userStore', {
     }),
     getters: {
         isLoggedIn(state) {
-            return (typeof state.user !== 'undefined');
+            //return (typeof state.user !== 'undefined');
+            return true;
         },
         getUser(state) {
             return state.user;
