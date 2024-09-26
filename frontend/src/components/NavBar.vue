@@ -54,7 +54,7 @@ const userStore = useUserStore();
 
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
               <label class="dropdown-item">
-                Catégorie 1 <input type="checkbox">
+                Catégorie 1 <input type="checkbox" v-model="filters.category1">
               </label>
               <label class="dropdown-item">
                 Catégorie 2 <input type="checkbox">
@@ -63,7 +63,9 @@ const userStore = useUserStore();
                 Catégorie 3 <input type="checkbox">
               </label>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Favoris</a>
+              <label class="dropdown-item">
+                Favorites <input type="checkbox" v-model="favOnlyBinding">
+              </label>
             </div>
           </div>
         </div>
@@ -78,6 +80,9 @@ const userStore = useUserStore();
 import ModalLogin from '@/components/Login.vue';
 import ModalProfile from '@/components/Profile.vue';
 
+import {useFilterStore} from "@/stores/filterStore.js";
+
+
 export default {
   components: {
     ModalLogin,
@@ -85,8 +90,25 @@ export default {
   },
   data() {
     return {
-      searchTerm: ''
+      searchTerm: '',
+      filters: {
+        category1: false,
+        category2: false,
+        category3: false,
+        fav: false,
+      },
+      favRef : undefined,
     };
+  },
+  computed: {
+    favOnlyBinding: {
+      get: function () {
+        return useFilterStore().favOnly;
+      },
+      set: function (value) {
+        useFilterStore().favOnly = value;
+      }
+    }
   },
   methods: {
     onSearch() {
@@ -98,8 +120,7 @@ export default {
     openModalProfile() {
       $("#modalProfile").modal('show');
     }
-
-  }
+  },
 
 };
 </script>
@@ -121,6 +142,10 @@ nav {
 
 .mrhalfrem {
   margin-right: .5rem;
+}
+
+input {
+  margin-left: auto;
 }
 </style>
 
