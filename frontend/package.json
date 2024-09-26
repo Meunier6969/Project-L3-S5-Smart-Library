@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "bootstrap-icons": "^1.11.3",
+    "pinia": "^2.2.2",
+    "pinia-plugin-persistedstate": "^4.0.2",
     "vue": "^3.4.29",
     "vue-router": "^4.4.5"
   },
