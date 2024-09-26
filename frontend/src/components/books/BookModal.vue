@@ -15,9 +15,6 @@ function switchToLogin() {
   $("#modalLogin").modal('show');
 }
 </script>
-jusstify end on the right
-justify start on the left
-use flex
 <template>
   <div class="modal fade" :id="'bookModal-' + book.id" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">

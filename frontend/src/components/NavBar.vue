@@ -25,9 +25,7 @@ const userStore = useUserStore();
               </div>
               <input
                   class="form-control w-90 "
-                  style="border:  1px solid #FFFFFF;
-                  box-shadow: none;
-                  "
+                  style="border:  1px solid #FFFFFF; box-shadow: none;"
                   type="search"
                   placeholder="Search"
                   aria-label="Search"
@@ -36,9 +34,8 @@ const userStore = useUserStore();
                   aria-describedby="search-addon"
               />
               <!-- Icône de croix -->
-              <div v-if="searchTerm" class="input-group-append" >
-
-                <i class="bi bi-x input-group-text " @click="clearSearch" style="background-color:#ffffff ; border: none"></i>
+              <div v-if="searchTerm" class="input-group-append" @click="clearSearch" style="cursor: pointer;">
+                <i class="bi bi-x input-group-text " style="background-color:#ffffff ; border: none"></i>
               </div>
             </div>
           </form>
@@ -129,6 +126,10 @@ export default {
   methods: {
     onSearch() {
       this.$emit('search', this.searchTerm);
+    },
+    clearSearch() {
+      this.searchTerm = '';
+      this.onSearch();
     },
     openModalLogin() {
       $("#modalLogin").modal('show');
