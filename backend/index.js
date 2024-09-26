@@ -19,8 +19,6 @@ let data = {
 }
 //==========================================
 
-let TOKENS = []
-
 // Middleware
 app.use(express.json())
 app.use((req, res, next) => {
@@ -34,23 +32,12 @@ app.get("/api/test", (req, res) => {
 	// const { token } = req.body
 
 	let token = req.headers.authorization
-
-	let tttt = {
-		"normal": "no",
-		"admin": "no",
-	}
-
-	let tokenHeaderKey = process.env.TOKEN_HEADER_KEY;
+	
 	let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 	res.status(200).send({
-		"message": "co to ta iztota",
-		"ttt": token,
-		"sk": jwtSecretKey,
-		"hk": tokenHeaderKey,
-		"dadadadadda": tttt,
-		"auth": req.headers,
-		"eyoo": jwt.verify(token, jwtSecretKey)
+		// "eyoo": jwt.verify(token, jwtSecretKey),
+		"validity": isTokenValid(token)
 	})
 })
 
@@ -116,7 +103,7 @@ app.post("/api/users/register", (req, res) => {
 
 app.post("/api/users/login", (req, res) => {
 	const { username, pwd } = req.body
-	
+
 	if (!username || !pwd) {
 		res.status(400).send({
 			"message": "Missing username and/or password field."
@@ -135,10 +122,10 @@ app.post("/api/users/login", (req, res) => {
 	let jwtSecretKey = process.env.JWT_SECRET_KEY
 	let data = {
 		time: Date(),
-		userId: user.id,
+		user_id: user.id,
 	}
 
-	const token = jwt.sign(data, jwtSecretKey, {expiresIn: '1h'});
+	const token = jwt.sign(data, jwtSecretKey, {expiresIn: '1s'});
 
 	res.status(200).send({
 		"message": "Logged in 👍",
@@ -366,6 +353,28 @@ function createBook(id, name, author, description) {
 	}
 }
 
+function isTokenValid(token) {
+	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+
+	try {
+		jwt.verify(token, jwtSecretKey)
+	} catch (error) {
+		return false
+	}
+
+	return true
+}
+
+function isTokenAdmin(token) {
+	if (!isTokenValid) return false
+
+	let tk = jwt.verify(token, jwtSecretKey)
+	let user = getUserByID(tk.user_id)
+
+	return Boolean(user.admin)
+}
+
+// Replaced by a database
 function getUserByName(name) {
 	return data.users.find(obj => {
 		return obj.name === name
@@ -386,7 +395,6 @@ function getBookByID(id) {
 	})
 }
 
-// Replaced by a database
 function isBookInUsersFavorite(user_id, book_id) {
 	// Assuming proper error handling beforehand by the caller
 	let user = getUserByID(user_id)
