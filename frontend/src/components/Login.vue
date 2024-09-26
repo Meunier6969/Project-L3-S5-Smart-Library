@@ -9,7 +9,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <form>
+          <form @submit="onSubmit">
             <div class="form-group mb-3">
               <label for="emailLogIn">Email</label>
               <input type="email" class="form-control" id="emailLogIn" v-model="emailLogIn">
@@ -38,6 +38,9 @@
 <script setup>
 import { ref, getCurrentInstance } from 'vue';
 import ModalSignUp from '@/components/SignUp.vue';
+import {useUserStore} from "@/stores/userStore.js";
+
+const userStore = useUserStore();
 
 const emailLogIn = ref('');
 const passwordLogIn = ref('');
@@ -45,6 +48,10 @@ const passwordLogIn = ref('');
 // Fonction pour passer de la modal de login à celle de signup
 function switchToSignUp() {
   $("#modalSignUp").modal('show')
+}
+
+function onSubmit() {
+  userStore.login();
 }
 </script>
 
