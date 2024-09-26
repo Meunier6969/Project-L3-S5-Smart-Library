@@ -9,10 +9,10 @@ const userStore = useUserStore();
     <h1 class="text-white">Smart Library</h1>
     <div class="row align-items-center">
       <div>
-        <div class=" text-white text-center" v-if="userStore.isLoggedIn" @click="openModalProfile">
+        <div class="text-white text-center" v-if="userStore.isLoggedIn" @click="openModalProfile">
           <i class="bi bi-person-circle icon"></i>
         </div>
-        <div class="col text-white text-center p-3" @click="openModalLogin" v-else>
+        <div class="text-white text-center" @click="openModalLogin" v-else>
           <i class="bi bi-box-arrow-in-right icon"></i>
         </div>
       </div>
@@ -72,7 +72,6 @@ const userStore = useUserStore();
   </nav>
   <ModalLogin></ModalLogin>
   <ModalProfile></ModalProfile>
-  <
 </template>
 
 <script>
