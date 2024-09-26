@@ -19,14 +19,28 @@ const userStore = useUserStore();
       <div class="col text-white text-center">
         <div class="flex-grow-1" style="margin-right: 2rem; margin-left: 4rem;">
           <form class="d-flex w-100">
-            <input
-                class="form-control w-100"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                v-model="searchTerm"
-                @input="onSearch"
-            />
+            <div class="input-group" >
+              <div class="input-group-prepend">
+                <i class="bi bi-search input-group-text" id="basic-addon1"></i>
+              </div>
+              <input
+                  class="form-control w-90 "
+                  style="border:  1px solid #FFFFFF;
+                  box-shadow: none;
+                  "
+                  type="search"
+                  placeholder="Search"
+                  aria-label="Search"
+                  v-model="searchTerm"
+                  @input="onSearch"
+                  aria-describedby="search-addon"
+              />
+              <!-- Icône de croix -->
+              <div v-if="searchTerm" class="input-group-append" >
+
+                <i class="bi bi-x input-group-text " @click="clearSearch" style="background-color:#ffffff ; border: none"></i>
+              </div>
+            </div>
           </form>
         </div>
       </div>

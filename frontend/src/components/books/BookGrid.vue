@@ -76,6 +76,7 @@ export default {
   width: 80%;
   padding-left: 0;
   padding-right: 0;
+  max-width: 80%;
 }
 
 .pl-0 {
