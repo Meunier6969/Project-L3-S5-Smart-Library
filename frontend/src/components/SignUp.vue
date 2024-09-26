@@ -1,10 +1,10 @@
 <template>
-  <div class="modal" id="modalSignUp" tabindex="-1" role="dialog">
+  <div class="modal fade" id="modalSignUp" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content ">
         <div class="modal-header">
           <h5 class="modal-title">Sign Up</h5>
-          <button type="button" class="close" aria-label="Close" @click="closeModalSignUp">
+          <button type="button" class="close" aria-label="Close" data-dismiss="modal">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -49,19 +49,6 @@ const email = ref('');
 const password = ref('');
 const name = ref('');
 const confirm_password = ref('');
-
-// Fonction pour ouvrir la modal d'inscription
-function open() {
-  $('#modalSignUp').modal('show');
-}
-
-// Fonction pour fermer la modal d'inscription
-function closeModalSignUp() {
-  $('#modalSignUp').modal('hide');
-}
-
-// Exposer les fonctions pour les utiliser à l'extérieur
-defineExpose({ open, closeModalSignUp });
 </script>
 
 <style scoped>

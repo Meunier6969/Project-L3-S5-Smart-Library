@@ -1,142 +1,19 @@
-<template>
-  <div>
-    <!-- Bouton pour ouvrir la modale -->
-    <button @click="isModalVisible = true">Ouvrir le profil</button>
-
-    <!-- Modale blanche -->
-    <div
-        v-if="isModalVisible"
-        class="modal-overlay"
-        @click.self="isModalVisible = false"
-    >
-      <div class="modal-content">
-        <h1>👤</h1>
-
-        <!-- Section affichage des infos utilisateur -->
-        <div v-if="!isEditing">
-          <p><strong>Email:</strong> {{ userInfo.email }}</p>
-          <p><strong>Nom d'utilisateur:</strong> {{ userInfo.username }}</p>
-          <p><strong>Mot de passe:</strong> ••••••••</p>
-          <button @click="toggleEdit">Modifier mes informations</button>
-        </div>
-
-        <!-- Section édition des infos utilisateur -->
-        <div v-if="isEditing">
-          <div>
-            <label for="email">Email:</label>
-            <input v-model="editInfo.email" type="email" id="email" />
-          </div>
-
-          <div>
-            <label for="username">Nom d'utilisateur:</label>
-            <input v-model="editInfo.username" type="text" id="username" />
-          </div>
-
-          <div>
-            <label for="password">Mot de passe:</label>
-            <input
-                :type="showPassword ? 'text' : 'password'"
-                v-model="editInfo.password"
-                id="password"
-            />
-            <button type="button" @click="togglePasswordVisibility">
-              <span v-if="showPassword">👁️</span>
-              <span v-else>👁️‍🗨️</span>
-            </button>
-          </div>
-
-          <!-- Boutons pour sauvegarder ou annuler -->
-          <button @click="saveChanges">Sauvegarder</button>
-          <button @click="cancelChanges">Annuler</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script>
+import Profile from "@/components/Profile.vue";
 export default {
-  data() {
-    return {
-      // Données utilisateur actuelles
-      userInfo: {
-        email: "exemple@email.com",
-        username: "Utilisateur123",
-        password: "password123",
-      },
-      // Variables pour stocker les modifications
-      editInfo: {
-        email: "",
-        username: "",
-        password: "",
-      },
-      isEditing: false, // Indique si l'utilisateur est en mode édition
-      showPassword: false, // Indique si le mot de passe est visible
-      isModalVisible: false, // Contrôle la visibilité de la modale
-    };
-  },
+  name: "App",
+  components: { Profile },
+
   methods: {
-    // Activer/Désactiver le mode édition
-    toggleEdit() {
-      if (!this.isEditing) {
-        this.editInfo = { ...this.userInfo }; // Copier les informations actuelles dans le formulaire d'édition
-      }
-      this.isEditing = !this.isEditing;
-    },
-    // Sauvegarder les modifications
-    saveChanges() {
-      this.userInfo = { ...this.editInfo }; // Appliquer les changements
-      this.isEditing = false; // Quitter le mode édition
-    },
-    // Annuler les modifications
-    cancelChanges() {
-      this.isEditing = false;
-    },
-    // Changer la visibilité du mot de passe
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
+    openLogin() {
+      this.isLoginModalVisible = true; // Ouvrir la modal
     },
   },
 };
 </script>
 
-<style scoped>
-/* Style pour la modale */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+<template>
+  <Profile></Profile>
+</template>
 
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  text-align: center;
-}
-
-button {
-  margin-top: 10px;
-  background-color: #5762ff;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-button:hover {
-  background-color: #92dce5;
-}
-
-div {
-  margin-bottom: 10px;
-}
-</style>
+<style scoped></style>

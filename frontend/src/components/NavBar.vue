@@ -12,7 +12,7 @@ const userStore = useUserStore();
         <div class=" text-white text-center" v-if="userStore.isLoggedIn">
           <i class="bi bi-person-circle icon"></i>
         </div>
-        <div class=" text-white text-center" @click="$emit('open-login')" v-else>
+        <div class="col text-white text-center p-3" @click="openModalLogin" v-else>
           <i class="bi bi-box-arrow-in-right icon"></i>
         </div>
       </div>
@@ -69,13 +69,18 @@ const userStore = useUserStore();
 
         </div>
       </div>
-
     </div>
   </nav>
+  <ModalLogin ref="modalLogin"></ModalLogin>
 </template>
 
 <script>
+import ModalLogin from '@/components/Login.vue';
+
 export default {
+  components: {
+    ModalLogin
+  },
   data() {
     return {
       searchTerm: ''
@@ -84,10 +89,16 @@ export default {
   methods: {
     onSearch() {
       this.$emit('search', this.searchTerm);
+    },
+    openModalLogin() {
+      $("#modalLogin").modal('show');
     }
+
   }
+
 };
 </script>
+
 
 <style scoped>
 nav {

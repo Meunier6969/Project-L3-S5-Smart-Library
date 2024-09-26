@@ -56,6 +56,8 @@ export default {
 <style scoped>
 .grid-container {
   width: 80%;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .pl-0 {

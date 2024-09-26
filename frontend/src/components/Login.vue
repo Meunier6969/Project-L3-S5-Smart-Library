@@ -1,10 +1,10 @@
 <template>
-  <div class="modal" id="modalLogin" tabindex="-1" role="dialog">
+  <div class="modal fade" id="modalLogin" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Log In</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModalLogin">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -26,7 +26,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-link" @click="switchToSignUp">No account? Sign up</button>
+          <button type="button" class="btn btn-link" data-dismiss="modal" @click="switchToSignUp">No account? Sign up</button>
         </div>
       </div>
     </div>
@@ -42,26 +42,10 @@ import ModalSignUp from '@/components/SignUp.vue';
 const emailLogIn = ref('');
 const passwordLogIn = ref('');
 
-// Fonction pour ouvrir la modal de connexion
-function open() {
-  $('#modalLogin').modal('show'); // Utilisation de jQuery pour afficher la modal
-}
-
-// Fonction pour fermer la modal de connexion
-function closeModalLogin() {
-  $('#modalLogin').modal('hide');
-}
-
-// Accéder aux références via getCurrentInstance
-const { proxy } = getCurrentInstance();
-
 // Fonction pour passer de la modal de login à celle de signup
 function switchToSignUp() {
-  closeModalLogin(); // Fermer la modal de login
-  proxy.$refs.modalSignUp.open(); // Ouvrir la modal de signup via $refs
+  $("#modalSignUp").modal('show')
 }
-
-defineExpose({ open });
 </script>
 
 <style scoped>
