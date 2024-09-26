@@ -5,7 +5,7 @@ const userStore = useUserStore();
 
 <template>
   <div class="container grid-container">
-    <div class="row">
+    <div class="row" v-if="filteredBooks.length > 0">
       <div
           v-for="(book, index) in filteredBooks"
           :key="book.id"
@@ -17,6 +17,9 @@ const userStore = useUserStore();
       >
         <BookCard :book="book" :isLoggedIn="userStore.isLoggedIn"></BookCard>
       </div>
+    </div>
+    <div class="text-center text-white" v-else>
+      <h5>Sorry, no results were found.<br>Try out a different search or change your filters.</h5>
     </div>
   </div>
 </template>

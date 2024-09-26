@@ -10,12 +10,9 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="profileModalLabel">👤 Profile</h5>
-          <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-          ></button>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
 
         <div class="modal-body">
@@ -60,7 +57,7 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="signOut">Sign out</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <!--<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>-->
         </div>
       </div>
     </div>
@@ -121,27 +118,6 @@ export default {
 </script>
 
 <style scoped>
-/* Style pour la modale */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  text-align: center;
-}
-
 div {
   margin-bottom: 10px;
 }
