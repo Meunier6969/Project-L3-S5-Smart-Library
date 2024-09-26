@@ -9,7 +9,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="profileModalLabel">👤 Profil</h5>
+          <h5 class="modal-title" id="profileModalLabel">👤 Profile</h5>
           <button
               type="button"
               class="btn-close"
@@ -19,12 +19,11 @@
         </div>
 
         <div class="modal-body">
-          <!-- Display user information section -->
           <div v-if="!isEditing">
             <p><strong>Email:</strong> {{ userInfo.email }}</p>
-            <p><strong>Nom d'utilisateur:</strong> {{ userInfo.username }}</p>
-            <p><strong>Mot de passe:</strong> ••••••••</p>
-            <button class="btn btn-secondary" @click="toggleEdit">Modifier mes informations</button>
+            <p><strong>Username:</strong> {{ userInfo.username }}</p>
+            <p><strong>Password:</strong> ••••••••</p>
+            <button class="btn btn-primary" @click="toggleEdit">Edit my info</button>
           </div>
 
           <!-- Edit user information section -->
@@ -35,12 +34,12 @@
             </div>
 
             <div class="mb-3">
-              <label for="username" class="form-label">Nom d'utilisateur:</label>
+              <label for="username" class="form-label">Username:</label>
               <input v-model="editInfo.username" type="text" id="username" class="form-control" />
             </div>
 
             <div class="mb-3">
-              <label for="password" class="form-label">Mot de passe:</label>
+              <label for="password" class="form-label">Password:</label>
               <input
                   :type="showPassword ? 'text' : 'password'"
                   v-model="editInfo.password"
@@ -55,12 +54,13 @@
 
             <!-- Save/Cancel buttons -->
             <button class="btn btn-primary" @click="saveChanges">Sauvegarder</button>
-            <button class="btn btn-secondary" @click="cancelChanges">Annuler</button>
+            <button class="btn btn-danger" @click="cancelChanges">Annuler</button>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="signOut">Sign out</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import {useUserStore} from "@/stores/userStore.js";
+
 export default {
   data() {
     return {
@@ -83,6 +85,7 @@ export default {
         username: "",
         password: "",
       },
+      userStore: useUserStore(),
       isEditing: false, // Indique si l'utilisateur est en mode édition
       showPassword: false, // Indique si le mot de passe est visible
       isModalVisible: false, // Contrôle la visibilité de la modale
@@ -109,6 +112,10 @@ export default {
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
+    signOut() {
+      this.userStore.signOut();
+      window.location.reload();
+    }
   },
 };
 </script>
@@ -133,20 +140,6 @@ export default {
   border-radius: 8px;
   width: 400px;
   text-align: center;
-}
-
-button {
-  margin-top: 10px;
-  background-color: #5762ff;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-button:hover {
-  background-color: #92dce5;
 }
 
 div {

@@ -3,7 +3,7 @@ import User from '../models/user'
 
 export const useUserStore = defineStore('userStore', {
     state: () => ({
-        user: new User(-1),
+        user: undefined,
     }),
     getters: {
         isLoggedIn(state) {
@@ -15,11 +15,12 @@ export const useUserStore = defineStore('userStore', {
     },
     actions : {
         login() {
-          //TODO: implement real login
-          this.user = new User(0);
+            //TODO: implement real login
+            this.user = new User(0);
         },
         signOut() {
             this.user = undefined;
         }
-    }
+    },
+    persist: true,
 })
