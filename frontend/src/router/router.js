@@ -8,6 +8,7 @@ const routes = [
 
   {path: '/', redirect:'/home'},
   {path: '/home', name: "Home",component: Home},
+  {path:'/admin', name:"Admin",component:Admin}
 ];
 
 // Création du routeur
