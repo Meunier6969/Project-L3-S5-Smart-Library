@@ -5,12 +5,14 @@
         :alt="this.book.title"
         class="card-img-top"
     />
-    <div class="favorite-icon" v-if="isLoggedIn">
+    <div class="bgIcon  custom-rounded" style="height: 35px; width: 45px; background-color: hsla(0,0%,55%,0.51)"  v-if="isLoggedIn">
+    <div class="favorite-icon">
       <i
           :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
-          :style="{ color: book.isFav ? 'red' : 'grey' }"
+          :style="{ color: book.isFav ? 'red' : 'black' }"
           aria-hidden="true"
       ></i>
+    </div>
     </div>
     <div class="card-footer" style="height: 5rem">
       <h5 class="card-title text-white text-clamp">{{ this.book.title }}</h5>
@@ -59,7 +61,7 @@ export default {
 }
 .favorite-icon {
   position: absolute;
-  top: 10px;
+  top: 0;
   right: 10px;
   font-size: 24px;
 }
@@ -70,5 +72,15 @@ export default {
 
   display: block;
   max-height: 3rem;
+}
+
+.bgIcon{
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.custom-rounded {
+  border-radius: 5px 1px 0 5px;
 }
 </style>
