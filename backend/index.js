@@ -1,6 +1,7 @@
 const express = require("express")
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
+const mysql = require('mysql');
 
 const app = express()
 const PORT = 1234
@@ -30,20 +31,40 @@ app.use((req, res, next) => {
 	console.log('%s %s %s', req.method, req.url, req.body)
 	next()
 	console.log('\t%s', res.statusCode)
-
+	
 })
 
+// Running the api
+app.listen(PORT, () => {
+	console.log(`Listening on localhost:${PORT}`)
+})
+
+// Connect to MySQL database
+var con = mysql.createConnection({
+	host: process.env.DB_HOST,
+	user: process.env.DB_USERNAME,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_DBNAME
+});
+
+con.connect((err) => {
+	if (err) throw err;
+	console.log("Connected!");
+});
+
+//==========================================
+
 app.get("/api/test", (req, res) => {
-	let token = req.headers.authorization
-	let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
-	console.log(token)
-	console.log(jwt.verify(token, jwtSecretKey))
+	let qqq;
 
-	res.status(200).send({
-		"admin": isTokenAdmin(token),
-		"validity": isTokenValid(token)
-	})
+	con.query("SELECT * FROM Users", (err, result) => {
+		if (err) throw err;
+	
+		console.log(result)
+		res.status(200).send(result)
+	});
+	
 })
 
 // GET
@@ -337,11 +358,6 @@ app.delete("/api/books/:id/favorite", (req, res) => {
 	})
 
 
-})
-
-// Running the api
-app.listen(PORT, () => {
-	console.log(`Listening on localhost:${PORT}`)
 })
 
 // Functions
