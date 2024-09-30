@@ -15,15 +15,18 @@ function switchToLogin() {
   $("#modalLogin").modal('show');
 }
 </script>
-jusstify end on the right
-justify start on the left
-use flex
 <template>
   <div class="modal fade" :id="'bookModal-' + book.id" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
-        <div class="modal-header text-center">
-          <h4 class="modal-title w-100">{{ userStore.isLoggedIn && book.isFav ? this.book.title + ' ♥' : this.book.title }}</h4>
+        <div class="modal-header text-center align-items-center">
+          <i v-if="userStore.isLoggedIn && book.isFav"
+             class="bi-heart-fill"
+             style="margin-right: auto; color: red"
+             aria-hidden="true"
+          ></i>
+          <h4 class="modal-title w-100">{{ this.book.title }}</h4>
+
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>

@@ -1,25 +1,21 @@
 <template>
-  <div class="card text-bg-dark" @click="openBookModal()">
-    <div class="bgIcon  custom-rounded" style="height: 35px; width: 45px; background-color: hsla(0,0%,55%,0.51)"></div>
-  <!--hsla(0,0%,55%,0.31)-->
+  <div class="card bg-dark" @click="openBookModal()">
     <img
         :src="this.book.cover"
         :alt="this.book.title"
         class="card-img-top"
     />
-    <div class="favorite-icon" v-if="isLoggedIn">
-      <!-- Background for the icon -->
-
+    <div class="bgIcon  custom-rounded" style="height: 35px; width: 45px; background-color: hsla(0,0%,55%,0.51)"  v-if="isLoggedIn">
+    <div class="favorite-icon">
       <i
           :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
           :style="{ color: book.isFav ? 'red' : 'black' }"
           aria-hidden="true"
       ></i>
-
     </div>
-
-    <div class="card-footer ">
-      <h5 class="card-text">{{ this.book.title }}</h5>
+    </div>
+    <div class="card-footer" style="height: 5rem">
+      <h5 class="card-title text-white text-clamp">{{ this.book.title }}</h5>
     </div>
     <BookModal :book="book"></BookModal>
   </div>
@@ -69,6 +65,15 @@ export default {
   right: 10px;
   font-size: 24px;
 }
+
+.text-clamp {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  display: block;
+  max-height: 3rem;
+}
+
 .bgIcon{
   position: absolute;
   top: 0;

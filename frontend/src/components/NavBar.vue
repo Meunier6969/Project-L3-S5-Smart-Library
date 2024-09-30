@@ -19,14 +19,25 @@ const userStore = useUserStore();
       <div class="col text-white text-center">
         <div class="flex-grow-1" style="margin-right: 2rem; margin-left: 4rem;">
           <form class="d-flex w-100">
-            <input
-                class="form-control w-100"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                v-model="searchTerm"
-                @input="onSearch"
-            />
+            <div class="input-group" >
+              <div class="input-group-prepend">
+                <i class="bi bi-search input-group-text" id="basic-addon1"></i>
+              </div>
+              <input
+                  class="form-control w-90 "
+                  style="border:  1px solid #FFFFFF; box-shadow: none;"
+                  type="search"
+                  placeholder="Search"
+                  aria-label="Search"
+                  v-model="searchTerm"
+                  @input="onSearch"
+                  aria-describedby="search-addon"
+              />
+              <!-- Icône de croix -->
+              <div v-if="searchTerm" class="input-group-append" @click="clearSearch" style="cursor: pointer;">
+                <i class="bi bi-x input-group-text " style="background-color:#ffffff ; border: none"></i>
+              </div>
+            </div>
           </form>
         </div>
       </div>
@@ -54,16 +65,26 @@ const userStore = useUserStore();
 
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
               <label class="dropdown-item">
-                Catégorie 1 <input type="checkbox">
+                Science Fiction <input type="checkbox" v-model="filters.sf">
               </label>
               <label class="dropdown-item">
-                Catégorie 2 <input type="checkbox">
+                Mystery & Thriller <input type="checkbox" v-model="filters.mystery">
               </label>
               <label class="dropdown-item">
-                Catégorie 3 <input type="checkbox">
+                Historical <input type="checkbox" v-model="filters.history">
               </label>
+              <label class="dropdown-item">
+                Educational <input type="checkbox" v-model="filters.education">
+              </label>
+              <label class="dropdown-item">
+                For Children <input type="checkbox" v-model="filters.children">
+              </label>
+              <div v-if="userStore.isLoggedIn">
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Favoris</a>
+              <label class="dropdown-item">
+                Favorites <input type="checkbox" v-model="favOnlyBinding">
+              </label>
+              </div>
             </div>
           </div>
         </div>
@@ -78,6 +99,9 @@ const userStore = useUserStore();
 import ModalLogin from '@/components/Login.vue';
 import ModalProfile from '@/components/Profile.vue';
 
+import {useFilterStore} from "@/stores/filterStore.js";
+
+
 export default {
   components: {
     ModalLogin,
@@ -85,12 +109,35 @@ export default {
   },
   data() {
     return {
-      searchTerm: ''
+      searchTerm: '',
+      filters: {
+        sf: false,
+        mystery: false,
+        history: false,
+        education: false,
+        children: false,
+        fav: false,
+      },
+      favRef : undefined,
     };
+  },
+  computed: {
+    favOnlyBinding: {
+      get: function () {
+        return useFilterStore().favOnly;
+      },
+      set: function (value) {
+        useFilterStore().favOnly = value;
+      }
+    }
   },
   methods: {
     onSearch() {
       this.$emit('search', this.searchTerm);
+    },
+    clearSearch() {
+      this.searchTerm = '';
+      this.onSearch();
     },
     openModalLogin() {
       $("#modalLogin").modal('show');
@@ -98,8 +145,7 @@ export default {
     openModalProfile() {
       $("#modalProfile").modal('show');
     }
-
-  }
+  },
 
 };
 </script>
@@ -121,6 +167,10 @@ nav {
 
 .mrhalfrem {
   margin-right: .5rem;
+}
+
+input {
+  margin-left: auto;
 }
 </style>
 

@@ -26,6 +26,7 @@ const userStore = useUserStore();
 
 <script>
 import BookCard from "@/components/books/BookCard.vue";
+import {useFilterStore} from "@/stores/filterStore.js";
 
 export default {
   components: {BookCard},
@@ -37,15 +38,29 @@ export default {
     searchQuery: {
       type: String,
       default: ''
-    }
+    },
+  },
+  data() {
+    return {
+      filterStore: useFilterStore(),
+    };
   },
   computed: {
     filteredBooks() {
-      if (!this.searchQuery) {
-        return this.books;
+      let filteredBooks = this.books;
+
+      if (this.filterStore.favOnly) {
+        filteredBooks = this.books.filter(book => {
+          return book.isFav;
+        });
       }
+
       const query = this.searchQuery.toLowerCase();
-      return this.books.filter(book =>
+      if (!query) {
+        return filteredBooks; // No search query, just return the favorite-filtered books
+      }
+
+      return filteredBooks.filter(book =>
           book.title.toLowerCase().includes(query) ||
           book.categories.some(category =>
               category.toLowerCase().includes(query)
@@ -61,6 +76,7 @@ export default {
   width: 80%;
   padding-left: 0;
   padding-right: 0;
+  max-width: 80%;
 }
 
 .pl-0 {
