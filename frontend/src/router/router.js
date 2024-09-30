@@ -2,7 +2,7 @@
 
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from "@/views/Home.vue";
-
+import Admin from "@/views/Admin.vue";
 // Configuration des routes
 const routes = [
 
