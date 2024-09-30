@@ -65,13 +65,19 @@ const userStore = useUserStore();
 
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
               <label class="dropdown-item">
-                Catégorie 1 <input type="checkbox" v-model="filters.category1">
+                Science Fiction <input type="checkbox" v-model="filters.sf">
               </label>
               <label class="dropdown-item">
-                Catégorie 2 <input type="checkbox">
+                Mystery & Thriller <input type="checkbox" v-model="filters.mystery">
               </label>
               <label class="dropdown-item">
-                Catégorie 3 <input type="checkbox">
+                Historical <input type="checkbox" v-model="filters.history">
+              </label>
+              <label class="dropdown-item">
+                Educational <input type="checkbox" v-model="filters.education">
+              </label>
+              <label class="dropdown-item">
+                For Children <input type="checkbox" v-model="filters.children">
               </label>
               <div v-if="userStore.isLoggedIn">
               <div class="dropdown-divider"></div>
@@ -105,9 +111,11 @@ export default {
     return {
       searchTerm: '',
       filters: {
-        category1: false,
-        category2: false,
-        category3: false,
+        sf: false,
+        mystery: false,
+        history: false,
+        education: false,
+        children: false,
         fav: false,
       },
       favRef : undefined,
