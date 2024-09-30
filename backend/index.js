@@ -55,15 +55,12 @@ con.connect((err) => {
 //==========================================
 
 app.get("/api/test", (req, res) => {
+	const tok = req.headers.authorization
 
-	let qqq;
-
-	con.query("SELECT * FROM Users", (err, result) => {
-		if (err) throw err;
-	
-		console.log(result)
-		res.status(200).send(result)
-	});
+	res.status(200).send({
+		"tok": tok,
+		"auth": isTokenAdmin(tok)
+	})
 	
 })
 
@@ -169,6 +166,14 @@ app.post("/api/users/login", (req, res) => {
 app.post("/api/books", (req, res) => {
 	// TODO: Auth admin
 	const { name, author, description } = req.body
+	const token = req.headers.authorization
+
+	if (isTokenAdmin(token)) {
+		res.status(405).send({
+			"message": "You must be an administator to create a book.",
+		})
+		return
+	}
 
 	if (!name || !author || !description) {
 		res.status(400).send({
@@ -243,12 +248,10 @@ app.post("/api/books/:id/favorite", (req, res) => {
 
 // DELETE
 app.delete("/api/users/:id", (req, res) => {
-	// TODO: Auth admin user
-	let authorized = true
-
-	if (authorized === false) {
-		res.status(405).send({
-			"message": "You must be an admin or the user to delete this user"
+	// TODO: Let the user kms
+	if (isTokenAdmin(token)) {
+		res.status(403).send({
+			"message": "You must be an administator to delete this user.",
 		})
 		return
 	}
@@ -275,12 +278,9 @@ app.delete("/api/users/:id", (req, res) => {
 })
 
 app.delete("/api/books/:id", (req, res) => {
-	// TODO: Auth admin
-	let authorized = true
-
-	if (authorized === false) {
-		res.status(405).send({
-			"message": "You must be an admin to delete this book"
+	if (isTokenAdmin(token)) {
+		res.status(403).send({
+			"message": "You must be an administator to delete this book.",
 		})
 		return
 	}
