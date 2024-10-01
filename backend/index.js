@@ -1,32 +1,26 @@
-const express = require("express")
-const dotenv = require('dotenv');
-const jwt = require('jsonwebtoken');
-const mysql = require('mysql');
+//==========================================
+import express, { json } from "express";
+import { config } from 'dotenv';
+import mysql from 'mysql2/promise';
+
+import * as jwt from 'jsonwebtoken';
+
+import pkg from 'cors'; // Fixing some potential network errors
+const cors = pkg;
+
+import { getAllUsers, getUserById } from "./routes/users.js"
+import { getAllBooks, getBookById } from "./routes/books.js"
 
 const app = express()
 const PORT = 1234
 
-dotenv.config()
+config() // Setup env variables
 
-// MySQL 3306
-// TODO: Replace all this with the database
-let GLOBAL_USER_ID = 0
-let GLOBAL_BOOK_ID = 0
-
-let data = {
-	// users: [],
-	users: [
-		// createUser(0, "José", mail = "bing@chilling.com", pwd = "azerty"),
-		// createUser(1, "Micheal", mail = "gabriel@atal.com", pwd = "azerty"),
-	],
-	// books: [],
-	books: [createBook(0, "L'art de la guerre", "Sun Tzu", "If you know the enemy and know yourself, you need not fear the result of a hundred battles.")]
-}
-// data.users[1].admin = true
 //==========================================
 
 // Middleware
-app.use(express.json())
+app.use(cors())
+app.use(json())
 app.use((req, res, next) => {
 	console.log('%s %s %s', req.method, req.url, req.body)
 	next()
@@ -38,74 +32,57 @@ app.listen(PORT, () => {
 })
 
 // Connect to MySQL database
-const con = mysql.createConnection({
+const con = await mysql.createConnection({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USERNAME,
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_DBNAME
 })
 
-con.connect((err) => {
-	if (err) throw err;
-	console.log("Connected!");
-});
-
 //==========================================
 
 app.get("/api/test", (req, res) => {
+	getUserByID(5)
 	res.status(418).send({"message": "hi :D"})
 })
 
 // GET
-app.get("/api/users/", (req, res) => {
-	con.query('SELECT user_id, pseudo, email, role FROM Users', (error, result, field) => {
-		if (error) {
-			sendError(res, 500, error)
-			return
-		}
-
-		res.status(200).send(result)
-	})
+app.get("/api/users/", async (req, res) => {
+	let result = await getAllUsers()
+	res.status(200).send(result)
 })
 
-app.get("/api/users/:id", (req, res) => {
+app.get("/api/users/:id", async (req, res) => {
 	const { id } = req.params
 
-	con.query('SELECT user_id, pseudo, email, role FROM Users WHERE user_id = ?', [id], (error, result, field) => {
-		if (error) {
-			sendError(res, 500, error)
-			return
-		}
+	let result = await getUserById(id)
+	if (!result) {
+		sendError(res, 404, "User not found")
+		return
+	}
 
-		res.status(200).send(result[0])
-	})
+	res.status(200).send(result)
 })
 
-app.get("/api/books/", (req, res) => {
-	con.query('SELECT * FROM Book', (error, result, field) => {
-		if (error) {
-			sendError(res, 500, error)
-			return
-		}
-
-		res.status(200).send(result)
-	})
+app.get("/api/books/", async (req, res) => {
+	let result = await getAllBooks()
+	res.status(200).send(result)
 })
 
-app.get("/api/books/:id", (req, res) => {
+app.get("/api/books/:id", async (req, res) => {
 	const { id } = req.params
 
-	con.query('SELECT * FROM Book WHERE book_id = ?', [id], (error, result, field) => {
-		if (error) {
-			sendError(res, 500, error)
-			return
-		}
+	let result = await getBookById(id)
+	if (!result) {
+		sendError(res, 404, "Book not found")
+		return
+	}
 
-		res.status(200).send(result)
-	})
+	res.status(200).send(result)
 })
 
 // POST
+// TODO
 app.post("/api/users/register", (req, res) => {
 	const { pseudo, email, pwd } = req.body
 
@@ -133,15 +110,17 @@ app.post("/api/users/register", (req, res) => {
 
 })
 
+// TODO
 app.post("/api/users/login", (req, res) => {
-	const { username, pwd } = req.body
+	const { pseudo, pwd } = req.body
 
-	if (!username || !pwd) {
+	if (!pseudo || !pwd) {
 		sendError(res, 400, "Missing name and/or password field.")
 		return
 	}
 
-	let user = getUserByName(username)
+	let user = getUserByPseudo(pseudo)
+	console.log("from outside:"+user)
 	if (!user || user.pwd != pwd) {
 		sendError(res, 401, "Incorrect login information")
 		return
@@ -360,6 +339,14 @@ function sendError(res, statuscode, error) {
 	})
 }
 
+function getUserByPseudo(pseudo) {
+	con.query("SELECT * FROM Users WHERE pseudo=?", [pseudo], (error, result, field) => {
+		if (error) throw err;
+		console.log("from inside:"+result)
+		return result
+	})
+}
+
 // Replaced by a database
 function createBook(id, name, author, description) {
 	return {
@@ -368,26 +355,6 @@ function createBook(id, name, author, description) {
 		"author": author,
 		"description": description
 	}
-}
-
-function getUserByName(name) {
-	return data.users.find(obj => {
-		return obj.name === name
-	})
-}
-
-function getUserByID(id) {
-	sid = id * 1 // Convert id to a number
-	return data.users.find(obj => {
-		return obj.id === sid
-	})
-}
-
-function getBookByID(id) {
-	sid = id * 1 // Convert id to a number
-	return data.books.find(obj => {
-		return obj.id === sid
-	})
 }
 
 function isBookInUsersFavorite(user_id, book_id) {
