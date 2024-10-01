@@ -42,14 +42,31 @@ export async function addNewUser(pseudo, email, pwd) {
 	return result.insertId
 }
 
+export async function deleteUser(user_id) {
+	let data = {
+		"error": "",
+	}
+
+	const sql = "DELETE FROM Users WHERE user_id=?"
+	const values = [user_id]
+
+	const [result, fields] = await pool.execute(sql, values);
+
+	if (result.affectedRows == 0) data.error = "User does not exist."
+
+	return data
+}
 
 export async function getPassword(pseudo) {
-	const sql = 'SELECT pwd FROM Users WHERE pseudo=?'
+	const sql = 'SELECT user_id, pwd FROM Users WHERE pseudo=?'
 	const [user] = await pool.query(sql, [pseudo]);
 	
 	if (!user[0]) return ""
 
-	return user[0].pwd
+	return {
+		"user_id": user[0].user_id,
+		"pwd": user[0].pwd
+	}
 }
 
 

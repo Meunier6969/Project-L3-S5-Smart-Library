@@ -8,7 +8,7 @@ const { sign, verify } = jwtpkg;
 import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
-import { getAllUsers, getUserById, addNewUser, getPassword } from "./routes/users.js"
+import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
 import { addNewBook, getAllBooks, getBookById } from "./routes/books.js"
 
 const app = express()
@@ -34,8 +34,9 @@ app.listen(PORT, () => {
 //==========================================
 
 app.get("/api/test", async (req, res) => {
-	await addNewBook("a", "b", "c", "eza", "")
-	res.status(418).send({"message": "hi :D"})
+	let {error} = await deleteUser(21)
+	console.log(error)
+	res.status(418).send(error)
 })
 
 // GET
@@ -102,7 +103,7 @@ app.post("/api/users/login", async (req, res) => {
 		return
 	}
 	
-	let newpwd = await getPassword(pseudo)
+	let { newpwd, user_id } = await getPassword(pseudo)
 	if (newpwd !== pwd) {
 		sendError(res, 400, "Wrong login information.")
 		return
@@ -111,7 +112,7 @@ app.post("/api/users/login", async (req, res) => {
 	let jwtSecretKey = process.env.JWT_SECRET_KEY
 	let data = {
 		time: Date(),
-		user_pseudo: pseudo,
+		user_pseudo: user_id,
 	}
 
 	const token = sign(data, jwtSecretKey, {expiresIn: '10m'});
@@ -123,7 +124,6 @@ app.post("/api/users/login", async (req, res) => {
 })
 
 app.post("/api/books", async (req, res) => {
-	// TODO: Auth admin
 	const { title, author, description, year } = req.body
 	const token = req.headers.authorization
 
@@ -195,25 +195,20 @@ app.post("/api/books/:id/favorite", (req, res) => {
 })
 
 // DELETE
-app.delete("/api/users/:id", (req, res) => {
+app.delete("/api/users/:id", async (req, res) => {
+	const { id } = req.params
+	const token = req.headers.authorization
+
 	// TODO: Let the user kms
 	if (isTokenAdmin(token)) {
 		sendError(res, 403, "You must be an administator to delete this user.")
 		return
 	}
 
-	let user = data.users.find(obj => {
-		return obj.id === sid
-	})
-
-	if (!user) {
-		sendError(res, 404, "User not found")
+	let { error } = await deleteUser(id);
+	if (error) {
+		sendError(res, 400, error)
 		return
-	}
-
-	let index = data.users.indexOf(user);
-	if (index > -1) {
-		data.users.splice(index, 1);
 	}
 
 	res.status(200).send({
