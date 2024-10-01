@@ -206,14 +206,14 @@
 	    // Create a new book
 	    document.getElementById('createBookForm').addEventListener('submit', function (e) {
 	        e.preventDefault();
-	        const name = document.getElementById('bookName').value;
+	        const title = document.getElementById('bookName').value;
 	        const author = document.getElementById('bookAuthor').value;
 	        const description = document.getElementById('bookDescription').value;
 
 	        fetch(`${API_URL}/books`, {
 	            method: 'POST',
 	            headers: { 'Content-Type': 'application/json' },
-	            body: JSON.stringify({ name, author, description })
+	            body: JSON.stringify({ title, author, description })
 	        })
 	            .then(response => response.json())
 	            .then(data => {

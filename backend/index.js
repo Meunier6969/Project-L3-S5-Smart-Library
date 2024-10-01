@@ -9,7 +9,7 @@ import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
 import { getAllUsers, getUserById, addNewUser, getPassword } from "./routes/users.js"
-import { getAllBooks, getBookById } from "./routes/books.js"
+import { addNewBook, getAllBooks, getBookById } from "./routes/books.js"
 
 const app = express()
 const PORT = 1234
@@ -33,8 +33,8 @@ app.listen(PORT, () => {
 
 //==========================================
 
-app.get("/api/test", (req, res) => {
-	getUserByID(5)
+app.get("/api/test", async (req, res) => {
+	await addNewBook("a", "b", "c", "eza", "")
 	res.status(418).send({"message": "hi :D"})
 })
 
@@ -122,9 +122,9 @@ app.post("/api/users/login", async (req, res) => {
 	})
 })
 
-app.post("/api/books", (req, res) => {
+app.post("/api/books", async (req, res) => {
 	// TODO: Auth admin
-	const { name, author, description } = req.body
+	const { title, author, description, year } = req.body
 	const token = req.headers.authorization
 
 	if (isTokenAdmin(token)) {
@@ -132,16 +132,19 @@ app.post("/api/books", (req, res) => {
 		return
 	}
 
-	if (!name || !author || !description) {
+	if (!title || !author || !description) {
 		sendError(res, 400, "Missing name, author and/or description field.")
 		return
 	}
 
-	let newBook = createBook(GLOBAL_BOOK_ID, name, author, description)
-
-	GLOBAL_BOOK_ID++
-
-	data.books.push(newBook)
+	let newBook = await addNewBook(title, author, description, "1234-12-31", "")
+	if (newBook === -1) {
+		sendError(res, 400, "Book already exists")
+		return
+	} else if (newBook === -2) {
+		sendError(res, 400, "Some arguments have an incorrect format. The format for 'year' is 'yyyy-mm-dd'.")
+		return
+	}
 
 	res.status(201).send({
 		"message": "New book created",
@@ -322,15 +325,6 @@ function sendError(res, statuscode, error) {
 }
 
 // Replaced by a database
-function createBook(id, name, author, description) {
-	return {
-		"id": id,
-		"name": name,
-		"author": author,
-		"description": description
-	}
-}
-
 function isBookInUsersFavorite(user_id, book_id) {
 	// Assuming proper error handling beforehand by the caller
 	let user = getUserByID(user_id)
