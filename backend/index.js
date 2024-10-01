@@ -8,7 +8,7 @@ import * as jwt from 'jsonwebtoken';
 import pkg from 'cors'; // Fixing some potential network errors
 const cors = pkg;
 
-import { getAllUsers, getUserById } from "./routes/users.js"
+import { getAllUsers, getUserById, addNewUser } from "./routes/users.js"
 import { getAllBooks, getBookById } from "./routes/books.js"
 
 const app = express()
@@ -82,8 +82,7 @@ app.get("/api/books/:id", async (req, res) => {
 })
 
 // POST
-// TODO
-app.post("/api/users/register", (req, res) => {
+app.post("/api/users/register", async (req, res) => {
 	const { pseudo, email, pwd } = req.body
 
 	if (!pseudo || !email || !pwd) {
@@ -91,23 +90,16 @@ app.post("/api/users/register", (req, res) => {
 		return
 	}
 
-	// TODO: Check if email is already taken
+	let newUser = await addNewUser(pseudo, email, pwd)
+	if (newUser === -1) {
+		sendError(res, 400, "User already exists")
+		return
+	}
 
-	con.query(
-		"INSERT INTO Users (pseudo, email, role, pwd) VALUES (?,?,?,?);", [pseudo, email, 0, pwd],
-		(error, result, field) => {
-			if (error) {
-				sendError(res, 500, error)
-				return
-			}
-
-			res.status(201).send({
-				"message": "New user created",
-				"user_id": result.insertId
-			})
-		}
-	)
-
+	res.status(201).send({
+		"message": "New user created",
+		"user_id": newUser
+	})
 })
 
 // TODO

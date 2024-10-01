@@ -23,3 +23,14 @@ export async function getUserById(id) {
 
 	return user[0]
 }
+
+export async function addNewUser(pseudo, email, pwd) {
+	// TODO: Check if email/pseudo is already used
+	const sql = "INSERT INTO Users (pseudo, email, role, pwd) VALUES (?,?,?,?);"
+	const values = [pseudo, email, 0, pwd]
+
+	const [result, fields] = await pool.execute(sql, values);
+
+	return result.insertId
+}
+
