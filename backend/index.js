@@ -2,10 +2,11 @@ const express = require("express")
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
+const cors = require('cors');
 
 const app = express()
 const PORT = 1234
-
+app.use(cors());
 dotenv.config()
 
 // MySQL 3306
