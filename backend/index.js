@@ -16,13 +16,13 @@ let GLOBAL_BOOK_ID = 0
 let data = {
 	// users: [],
 	users: [
-		createUser(0, "José", mail="bing@chilling.com", pwd="azerty"),
-		createUser(1, "Micheal", mail="gabriel@atal.com", pwd="azerty"),
+		// createUser(0, "José", mail = "bing@chilling.com", pwd = "azerty"),
+		// createUser(1, "Micheal", mail = "gabriel@atal.com", pwd = "azerty"),
 	],
 	// books: [],
 	books: [createBook(0, "L'art de la guerre", "Sun Tzu", "If you know the enemy and know yourself, you need not fear the result of a hundred battles.")]
 }
-data.users[1].admin = true
+// data.users[1].admin = true
 //==========================================
 
 // Middleware
@@ -30,8 +30,6 @@ app.use(express.json())
 app.use((req, res, next) => {
 	console.log('%s %s %s', req.method, req.url, req.body)
 	next()
-	console.log('\t%s', res.statusCode)
-	
 })
 
 // Running the api
@@ -55,21 +53,15 @@ con.connect((err) => {
 //==========================================
 
 app.get("/api/test", (req, res) => {
-	const tok = req.headers.authorization
-
-	res.status(200).send({
-		"token": tok,
-		"authe": isTokenValid(tok),
-		"admin": isTokenAdmin(tok)
-	})
-	
+	res.status(418).send({"message": "hi :D"})
 })
 
 // GET
 app.get("/api/users/", (req, res) => {
 	con.query('SELECT user_id, pseudo, email, role FROM Users', (error, result, field) => {
 		if (error) {
-			res.status(500).send({ "message": "There as been an error: " + error });
+			sendError(res, 500, error)
+			return
 		}
 
 		res.status(200).send(result)
@@ -81,7 +73,8 @@ app.get("/api/users/:id", (req, res) => {
 
 	con.query('SELECT user_id, pseudo, email, role FROM Users WHERE user_id = ?', [id], (error, result, field) => {
 		if (error) {
-			res.status(500).send({ "message": "There as been an error: " + error });
+			sendError(res, 500, error)
+			return
 		}
 
 		res.status(200).send(result[0])
@@ -91,7 +84,8 @@ app.get("/api/users/:id", (req, res) => {
 app.get("/api/books/", (req, res) => {
 	con.query('SELECT * FROM Book', (error, result, field) => {
 		if (error) {
-			res.status(500).send({ "message": "There as been an error: " + error });
+			sendError(res, 500, error)
+			return
 		}
 
 		res.status(200).send(result)
@@ -103,7 +97,8 @@ app.get("/api/books/:id", (req, res) => {
 
 	con.query('SELECT * FROM Book WHERE book_id = ?', [id], (error, result, field) => {
 		if (error) {
-			res.status(500).send({ "message": "There as been an error: " + error });
+			sendError(res, 500, error)
+			return
 		}
 
 		res.status(200).send(result)
@@ -112,42 +107,43 @@ app.get("/api/books/:id", (req, res) => {
 
 // POST
 app.post("/api/users/register", (req, res) => {
-	const { name, mail, pwd } = req.body
+	const { pseudo, email, pwd } = req.body
 
-	if (!name || !mail || !pwd) {
-		res.status(400).send({
-			"message": "Missing name, mail and/or password field."
-		})
+	if (!pseudo || !email || !pwd) {
+		sendError(res, 400, "Missing name, mail and/or password field.")
 		return
 	}
 
-	let newUser = createUser(GLOBAL_USER_ID, name, mail, pwd)
+	// TODO: Check if email is already taken
 
-	GLOBAL_USER_ID++
+	con.query(
+		"INSERT INTO Users (pseudo, email, role, pwd) VALUES (?,?,?,?);", [pseudo, email, 0, pwd],
+		(error, result, field) => {
+			if (error) {
+				sendError(res, 500, error)
+				return
+			}
 
-	data.users.push(newUser)
+			res.status(201).send({
+				"message": "New user created",
+				"user_id": result.insertId
+			})
+		}
+	)
 
-	res.status(201).send({
-		"message": "New user created",
-		"user": newUser
-	})
 })
 
 app.post("/api/users/login", (req, res) => {
 	const { username, pwd } = req.body
 
 	if (!username || !pwd) {
-		res.status(400).send({
-			"message": "Missing username and/or password field."
-		})
+		sendError(res, 400, "Missing name and/or password field.")
 		return
 	}
 
 	let user = getUserByName(username)
 	if (!user || user.pwd != pwd) {
-		res.status(401).send({
-			"message": "Incorrect login information"
-		})
+		sendError(res, 401, "Incorrect login information")
 		return
 	}
 
@@ -171,16 +167,12 @@ app.post("/api/books", (req, res) => {
 	const token = req.headers.authorization
 
 	if (isTokenAdmin(token)) {
-		res.status(405).send({
-			"message": "You must be an administator to create a book.",
-		})
+		sendError(res, 405, "You are not an administrator.")
 		return
 	}
 
 	if (!name || !author || !description) {
-		res.status(400).send({
-			"message": "Missing name, author and/or description field."
-		})
+		sendError(res, 400, "Missing name, author and/or description field.")
 		return
 	}
 
@@ -202,40 +194,30 @@ app.post("/api/books/:id/favorite", (req, res) => {
 	const { user_id } = req.body
 
 	if (!id) {
-		res.status(400).send({
-			"message": "Missing book id."
-		})
+		sendError(res, 400, "Missing book id.")
 		return
 	}
 
 	if (!user_id) {
-		res.status(400).send({
-			"message": "You must be logged in."
-		})
+		sendError(res, 400, "You must be logged in.")
 		return
 	}
 	
 	let book = getBookByID(id)
 	if (!book) {
-		res.status(404).send({
-			"message": "Book not found"
-		})
+		sendError(res, 404, "Book not found")
 		return
 	}
 	
 	let user = getUserByID(user_id)
 	if (!user) {
-		res.status(404).send({
-			"message": "User not found"
-		})
+		sendError(res, 404, "User not found")
 		return
 	}
-
+	
 	let infav = isBookInUsersFavorite(user_id, id);
 	if (infav == true) {
-		res.status(400).send({
-			"message": "Book is already in users favorite.",
-		})
+		sendError(res, 400, "Book is already in users favorite.")
 		return
 	}
 
@@ -252,9 +234,7 @@ app.post("/api/books/:id/favorite", (req, res) => {
 app.delete("/api/users/:id", (req, res) => {
 	// TODO: Let the user kms
 	if (isTokenAdmin(token)) {
-		res.status(403).send({
-			"message": "You must be an administator to delete this user.",
-		})
+		sendError(res, 403, "You must be an administator to delete this user.")
 		return
 	}
 
@@ -263,9 +243,7 @@ app.delete("/api/users/:id", (req, res) => {
 	})
 
 	if (!user) {
-		res.status(404).send({
-			"message": "User not found"
-		})
+		sendError(res, 404, "User not found")
 		return
 	}
 
@@ -281,9 +259,7 @@ app.delete("/api/users/:id", (req, res) => {
 
 app.delete("/api/books/:id", (req, res) => {
 	if (isTokenAdmin(token)) {
-		res.status(403).send({
-			"message": "You must be an administator to delete this book.",
-		})
+		sendError(res, 403, "You must be an administator to delete this book.")
 		return
 	}
 
@@ -292,9 +268,7 @@ app.delete("/api/books/:id", (req, res) => {
 	})
 
 	if (!book) {
-		res.status(404).send({
-			"message": "User not found"
-		})
+		sendError(res, 404, "Book not found")
 		return
 	}
 
@@ -314,40 +288,30 @@ app.delete("/api/books/:id/favorite", (req, res) => {
 	const { user_id } = req.body
 
 	if (!id) {
-		res.status(400).send({
-			"message": "Missing book id."
-		})
+		sendError(res, 400, "Missing book id.")
 		return
 	}
-
+	
 	if (!user_id) {
-		res.status(400).send({
-			"message": "You must be logged in."
-		})
+		sendError(res, 400, "You must be logged in.")
 		return
 	}
-
+	
 	let book = getBookByID(id)
 	if (!book) {
-		res.status(404).send({
-			"message": "Book not found"
-		})
+		sendError(res, 404, "Book not found")
 		return
 	}
 	
 	let user = getUserByID(user_id)
 	if (!user) {
-		res.status(404).send({
-			"message": "User not found"
-		})
+		sendError(res, 404, "User not found")
 		return
 	}
-
+	
 	let infav = isBookInUsersFavorite(user_id, id);
 	if (infav == false) {
-		res.status(400).send({
-			"message": "Book is not in users favorite.",
-		})
+		sendError(res, 400, "Book is not in users favorite")
 		return
 	}
 
@@ -390,18 +354,13 @@ function isTokenAdmin(token) {
 	return Boolean(user.admin)
 }
 
-// Replaced by a database
-function createUser(id, name, mail, pwd) {
-	return {
-		"id": id,
-		"name": name,
-		"mail": mail,
-		"pwd": pwd,
-		"favorites": [],
-		"admin": false,
-	}
+function sendError(res, statuscode, error) {
+	res.status(statuscode).send({
+		"message": "There has been an error: " + error
+	})
 }
 
+// Replaced by a database
 function createBook(id, name, author, description) {
 	return {
 		"id": id,
@@ -429,17 +388,6 @@ function getBookByID(id) {
 	return data.books.find(obj => {
 		return obj.id === sid
 	})
-}
-
-function getPublicInfoFromUser(user) {
-	const { id, name, mail } = user
-	let data = {
-		id: id,
-		name: name,
-		mail: mail
-	}
-
-	return data
 }
 
 function isBookInUsersFavorite(user_id, book_id) {
