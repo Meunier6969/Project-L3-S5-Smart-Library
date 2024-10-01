@@ -45,3 +45,18 @@ export async function addNewBook(title, author, description, year, img) {
 	}
 	
 }
+
+export async function deleteBook(book_id) {
+	let data = {
+		"error": "",
+	}
+
+	const sql = "DELETE FROM Book WHERE book_id=?"
+	const values = [book_id]
+
+	const [result, fields] = await pool.execute(sql, values);
+
+	if (result.affectedRows == 0) data.error = "Book does not exist."
+
+	return data
+}

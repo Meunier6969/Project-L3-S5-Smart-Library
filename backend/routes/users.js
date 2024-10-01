@@ -58,15 +58,23 @@ export async function deleteUser(user_id) {
 }
 
 export async function getPassword(pseudo) {
+	let data = {
+		"error": "",
+		"user_id": "",
+		"user_pwd": ""
+	}
+
 	const sql = 'SELECT user_id, pwd FROM Users WHERE pseudo=?'
 	const [user] = await pool.query(sql, [pseudo]);
 	
-	if (!user[0]) return ""
-
-	return {
-		"user_id": user[0].user_id,
-		"pwd": user[0].pwd
+	if (!user[0]) {
+		data.error = "User not found"
+	} else {
+		data.user_id = user[0].user_id
+		data.user_pwd = user[0].pwd
 	}
+
+	return data
 }
 
 

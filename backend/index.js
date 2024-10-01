@@ -9,7 +9,7 @@ import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
 import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
-import { addNewBook, getAllBooks, getBookById } from "./routes/books.js"
+import { addNewBook, getAllBooks, getBookById, deleteBook } from "./routes/books.js"
 
 const app = express()
 const PORT = 1234
@@ -34,9 +34,15 @@ app.listen(PORT, () => {
 //==========================================
 
 app.get("/api/test", async (req, res) => {
-	let {error} = await deleteUser(21)
-	console.log(error)
-	res.status(418).send(error)
+	const token = req.headers.authorization
+
+	let data = {
+		"tok": token,
+		"val": isTokenValid(token),
+		"adm": isTokenAdmin(token),
+	}
+
+	res.status(418).send(data)
 })
 
 // GET
@@ -103,8 +109,8 @@ app.post("/api/users/login", async (req, res) => {
 		return
 	}
 	
-	let { newpwd, user_id } = await getPassword(pseudo)
-	if (newpwd !== pwd) {
+	let { user_pwd, user_id } = await getPassword(pseudo)
+	if (user_pwd !== pwd) {
 		sendError(res, 400, "Wrong login information.")
 		return
 	}
@@ -200,7 +206,7 @@ app.delete("/api/users/:id", async (req, res) => {
 	const token = req.headers.authorization
 
 	// TODO: Let the user kms
-	if (isTokenAdmin(token)) {
+	if (!isTokenAdmin(token)) {
 		sendError(res, 403, "You must be an administator to delete this user.")
 		return
 	}
@@ -216,24 +222,19 @@ app.delete("/api/users/:id", async (req, res) => {
 	})
 })
 
-app.delete("/api/books/:id", (req, res) => {
-	if (isTokenAdmin(token)) {
+app.delete("/api/books/:id", async (req, res) => {
+	const { id } = req.params
+	const token = req.headers.authorization
+
+	if (!isTokenAdmin(token)) {
 		sendError(res, 403, "You must be an administator to delete this book.")
 		return
 	}
 
-	let book = data.books.find(obj => {
-		return obj.id === sid
-	})
-
-	if (!book) {
-		sendError(res, 404, "Book not found")
+	let { error } = await deleteBook(id);
+	if (error) {
+		sendError(res, 400, error)
 		return
-	}
-
-	let index = data.books.indexOf(book);
-	if (index > -1) {
-		data.books.splice(index, 1);
 	}
 
 	res.status(200).send({
@@ -290,7 +291,7 @@ function isTokenValid(token) {
 	let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 	try {
-		jwt.verify(token, jwtSecretKey)
+		verify(token, jwtSecretKey)
 	} catch (error) {
 		return false
 	}
@@ -304,13 +305,13 @@ function isTokenAdmin(token) {
 	let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 	try {
-		var tk = jwt.verify(token, jwtSecretKey)
+		var tk = verify(token, jwtSecretKey)
 	} catch (error) {
 		return false
 	}
-	let user = getUserByID(tk.user_id)
+	let user = getUserById(tk.user_id)
 
-	return Boolean(user.admin)
+	return Boolean(user.role)
 }
 
 function sendError(res, statuscode, error) {
