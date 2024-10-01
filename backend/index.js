@@ -321,14 +321,6 @@ function sendError(res, statuscode, error) {
 	})
 }
 
-function getUserByPseudo(pseudo) {
-	con.query("SELECT * FROM Users WHERE pseudo=?", [pseudo], (error, result, field) => {
-		if (error) throw err;
-		console.log("from inside:"+result)
-		return result
-	})
-}
-
 // Replaced by a database
 function createBook(id, name, author, description) {
 	return {

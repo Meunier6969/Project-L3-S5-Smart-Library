@@ -24,8 +24,16 @@ export async function getUserById(user_id) {
 	return user[0]
 }
 
+export async function getUserByPseudo(pseudo) {
+	const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE pseudo=?'
+	const [user] = await pool.query(sql, [pseudo]);
+
+	return user[0]
+}
+
 export async function addNewUser(pseudo, email, pwd) {
-	// TODO: Check if email/pseudo is already used
+	if (await getUserByPseudo(pseudo)) return -1
+	
 	const sql = "INSERT INTO Users (pseudo, email, role, pwd) VALUES (?,?,?,?);"
 	const values = [pseudo, email, 0, pwd]
 
@@ -33,6 +41,7 @@ export async function addNewUser(pseudo, email, pwd) {
 
 	return result.insertId
 }
+
 
 export async function checkPassword(pseudo, pwd) {
 	const sql = 'SELECT pwd FROM Users WHERE pseudo=?'
