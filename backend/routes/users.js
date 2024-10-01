@@ -43,13 +43,13 @@ export async function addNewUser(pseudo, email, pwd) {
 }
 
 
-export async function checkPassword(pseudo, pwd) {
+export async function getPassword(pseudo) {
 	const sql = 'SELECT pwd FROM Users WHERE pseudo=?'
 	const [user] = await pool.query(sql, [pseudo]);
+	
+	if (!user[0]) return ""
 
-	if (user == []) return false
-
-	return user[0].pwd === pwd
+	return user[0].pwd
 }
 
 

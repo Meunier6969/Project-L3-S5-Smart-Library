@@ -8,7 +8,7 @@ const { sign, verify } = jwtpkg;
 import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
-import { getAllUsers, getUserById, addNewUser, checkPassword } from "./routes/users.js"
+import { getAllUsers, getUserById, addNewUser, getPassword } from "./routes/users.js"
 import { getAllBooks, getBookById } from "./routes/books.js"
 
 const app = express()
@@ -102,8 +102,8 @@ app.post("/api/users/login", async (req, res) => {
 		return
 	}
 	
-	let checked = await checkPassword(pseudo, pwd)
-	if (!checked) {
+	let newpwd = await getPassword(pseudo)
+	if (newpwd !== pwd) {
 		sendError(res, 400, "Wrong login information.")
 		return
 	}
