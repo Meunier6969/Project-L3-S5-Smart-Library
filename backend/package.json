@@ -12,6 +12,6 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql": "^2.18.1"
+    "mysqli": "^3.1.4"
   }
 }

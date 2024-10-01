@@ -40,12 +40,12 @@ app.listen(PORT, () => {
 })
 
 // Connect to MySQL database
-var con = mysql.createConnection({
+const con = mysql.createConnection({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USERNAME,
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_DBNAME
-});
+})
 
 con.connect((err) => {
 	if (err) throw err;
@@ -58,36 +58,34 @@ app.get("/api/test", (req, res) => {
 	const tok = req.headers.authorization
 
 	res.status(200).send({
-		"tok": tok,
-		"auth": isTokenAdmin(tok)
+		"token": tok,
+		"authe": isTokenValid(tok),
+		"admin": isTokenAdmin(tok)
 	})
 	
 })
 
 // GET
 app.get("/api/users/", (req, res) => {
+	con.query('SELECT user_id, pseudo, email, role FROM Users', (error, result, field) => {
+		if (error) {
+			res.status(500).send({"message": "There as been an error: "+error});
+		}
 
-	let publicUsers = []
-
-	data.users.forEach(user => {
-		publicUsers.push(getPublicInfoFromUser(user))
-	});
-
-	res.status(200).send(publicUsers)
+		res.status(200).send(result)
+	})
 })
 
 app.get("/api/users/:id", (req, res) => {
 	const { id } = req.params
 
-	let user = getUserByID(id)
-	if (!user) {
-		res.status(404).send({
-			"message": "User not found"
-		})
-		return
-	}
+	con.query('SELECT user_id, pseudo, email, role FROM Users WHERE user_id = ?', [id], (error, result, field) => {
+		if (error) {
+			res.status(500).send({ "message": "There as been an error: " + error });
+		}
 
-	res.status(200).send(getPublicInfoFromUser(user))
+		res.status(200).send(result[0])
+	})
 })
 
 app.get("/api/books/", (req, res) => {
