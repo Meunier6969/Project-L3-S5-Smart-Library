@@ -69,7 +69,7 @@ app.get("/api/test", (req, res) => {
 app.get("/api/users/", (req, res) => {
 	con.query('SELECT user_id, pseudo, email, role FROM Users', (error, result, field) => {
 		if (error) {
-			res.status(500).send({"message": "There as been an error: "+error});
+			res.status(500).send({ "message": "There as been an error: " + error });
 		}
 
 		res.status(200).send(result)
@@ -89,21 +89,25 @@ app.get("/api/users/:id", (req, res) => {
 })
 
 app.get("/api/books/", (req, res) => {
-	res.status(200).send(data.books)
+	con.query('SELECT * FROM Book', (error, result, field) => {
+		if (error) {
+			res.status(500).send({ "message": "There as been an error: " + error });
+		}
+
+		res.status(200).send(result)
+	})
 })
 
 app.get("/api/books/:id", (req, res) => {
 	const { id } = req.params
 
-	let book = getBookByID(id)
-	if (!book) {
-		res.status(404).send({
-			"message": "Book not found"
-		})
-		return
-	}
+	con.query('SELECT * FROM Book WHERE book_id = ?', [id], (error, result, field) => {
+		if (error) {
+			res.status(500).send({ "message": "There as been an error: " + error });
+		}
 
-	res.status(200).send(book)
+		res.status(200).send(result)
+	})
 })
 
 // POST
