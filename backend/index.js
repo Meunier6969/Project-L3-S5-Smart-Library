@@ -89,15 +89,15 @@ app.post("/api/users/register", async (req, res) => {
 		return
 	}
 
-	let newUser = await addNewUser(pseudo, email, pwd)
-	if (newUser === -1) {
-		sendError(res, 400, "User already exists")
+	let { error, insertId } = await addNewUser(pseudo, email, pwd)
+	if (error) {
+		sendError(res, 400, error)
 		return
 	}
 
 	res.status(201).send({
 		"message": "New user created",
-		"user_id": newUser
+		"user_id": insertId
 	})
 })
 
@@ -110,7 +110,7 @@ app.post("/api/users/login", async (req, res) => {
 	}
 	
 	let { user_pwd, user_id } = await getPassword(pseudo)
-	if (user_pwd !== pwd) {
+	if (error || user_pwd !== pwd) {
 		sendError(res, 400, "Wrong login information.")
 		return
 	}

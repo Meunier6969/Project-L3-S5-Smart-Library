@@ -32,14 +32,24 @@ export async function getUserByPseudo(pseudo) {
 }
 
 export async function addNewUser(pseudo, email, pwd) {
-	if (await getUserByPseudo(pseudo)) return -1
+	let data = {
+		"error": "",
+		"insertId": -1
+	}
+
+	if (await getUserByPseudo(pseudo)) { 
+		data.error = "User already exist."
+		return data
+	}
 	
 	const sql = "INSERT INTO Users (pseudo, email, role, pwd) VALUES (?,?,?,?);"
 	const values = [pseudo, email, 0, pwd]
 
 	const [result, fields] = await pool.execute(sql, values);
 
-	return result.insertId
+	data.insertId = result.insertId
+
+	return data
 }
 
 export async function deleteUser(user_id) {
