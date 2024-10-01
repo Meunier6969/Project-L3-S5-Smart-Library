@@ -1,14 +1,14 @@
 //==========================================
 import express, { json } from "express";
 import { config } from 'dotenv';
-import mysql from 'mysql2/promise';
 
-import * as jwt from 'jsonwebtoken';
+import jwtpkg from 'node-jsonwebtoken';
+const { sign, verify } = jwtpkg;
 
-import pkg from 'cors'; // Fixing some potential network errors
-const cors = pkg;
+import corspkg from 'cors'; // Fixing some potential network errors
+const cors = corspkg;
 
-import { getAllUsers, getUserById, addNewUser } from "./routes/users.js"
+import { getAllUsers, getUserById, addNewUser, checkPassword } from "./routes/users.js"
 import { getAllBooks, getBookById } from "./routes/books.js"
 
 const app = express()
@@ -29,14 +29,6 @@ app.use((req, res, next) => {
 // Running the api
 app.listen(PORT, () => {
 	console.log(`Listening on localhost:${PORT}`)
-})
-
-// Connect to MySQL database
-const con = await mysql.createConnection({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USERNAME,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_DBNAME
 })
 
 //==========================================
@@ -102,29 +94,27 @@ app.post("/api/users/register", async (req, res) => {
 	})
 })
 
-// TODO
-app.post("/api/users/login", (req, res) => {
+app.post("/api/users/login", async (req, res) => {
 	const { pseudo, pwd } = req.body
 
 	if (!pseudo || !pwd) {
 		sendError(res, 400, "Missing name and/or password field.")
 		return
 	}
-
-	let user = getUserByPseudo(pseudo)
-	console.log("from outside:"+user)
-	if (!user || user.pwd != pwd) {
-		sendError(res, 401, "Incorrect login information")
+	
+	let checked = await checkPassword(pseudo, pwd)
+	if (!checked) {
+		sendError(res, 400, "Wrong login information.")
 		return
 	}
 
 	let jwtSecretKey = process.env.JWT_SECRET_KEY
 	let data = {
 		time: Date(),
-		user_id: user.id,
+		user_pseudo: pseudo,
 	}
 
-	const token = jwt.sign(data, jwtSecretKey, {expiresIn: '10m'});
+	const token = sign(data, jwtSecretKey, {expiresIn: '10m'});
 
 	res.status(200).send({
 		"message": "Logged in 👍",

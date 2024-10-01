@@ -17,9 +17,9 @@ export async function getAllUsers() {
 	return users
 }
 
-export async function getUserById(id) {
+export async function getUserById(user_id) {
 	const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE user_id=?'
-	const [user] = await pool.query(sql, [id]);
+	const [user] = await pool.query(sql, [user_id]);
 
 	return user[0]
 }
@@ -33,4 +33,14 @@ export async function addNewUser(pseudo, email, pwd) {
 
 	return result.insertId
 }
+
+export async function checkPassword(pseudo, pwd) {
+	const sql = 'SELECT pwd FROM Users WHERE pseudo=?'
+	const [user] = await pool.query(sql, [pseudo]);
+
+	if (user == []) return false
+
+	return user[0].pwd === pwd
+}
+
 
