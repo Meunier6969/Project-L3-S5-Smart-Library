@@ -14,6 +14,11 @@
         ></i>
       </div>
     </div>
+    <div class="rankIcon custom-rounded-left" style="height: 35px; width: 45px; background-color: hsla(0,0%,55%,0.51)" v-if="rank !== 0" >
+      <div style="font-size: 24px;">
+        <h3 class="text-white">{{rank}}</h3>
+      </div>
+    </div>
     <div class="card-footer" style="height: 5rem">
       <h5 class="card-title text-white text-clamp">{{ this.book.title }}</h5>
     </div>
@@ -34,6 +39,11 @@ export default {
     isLoggedIn: {
       type: Boolean,
       required: true,
+    },
+    rank: {
+      type: Number,
+      required: false,
+      default: 0
     }
   },
   data () {
@@ -81,7 +91,17 @@ export default {
   right: 0;
 }
 
+.rankIcon{
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .custom-rounded {
-  border-radius: 5px 1px 0 5px;
+  border-radius: 0px 1px 0 5px;
+}
+
+.custom-rounded-left {
+  border-radius: 0px 1px 5px 0;
 }
 </style>

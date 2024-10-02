@@ -29,7 +29,7 @@ const openBookModal = () => {
   <div class="scroll-container">
     <div class="scroll-row">
       <div v-for="(item, index) in books" :key="index" class="scroll-item">
-        <BookCard :book="item" :isLoggedIn="userStore.isLoggedIn"></BookCard>
+        <BookCard :book="item" :isLoggedIn="userStore.isLoggedIn" :rank="index + 1"></BookCard>
       </div>
     </div>
   </div>
