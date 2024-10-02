@@ -5,18 +5,18 @@
         :alt="this.book.title"
         class="card-img-top"
     />
-    <div class="bgIcon  custom-rounded" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)"  v-if="isLoggedIn">
+    <div class="bgIcon custom-rounded" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)"  v-if="isLoggedIn">
       <div class="favorite-icon">
         <i
             :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
-            :style="{ color: book.isFav ? 'red' : 'black' }"
+            :style="{ color: book.isFav ? 'red' : 'white' }"
             aria-hidden="true"
         ></i>
       </div>
     </div>
     <div class="rankIcon custom-rounded-left" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)" v-if="rank !== 0" >
       <div style="font-size: 24px;">
-        <h3 class="text-white">{{rank}}</h3>
+        <h3 :class="[rank === 1 ? 'text-gold' : (rank === 2 ? 'text-silver' : ( rank === 3 ? 'text-bronze' : 'text-white'))]">{{rank}}</h3>
       </div>
     </div>
     <div class="card-footer" style="height: 5rem">
@@ -103,5 +103,15 @@ export default {
 
 .custom-rounded-left {
   border-radius: 0px 1px 5px 0;
+}
+
+.text-gold {
+  color: goldenrod;
+}
+.text-silver {
+  color: lightgray;
+}
+.text-bronze {
+  color: chocolate;
 }
 </style>
