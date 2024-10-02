@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from "@/views/Home.vue";
 import Admin from "@/views/Admin.vue";
 import NotFound from "@/views/NotFound.vue";
-import AdminStats from "@/views/AdminStats.vue";
+import AdminManagerUser from "@/components/AdminManager/AdminUserManager.vue";
+import AdminManagerBooks from "@/components/AdminManager/AdminBookManager.vue";
 
 const routes = [
   {path: '/', redirect:'/home'},
@@ -11,14 +12,21 @@ const routes = [
     path: '/admin',
     name: 'Admin',
     component: Admin,
+    redirect: '/admin/books',
     meta: { requiresAuth: true },
     children: [
       {
-        path: 'stats',
-        name: 'AdminStats',
-        component: AdminStats,
+        path: 'users',
+        name: 'AdminManagerUsers',
+        component: AdminManagerUser,
       },
+        {
+          path: 'books',
+            name: 'AdminManagerBook',
+            component: AdminManagerBooks
+        }
     ],
+
   },
   {
     path: '/:catchAll(.*)', // Capture toutes les routes inconnues
