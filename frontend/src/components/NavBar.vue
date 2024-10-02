@@ -6,7 +6,7 @@ const userStore = useUserStore();
 
 <template>
   <nav class="col">
-    <h1 class="text-white">Smart Library</h1>
+    <a href="/" style="padding: 0"><h1 class="text-white">Smart Library</h1></a>
     <!--Main container-->
     <div class="row align-items-center">
       <!--User icon top left-->
@@ -23,7 +23,7 @@ const userStore = useUserStore();
       <div class="col text-white text-center">
         <div class="flex-grow-1" style="margin: 0 2rem">
           <form class="d-flex w-100">
-            <div class="input-group" >
+            <div class="input-group">
               <div class="input-group-prepend">
                 <i class="bi bi-search input-group-text" id="basic-addon1"></i>
               </div>
@@ -34,6 +34,7 @@ const userStore = useUserStore();
                   placeholder="Search"
                   aria-label="Search"
                   v-model="searchTerm"
+                  ref="searchInput"
                   @input="onSearch"
                   aria-describedby="search-addon"
               />
@@ -47,53 +48,59 @@ const userStore = useUserStore();
       </div>
 
       <!--Dropdowns-->
-        <div class="dropdown show mrhalfrem">
-          <i class="btn btn-secondary dropdown-toggle bi bi-sort-alpha-down" role="button" id="dropdownMenuLink"
+      <div class="dropdown show mrhalfrem">
+        <i class="btn btn-secondary dropdown-toggle bi bi-sort-alpha-down" role="button" id="dropdownMenuLink"
+           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        </i>
+
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <label class="dropdown-item">
+            De A à Z
+          </label>
+          <label class="dropdown-item">
+            De Z à A
+          </label>
+        </div>
+      </div>
+      <div class="text-white text-center">
+        <div class="dropdown show">
+          <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          </i>
+            Filters
+          </a>
 
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
             <label class="dropdown-item">
-              De A à Z
+              Science Fiction <input type="checkbox" v-model="filters.sf">
             </label>
             <label class="dropdown-item">
-              De Z à A
+              Mystery & Thriller <input type="checkbox" v-model="filters.mystery">
             </label>
-          </div>
-        </div>
-        <div class="text-white text-center">
-          <div class="dropdown show">
-            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Filters
-            </a>
-
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-              <label class="dropdown-item">
-                Science Fiction <input type="checkbox" v-model="filters.sf">
-              </label>
-              <label class="dropdown-item">
-                Mystery & Thriller <input type="checkbox" v-model="filters.mystery">
-              </label>
-              <label class="dropdown-item">
-                Historical <input type="checkbox" v-model="filters.history">
-              </label>
-              <label class="dropdown-item">
-                Educational <input type="checkbox" v-model="filters.education">
-              </label>
-              <label class="dropdown-item">
-                For Children <input type="checkbox" v-model="filters.children">
-              </label>
-              <div v-if="userStore.isLoggedIn">
+            <label class="dropdown-item">
+              Historical <input type="checkbox" v-model="filters.history">
+            </label>
+            <label class="dropdown-item">
+              Educational <input type="checkbox" v-model="filters.education">
+            </label>
+            <label class="dropdown-item">
+              For Children <input type="checkbox" v-model="filters.children">
+            </label>
+            <div v-if="userStore.isLoggedIn">
               <div class="dropdown-divider"></div>
               <label class="dropdown-item">
                 Favorites <input type="checkbox" v-model="favOnlyBinding">
               </label>
-              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+    <!--Admin panel-->
+    <div class="align-items-center justify-content-center admin-panel" v-if="userStore.isAdmin">
+
+      <a href="/home" class="btn btn-secondary" v-if="useRoute().path.includes('admin')">Home Page</a>
+      <a href="/admin" class="btn btn-secondary" v-else>Administration</a>
+    </div>
   </nav>
   <ModalLogin></ModalLogin>
   <ModalProfile></ModalProfile>
@@ -104,6 +111,7 @@ import ModalLogin from '@/components/Login.vue';
 import ModalProfile from '@/components/Profile.vue';
 
 import {useFilterStore} from "@/stores/filterStore.js";
+import {useRoute} from "vue-router";
 
 
 export default {
@@ -122,7 +130,7 @@ export default {
         children: false,
         fav: false,
       },
-      favRef : undefined,
+      favRef: undefined,
     };
   },
   computed: {
@@ -134,6 +142,14 @@ export default {
         useFilterStore().favOnly = value;
       }
     }
+  },
+  mounted() {
+    // Listen for keypress events to trigger the search focus
+    window.addEventListener("keydown", this.focusSearchInput);
+  },
+  beforeUnmount() {
+    // Clean up the event listener
+    window.removeEventListener("keydown", this.focusSearchInput);
   },
   methods: {
     onSearch() {
@@ -148,6 +164,16 @@ export default {
     },
     openModalProfile() {
       $("#modalProfile").modal('show');
+    },
+    focusSearchInput(event) {
+      const ignoredKeys = ["Shift", "Control", "Alt", "Meta", "Tab"];
+
+      // If the user presses any non-special key, focus the search input
+      const activeElement = document.activeElement;
+      const isTypingInOtherField = activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA";
+      if (!ignoredKeys.includes(event.key) && !isTypingInOtherField) {
+        this.$refs.searchInput.focus();
+      }
     }
   },
 
@@ -175,6 +201,11 @@ nav {
 
 input {
   margin-left: auto;
+}
+
+.admin-panel {
+  padding: .5rem;
+  border-radius: 5px;
 }
 </style>
 
