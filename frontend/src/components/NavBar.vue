@@ -11,11 +11,13 @@ const userStore = useUserStore();
     <div class="row align-items-center">
       <!--User icon top left-->
       <div>
-        <div class="text-white text-center" v-if="userStore.isLoggedIn" @click="openModalProfile">
+        <div class="text-white text-center clickable" v-if="userStore.isLoggedIn" @click="openModalProfile">
           <i class="bi bi-person-circle icon"></i>
+          <h6>{{userStore.user.username}}</h6>
         </div>
-        <div class="text-white text-center" @click="openModalLogin" v-else>
+        <div class="text-white text-center clickable" @click="openModalLogin" v-else>
           <i class="bi bi-box-arrow-in-right icon"></i>
+          <h6>Sign In</h6>
         </div>
       </div>
 
@@ -97,7 +99,6 @@ const userStore = useUserStore();
     </div>
     <!--Admin panel-->
     <div class="align-items-center justify-content-center admin-panel" v-if="userStore.isAdmin">
-
       <a href="/home" class="btn btn-secondary" v-if="useRoute().path.includes('admin')">Home Page</a>
       <a href="/admin" class="btn btn-secondary" v-else>Administration</a>
     </div>
@@ -112,7 +113,6 @@ import ModalProfile from '@/components/Profile.vue';
 
 import {useFilterStore} from "@/stores/filterStore.js";
 import {useRoute} from "vue-router";
-
 
 export default {
   components: {
@@ -192,7 +192,6 @@ nav {
 
 .icon {
   font-size: 2rem;
-  cursor: pointer;
 }
 
 .mrhalfrem {
@@ -206,6 +205,10 @@ input {
 .admin-panel {
   padding: .5rem;
   border-radius: 5px;
+}
+
+.clickable {
+  cursor: pointer;
 }
 </style>
 
