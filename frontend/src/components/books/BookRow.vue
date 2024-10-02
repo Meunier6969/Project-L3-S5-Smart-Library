@@ -23,10 +23,16 @@ const openBookModal = () => {
   const modalId = `#bookModal-${props.book.id}`;
   $(modalId).modal('show');
 };
+const scrollHorizontally = (event) => {
+  // Prevent the default vertical scrolling
+  event.preventDefault();
+  // Scroll horizontally by the amount the user scrolled vertically
+  event.currentTarget.scrollLeft += event.deltaY;
+}
 </script>
 
 <template>
-  <div class="scroll-container">
+  <div class="scroll-container" @wheel="scrollHorizontally">
     <div class="scroll-row">
       <div v-for="(item, index) in books" :key="index" class="scroll-item">
         <BookCard :book="item" :isLoggedIn="userStore.isLoggedIn" :rank="index + 1"></BookCard>
