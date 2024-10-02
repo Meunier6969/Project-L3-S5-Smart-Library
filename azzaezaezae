@@ -1,0 +1,18 @@
+app.post("/api/books/:id/favorite")
+
+{ id } = req.param
+{ book_id } = req.body
+
+error = addToFavorite(id, book_id)
+if (error)								error:	- user not found
+	send(400, error)							- book not found
+												- already in favorites
+send(200)
+
+
+
+
+
+addToFavorite(id, book_id)
+
+sql = "INSERT INTO Favoris (user_id, book_id) VALUES(?, ?);"

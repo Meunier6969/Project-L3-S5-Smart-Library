@@ -37,11 +37,13 @@ app.listen(PORT, () => {
 //==========================================
 
 app.get("/api/test", async (req, res) => {
-	const {us, bo} = req.body
+	const token = req.headers.authorization
 
-	let data = await getUsersFavorites(us)
-
-	res.status(418).send(data)
+	res.status(418).send({
+		"tok": token,
+		"val": isTokenValid(token),
+		"adm": await isTokenAdmin(token),
+	})
 })
 
 // GET
@@ -58,6 +60,18 @@ app.get("/api/users/:id", async (req, res) => {
 		sendError(res, 404, "User not found")
 		return
 	}
+
+	res.status(200).send(result)
+})
+
+app.get("/api/users/:id/favorites", async (req, res) => {
+	const { id } = req.params
+
+	let result = await getUsersFavorites(id)
+	// if (!result) {
+	// 	sendError(res, 404, "User not found")
+	// 	return
+	// }
 
 	res.status(200).send(result)
 })
@@ -109,7 +123,7 @@ app.post("/api/users/login", async (req, res) => {
 	}
 	
 	let { user_pwd, user_id } = await getPassword(pseudo)
-	if (error || user_pwd !== pwd) {
+	if (user_pwd !== pwd) {
 		sendError(res, 400, "Wrong login information.")
 		return
 	}
@@ -117,10 +131,10 @@ app.post("/api/users/login", async (req, res) => {
 	let jwtSecretKey = process.env.JWT_SECRET_KEY
 	let data = {
 		time: Date(),
-		user_pseudo: user_id,
+		user_id: user_id,
 	}
 
-	const token = sign(data, jwtSecretKey, {expiresIn: '10m'});
+	const token = sign(data, jwtSecretKey, {expiresIn: '10h'});
 
 	res.status(200).send({
 		"message": "Logged in 👍",
@@ -132,7 +146,7 @@ app.post("/api/books", async (req, res) => {
 	const { title, author, description, year } = req.body
 	const token = req.headers.authorization
 
-	if (isTokenAdmin(token)) {
+	if (await isTokenAdmin(token)) {
 		sendError(res, 405, "You are not an administrator.")
 		return
 	}
@@ -142,19 +156,13 @@ app.post("/api/books", async (req, res) => {
 		return
 	}
 
-	let newBook = await addNewBook(title, author, description, "1234-12-31", "")
-	if (newBook === -1) {
-		sendError(res, 400, "Book already exists")
-		return
-	} else if (newBook === -2) {
-		sendError(res, 400, "Some arguments have an incorrect format. The format for 'year' is 'yyyy-mm-dd'.")
-		return
-	}
-
-	res.status(201).send({
-		"message": "New book created",
-		"book": newBook
-	})
+	await addNewBook(title, author, description, year, "")
+		.then(newBook => res.status(201).send({
+			"message": "New book created",
+			"book": newBook
+		}))
+		.catch(error => sendError(res, 404, error))
+	
 })
 
 app.post("/api/books/:id/favorite", (req, res) => {
@@ -205,7 +213,7 @@ app.delete("/api/users/:id", async (req, res) => {
 	const token = req.headers.authorization
 
 	// TODO: Let the user kms
-	if (!isTokenAdmin(token)) {
+	if (!await isTokenAdmin(token)) {
 		sendError(res, 403, "You must be an administator to delete this user.")
 		return
 	}
@@ -225,20 +233,20 @@ app.delete("/api/books/:id", async (req, res) => {
 	const { id } = req.params
 	const token = req.headers.authorization
 
-	if (!isTokenAdmin(token)) {
+	if (!await isTokenAdmin(token)) {
 		sendError(res, 403, "You must be an administator to delete this book.")
 		return
 	}
 
-	let { error } = await deleteBook(id);
-	if (error) {
+	await deleteBook(id)
+	.then(() => {
+		res.status(200).send({
+			"message": "Book deleted"
+		})
+	}).catch((error) => {
 		sendError(res, 400, error)
-		return
-	}
+	});
 
-	res.status(200).send({
-		"message": "Book deleted"
-	})
 })
 
 app.delete("/api/books/:id/favorite", (req, res) => {
@@ -298,7 +306,7 @@ function isTokenValid(token) {
 	return true
 }
 
-function isTokenAdmin(token) {
+async function isTokenAdmin(token) {
 	if (!isTokenValid(token)) return false
 
 	let jwtSecretKey = process.env.JWT_SECRET_KEY;
@@ -308,7 +316,10 @@ function isTokenAdmin(token) {
 	} catch (error) {
 		return false
 	}
-	let user = getUserById(tk.user_id)
+
+	console.log(tk)
+	let user = await getUserById(tk.user_id)
+	if (!user) return false
 
 	return Boolean(user.role)
 }

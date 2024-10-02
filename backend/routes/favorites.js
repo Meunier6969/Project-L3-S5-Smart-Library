@@ -3,6 +3,8 @@ import mysql from 'mysql2'
 import dotenv from 'dotenv'
 dotenv.config()
 
+import { getUserById } from './users.js'
+
 const pool = mysql.createPool({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USERNAME,
@@ -19,15 +21,24 @@ export async function getUsersFavorites(user_id) {
 
 export async function addBookToUsersFavorite(user_id, book_id) {
 	let data = {
-		"error": ""
+		"error": "",
+	}
+
+	if (!await getUserById(user_id)) {
+		data.error = "User doesn't exist."
+		return data
 	}
 
 	const sql = 'INSERT INTO Favoris (user_id, book_id) VALUES(?, ?);'
 	const values = [user_id, book_id]
 
-	const [result, fields] = await pool.execute(sql, values)
+	try {
+		const [result, fields] = await pool.execute(sql, values)
+	} catch (error) {
+		data.error = error
+	}
 
-	return {result, fields}
+	return data
 }
 
 export async function removeBookFromUsersFavorite(user_id, book_id) {

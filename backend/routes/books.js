@@ -32,31 +32,29 @@ export async function getBookByTitle(title) {
 }
 
 export async function addNewBook(title, author, description, year, img) {
-	if (await getBookByTitle(title)) return -1
-
-	const sql = "INSERT INTO Book (title, author, description, years, img) VALUES (?,?,?,?,?);"
-	const values = [title, author, description, year, img]
+	if (await getBookByTitle(title)) throw new Error("Book already exists.");
 	
 	try {
+		const sql = "INSERT INTO Book (title, author, description, years, img) VALUES (?,?,?,?,?);"
+		const values = [title, author, description, year, img]
+		
 		const [result, fields] = await pool.execute(sql, values);
+		
 		return result.insertId
 	} catch (error) {
-		return -2
+		throw error;
 	}
-	
 }
 
 export async function deleteBook(book_id) {
-	let data = {
-		"error": "",
+	try {
+		const sql = "DELETE FROM Book WHERE book_id=?"
+		const values = [book_id]
+	
+		const [result, fields] = await pool.execute(sql, values);
+		
+		if (result.affectedRows === 0) throw new Error("Book does not exist.");
+	} catch (error) {
+		throw error
 	}
-
-	const sql = "DELETE FROM Book WHERE book_id=?"
-	const values = [book_id]
-
-	const [result, fields] = await pool.execute(sql, values);
-
-	if (result.affectedRows == 0) data.error = "Book does not exist."
-
-	return data
 }

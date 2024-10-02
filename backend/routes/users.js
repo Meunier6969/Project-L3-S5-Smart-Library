@@ -18,14 +18,17 @@ export async function getAllUsers() {
 }
 
 export async function getUserById(user_id) {
-	const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE user_id=?'
+	const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE user_id=?;'
 	const [user] = await pool.query(sql, [user_id]);
+
+	console.log(user_id)
+	console.log(user)
 
 	return user[0]
 }
 
 export async function getUserByPseudo(pseudo) {
-	const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE pseudo=?'
+	const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE pseudo=?;'
 	const [user] = await pool.query(sql, [pseudo]);
 
 	return user[0]
