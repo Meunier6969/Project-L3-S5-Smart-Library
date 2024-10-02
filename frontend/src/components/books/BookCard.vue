@@ -6,13 +6,13 @@
         class="card-img-top"
     />
     <div class="bgIcon  custom-rounded" style="height: 35px; width: 45px; background-color: hsla(0,0%,55%,0.51)"  v-if="isLoggedIn">
-    <div class="favorite-icon">
-      <i
-          :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
-          :style="{ color: book.isFav ? 'red' : 'black' }"
-          aria-hidden="true"
-      ></i>
-    </div>
+      <div class="favorite-icon">
+        <i
+            :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
+            :style="{ color: book.isFav ? 'red' : 'black' }"
+            aria-hidden="true"
+        ></i>
+      </div>
     </div>
     <div class="card-footer" style="height: 5rem">
       <h5 class="card-title text-white text-clamp">{{ this.book.title }}</h5>
@@ -52,7 +52,8 @@ export default {
 
 <style scoped>
 .card {
-  max-height: 100%;
+  height: 430px;
+  width: 18vw;
   cursor: pointer;
 }
 .card-img-top {
