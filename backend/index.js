@@ -283,19 +283,20 @@ app.delete("/api/books/:id", async (req, res) => {
 })
 
 app.delete("/api/books/:id/favorite", async (req, res) => {
-	// TODO: Auth user
 	const { id } = req.params
-	const { user_id } = req.body
+	const token = req.headers.authorization
 
 	if (!id) {
 		sendError(res, 400, "Missing book id.")
 		return
 	}
 	
-	if (!user_id) {
+	if (!isTokenValid(token)) {
 		sendError(res, 400, "You must be logged in.")
 		return
 	}
+
+	let user_id = getUserByToken(token)
 
 	await removeBookFromUsersFavorite(user_id, id)
 	.then((result) => {
