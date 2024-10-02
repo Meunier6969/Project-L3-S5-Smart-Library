@@ -51,7 +51,7 @@ function switchToLogin() {
                 {{ category }}<span v-if="index < this.book.categories.length - 1">, </span>
               </span>
               </h6>
-              <p style="text-align: justify">{{this.book.description}}
+              <p style="text-align: justify; white-space: normal">{{this.book.description}}
               </p>
             </div>
 
