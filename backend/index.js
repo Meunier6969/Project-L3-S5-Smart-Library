@@ -43,54 +43,61 @@ app.get("/api/test", async (req, res) => {
 		"tok": token,
 		"val": isTokenValid(token),
 		"adm": await isTokenAdmin(token),
+		"usr": getUserByToken(token)
 	})
 })
 
 // GET
 app.get("/api/users/", async (req, res) => {
-	let result = await getAllUsers()
-	res.status(200).send(result)
+	await getAllUsers()
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 400, err)
+	})
 })
 
 app.get("/api/users/:id", async (req, res) => {
 	const { id } = req.params
 
-	let result = await getUserById(id)
-	if (!result) {
-		sendError(res, 404, "User not found")
-		return
-	}
-
-	res.status(200).send(result)
+	await getUserById(id)
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 404, err)
+	})
 })
 
 app.get("/api/users/:id/favorites", async (req, res) => {
 	const { id } = req.params
 
-	let result = await getUsersFavorites(id)
-	// if (!result) {
-	// 	sendError(res, 404, "User not found")
-	// 	return
-	// }
+	await getUsersFavorites(id)
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 404, err)
+	});
 
-	res.status(200).send(result)
 })
 
 app.get("/api/books/", async (req, res) => {
-	let result = await getAllBooks()
-	res.status(200).send(result)
+	await getAllBooks()
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
 })
 
 app.get("/api/books/:id", async (req, res) => {
 	const { id } = req.params
 
-	let result = await getBookById(id)
-	if (!result) {
-		sendError(res, 404, "Book not found")
-		return
-	}
-
-	res.status(200).send(result)
+	await getBookById(id)
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 404, err)
+	});
 })
 
 // POST
@@ -98,20 +105,19 @@ app.post("/api/users/register", async (req, res) => {
 	const { pseudo, email, pwd } = req.body
 
 	if (!pseudo || !email || !pwd) {
-		sendError(res, 400, "Missing name, mail and/or password field.")
+		sendError(res, 400, "Missing pseudo, email and/or pwd field.")
 		return
 	}
 
-	let { error, insertId } = await addNewUser(pseudo, email, pwd)
-	if (error) {
-		sendError(res, 400, error)
-		return
-	}
-
-	res.status(201).send({
-		"message": "New user created",
-		"user_id": insertId
-	})
+	await addNewUser(pseudo, email, pwd)
+	.then((result) => {
+		res.status(201).send({
+			"message": "New user created",
+			"user_id": result.insertId
+		})
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
 })
 
 app.post("/api/users/login", async (req, res) => {
@@ -122,8 +128,17 @@ app.post("/api/users/login", async (req, res) => {
 		return
 	}
 	
-	let { user_pwd, user_id } = await getPassword(pseudo)
-	if (user_pwd !== pwd) {
+	let user
+
+	await getPassword(pseudo)
+	.then((result) => {
+		user = result
+	}).catch((err) => {
+		sendError(res, 404, err)
+		return
+	});
+
+	if (user.pwd !== pwd) {
 		sendError(res, 400, "Wrong login information.")
 		return
 	}
@@ -131,13 +146,12 @@ app.post("/api/users/login", async (req, res) => {
 	let jwtSecretKey = process.env.JWT_SECRET_KEY
 	let data = {
 		time: Date(),
-		user_id: user_id,
+		user_id: user.user_id,
 	}
 
-	const token = sign(data, jwtSecretKey, {expiresIn: '10h'});
+	const token = sign(data, jwtSecretKey, {expiresIn: '24h'});
 
 	res.status(200).send({
-		"message": "Logged in 👍",
 		"token": token
 	})
 })
@@ -157,76 +171,61 @@ app.post("/api/books", async (req, res) => {
 	}
 
 	await addNewBook(title, author, description, year, "")
-		.then(newBook => res.status(201).send({
+	.then((result) => {
+		res.status(201).send({
 			"message": "New book created",
-			"book": newBook
-		}))
-		.catch(error => sendError(res, 404, error))
-	
+			"book_id": result.insertId
+		})
+	}).catch((err) => {
+		sendError(res, 404, err)
+	});
+
 })
 
-app.post("/api/books/:id/favorite", (req, res) => {
+app.post("/api/books/:id/favorite", async (req, res) => {
 	// TODO: Auth user
 	const { id } = req.params
-	const { user_id } = req.body
+	const token = req.headers.authorization
 
 	if (!id) {
 		sendError(res, 400, "Missing book id.")
 		return
 	}
 
-	if (!user_id) {
+	if (!isTokenValid(token)) {
 		sendError(res, 400, "You must be logged in.")
 		return
 	}
-	
-	let book = getBookByID(id)
-	if (!book) {
-		sendError(res, 404, "Book not found")
-		return
-	}
-	
-	let user = getUserByID(user_id)
-	if (!user) {
-		sendError(res, 404, "User not found")
-		return
-	}
-	
-	let infav = isBookInUsersFavorite(user_id, id);
-	if (infav == true) {
-		sendError(res, 400, "Book is already in users favorite.")
-		return
-	}
 
-	addBookToUsersFavorite(user_id, id)
+	let user_id = getUserByToken(token)
 
-	res.status(200).send({
-		"message": "Book has been favorited.",
-		"book": book,
-		"usersFavorite": user.favorites
-	})
+	await addBookToUsersFavorite(user_id, id)
+	.then((result) => {
+		res.status(200).send({
+			"message": "Book has been favorited."
+		})
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
 })
 
-// DELETE
 app.delete("/api/users/:id", async (req, res) => {
 	const { id } = req.params
 	const token = req.headers.authorization
 
-	// TODO: Let the user kms
-	if (!await isTokenAdmin(token)) {
+	if (getUserByToken(token) != id && !await isTokenAdmin(token)) {
 		sendError(res, 403, "You must be an administator to delete this user.")
 		return
 	}
 
-	let { error } = await deleteUser(id);
-	if (error) {
-		sendError(res, 400, error)
-		return
-	}
-
-	res.status(200).send({
-		"message": "User deleted"
-	})
+	await deleteUser(id)
+	.then((result) => {
+		res.status(200).send({
+			"message": "User deleted"
+		})
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
 })
 
 app.delete("/api/books/:id", async (req, res) => {
@@ -239,7 +238,7 @@ app.delete("/api/books/:id", async (req, res) => {
 	}
 
 	await deleteBook(id)
-	.then(() => {
+	.then((result) => {
 		res.status(200).send({
 			"message": "Book deleted"
 		})
@@ -249,7 +248,7 @@ app.delete("/api/books/:id", async (req, res) => {
 
 })
 
-app.delete("/api/books/:id/favorite", (req, res) => {
+app.delete("/api/books/:id/favorite", async (req, res) => {
 	// TODO: Auth user
 	const { id } = req.params
 	const { user_id } = req.body
@@ -263,34 +262,15 @@ app.delete("/api/books/:id/favorite", (req, res) => {
 		sendError(res, 400, "You must be logged in.")
 		return
 	}
-	
-	let book = getBookByID(id)
-	if (!book) {
-		sendError(res, 404, "Book not found")
-		return
-	}
-	
-	let user = getUserByID(user_id)
-	if (!user) {
-		sendError(res, 404, "User not found")
-		return
-	}
-	
-	let infav = isBookInUsersFavorite(user_id, id);
-	if (infav == false) {
-		sendError(res, 400, "Book is not in users favorite")
-		return
-	}
 
-	removeBookFromUsersFavorite(user_id, id)
-
-	res.status(200).send({
-		"message": "Book has been unfavorited.",
-		"book": book,
-		"usersFavorite": user.favorites
-	})
-
-
+	await removeBookFromUsersFavorite(user_id, id)
+	.then((result) => {
+		res.status(200).send({
+			"message": "Book has been unfavorited.",
+		})
+	}).catch((err) => {
+		throw err
+	});
 })
 
 // Functions
@@ -306,6 +286,20 @@ function isTokenValid(token) {
 	return true
 }
 
+function getUserByToken(token) {
+	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+
+	let data
+
+	try {
+		data = verify(token, jwtSecretKey)
+	} catch (error) {
+		return -1
+	}
+
+	return data.user_id
+}
+
 async function isTokenAdmin(token) {
 	if (!isTokenValid(token)) return false
 
@@ -317,15 +311,20 @@ async function isTokenAdmin(token) {
 		return false
 	}
 
-	console.log(tk)
-	let user = await getUserById(tk.user_id)
-	if (!user) return false
+	let isAdmin = false
 
-	return Boolean(user.role)
+	await getUserById(tk.user_id)
+	.then((result) => {
+		isAdmin = Boolean(result.role)
+	}).catch((err) => {
+		isAdmin = false
+	});
+
+	return isAdmin
 }
 
 function sendError(res, statuscode, error) {
 	res.status(statuscode).send({
-		"message": "There has been an error: " + error
+		"message": "" + error
 	})
 }

@@ -11,83 +11,100 @@ const pool = mysql.createPool({
 }).promise()
 
 export async function getAllUsers() {
-	const sql = 'SELECT user_id, pseudo, email, role FROM Users'
-	const [users] = await pool.query(sql);
+	try {
+		const sql = 'SELECT user_id, pseudo, email, role FROM Users'
+		const [users] = await pool.query(sql);
+		
+		return users
+	} catch (error) {
+		throw error
+	}
 
-	return users
 }
 
 export async function getUserById(user_id) {
-	const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE user_id=?;'
-	const [user] = await pool.query(sql, [user_id]);
+	try {
+		const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE user_id=?;'
+		const [user] = await pool.query(sql, [user_id]);
+	
+		if (!user[0]) throw new Error("User Not found.");
 
-	console.log(user_id)
-	console.log(user)
-
-	return user[0]
-}
-
-export async function getUserByPseudo(pseudo) {
-	const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE pseudo=?;'
-	const [user] = await pool.query(sql, [pseudo]);
-
-	return user[0]
+		return user[0]
+	} catch (error) {
+		throw error
+	}
 }
 
 export async function addNewUser(pseudo, email, pwd) {
-	let data = {
-		"error": "",
-		"insertId": -1
-	}
-
-	if (await getUserByPseudo(pseudo)) { 
-		data.error = "User already exist."
-		return data
-	}
+	try {
+		if (await doesUserExistPseudo(pseudo)) throw new Error("User already exist");
+		
+		
+		const sql = "INSERT INTO Users (pseudo, email, role, pwd) VALUES (?,?,?,?);"
+		const values = [pseudo, email, 0, pwd]
 	
-	const sql = "INSERT INTO Users (pseudo, email, role, pwd) VALUES (?,?,?,?);"
-	const values = [pseudo, email, 0, pwd]
-
-	const [result, fields] = await pool.execute(sql, values);
-
-	data.insertId = result.insertId
-
-	return data
+		const [result, fields] = await pool.execute(sql, values);
+	
+		return result
+	} catch (error) {
+		throw error
+	}
 }
 
 export async function deleteUser(user_id) {
-	let data = {
-		"error": "",
+	try {
+		const sql = "DELETE FROM Users WHERE user_id=?"
+		const values = [user_id]
+	
+		const [result, fields] = await pool.execute(sql, values);
+	
+		if (result.affectedRows == 0) throw new Error("User does not exist.");
+	
+		return result
+	} catch (error) {
+		throw error
 	}
 
-	const sql = "DELETE FROM Users WHERE user_id=?"
-	const values = [user_id]
-
-	const [result, fields] = await pool.execute(sql, values);
-
-	if (result.affectedRows == 0) data.error = "User does not exist."
-
-	return data
 }
 
 export async function getPassword(pseudo) {
-	let data = {
-		"error": "",
-		"user_id": "",
-		"user_pwd": ""
-	}
+	try {
+		const sql = 'SELECT user_id, pwd FROM Users WHERE pseudo=?'
+		const [user] = await pool.query(sql, [pseudo]);
+		
+		console.log(user)
 
-	const sql = 'SELECT user_id, pwd FROM Users WHERE pseudo=?'
-	const [user] = await pool.query(sql, [pseudo]);
+		if (!user[0]) throw new Error("User not found");
 	
-	if (!user[0]) {
-		data.error = "User not found"
-	} else {
-		data.user_id = user[0].user_id
-		data.user_pwd = user[0].pwd
+		return user[0]
+	} catch (error) {
+		throw error
 	}
-
-	return data
 }
 
 
+export async function doesUserExistPseudo(pseudo) {
+	try {
+		const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE pseudo=?;'
+		const [user] = await pool.query(sql, [pseudo]);
+
+		if (!user[0]) return false;
+
+		return true
+	} catch (error) {
+		return false
+	}
+}
+
+export async function doesUserExistId(pseudo) {
+	try {
+		const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE user_id=?;'
+		const [user] = await pool.query(sql, [pseudo]);
+
+		if (!user[0]) return false;
+
+		return true
+	} catch (error) {
+		return false
+	}
+}

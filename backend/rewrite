@@ -1,0 +1,27 @@
+GET /users/		getAllUsers()
+GET /users/:id		getUserById()
+GET /users/:id/favorite	getUsersFavorites()
+GET /books/		getAllBooks()
+GET /books/:id		getBookById()
+POST /users/register	addNewUser()		doesUserExist()
+POST /users/login	getPassword()
+POST /books/		addNewBook()		doesBookExist()
+POST /books/:id/fav-	addBookToUsersFavorite() //include checking if book is already in fav
+DELETE /users/:id	deleteUser()
+DELETE /books/:id	deleteBook()
+
+== TODO ==
+DELETE /books/:id/fav-	removeBookFromUsersFavorite() // same as addBooktoUsersFavorite()
+
+GET most favorite
+UPDATE user/books
+categories
+args for get books
+
+
+
+
+GET /api/books?page=1
+	books  1-10
+GET /api/books?page=2
+	books 11-20

@@ -3,7 +3,7 @@ import mysql from 'mysql2'
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { getUserById } from './users.js'
+import { doesUserExistId, getUserById } from './users.js'
 
 const pool = mysql.createPool({
 	host: process.env.DB_HOST,
@@ -13,37 +13,44 @@ const pool = mysql.createPool({
 }).promise()
 
 export async function getUsersFavorites(user_id) {
-	const sql = 'SELECT Favoris.book_id, Book.title FROM Favoris INNER JOIN Book ON Book.book_id=Favoris.book_id WHERE Favoris.user_id=?;'
-	const [favorites] = await pool.query(sql, [user_id]);
+	try {
+		if (!await getUserById(user_id)) throw new Error("User Not found");
 
-	return favorites
+		const sql = 'SELECT Favoris.book_id, Book.title FROM Favoris INNER JOIN Book ON Book.book_id=Favoris.book_id WHERE Favoris.user_id=?;'
+		const [favorites] = await pool.query(sql, [user_id]);
+	
+		return favorites
+	} catch (error) {
+		throw error;
+	}
 }
 
 export async function addBookToUsersFavorite(user_id, book_id) {
-	let data = {
-		"error": "",
-	}
-
-	if (!await getUserById(user_id)) {
-		data.error = "User doesn't exist."
-		return data
-	}
-
-	const sql = 'INSERT INTO Favoris (user_id, book_id) VALUES(?, ?);'
-	const values = [user_id, book_id]
-
 	try {
+		if (!await doesUserExistId(user_id)) throw new Error("User does not exist");
+		
+		const sql = 'INSERT INTO Favoris (user_id, book_id) VALUES(?, ?);'
+		const values = [user_id, book_id]
+		
 		const [result, fields] = await pool.execute(sql, values)
-	} catch (error) {
-		data.error = error
-	}
 
-	return data
+		return result
+	} catch (error) {
+		throw error
+	}
 }
 
 export async function removeBookFromUsersFavorite(user_id, book_id) {
-	const sql = ''
-	const values = [user_id, book_id]
+	try {
+		if (!await doesUserExistId(user_id)) throw new Error("User does not exist");
 
+		const sql = 'DELETE FROM Favoris WHERE user_id=? AND book_id=?;'
+		const values = [user_id, book_id]
 
+		const [result, fields] = await pool.execute(sql, values)
+
+		return result
+	} catch (error) {
+		throw error
+	}
 }
