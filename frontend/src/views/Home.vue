@@ -1,14 +1,15 @@
 <template>
   <div>
+    <div v-if="searchQuery === ''">
     <h3 class="text-white" style="text-align: start; margin-left: 10vw">Most searched books</h3>
-    <BookRow :books="bookList" :searchQuery="searchQuery" style="margin-bottom: 2rem"/>
+    <BookRow :books="bookList" :searchQuery="searchQuery" style="margin-bottom: 1.5rem"/>
+    </div>
     <h3 class="text-white" style="text-align: start; margin-left: 10vw">All books</h3>
     <BookGrid :books="bookList" :searchQuery="searchQuery"/>
   </div>
 </template>
 
 <script>
-import NavBar from "@/components/NavBar.vue";
 import BookGrid from "@/components/books/BookGrid.vue";
 import Book from "@/models/book.js";
 import BookRow from "@/components/books/BookRow.vue";
