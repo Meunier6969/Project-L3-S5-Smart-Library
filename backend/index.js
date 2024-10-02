@@ -1,364 +1,311 @@
-const express = require("express")
-const dotenv = require('dotenv');
-const jwt = require('jsonwebtoken');
-const mysql = require('mysql');
-const cors = require('cors');
+//==========================================
+import express, { json } from "express";
+import { config } from 'dotenv';
+
+import jwtpkg from 'node-jsonwebtoken';
+const { sign, verify } = jwtpkg;
+
+import corspkg from 'cors'; // Fixing some potential network errors
+const cors = corspkg;
+
+import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
+import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook} from "./routes/books.js"
+import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite } from "./routes/favorites.js"
+
+//==========================================
 
 const app = express()
 const PORT = 1234
-app.use(cors());
-dotenv.config()
 
-// MySQL 3306
-// TODO: Replace all this with the database
-let GLOBAL_USER_ID = 0
-let GLOBAL_BOOK_ID = 0
-
-let data = {
-	// users: [],
-	users: [
-		createUser(0, "José", mail="bing@chilling.com", pwd="azerty"),
-		createUser(1, "Micheal", mail="gabriel@atal.com", pwd="azerty"),
-	],
-	// books: [],
-	books: [createBook(0, "L'art de la guerre", "Sun Tzu", "If you know the enemy and know yourself, you need not fear the result of a hundred battles.")]
-}
-data.users[1].admin = true
-//==========================================
+config() // Setup env variables
 
 // Middleware
-app.use(express.json())
+app.use(cors())
+app.use(json())
 app.use((req, res, next) => {
 	console.log('%s %s %s', req.method, req.url, req.body)
 	next()
-	console.log('\t%s', res.statusCode)
-	
 })
+
+//==========================================
 
 // Running the api
 app.listen(PORT, () => {
 	console.log(`Listening on localhost:${PORT}`)
 })
 
-// Connect to MySQL database
-var con = mysql.createConnection({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USERNAME,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_DBNAME
-});
-
-con.connect((err) => {
-	if (err) throw err;
-	console.log("Connected!");
-});
-
 //==========================================
 
-app.get("/api/test", (req, res) => {
-	const tok = req.headers.authorization
+app.get("/api/test", async (req, res) => {
+	const token = req.headers.authorization
 
-	res.status(200).send({
-		"tok": tok,
-		"auth": isTokenAdmin(tok)
+	res.status(418).send({
+		"tok": token,
+		"val": isTokenValid(token),
+		"adm": await isTokenAdmin(token),
+		"usr": getUserByToken(token)
 	})
-	
 })
 
 // GET
-app.get("/api/users/", (req, res) => {
-
-	let publicUsers = []
-
-	data.users.forEach(user => {
-		publicUsers.push(getPublicInfoFromUser(user))
-	});
-
-	res.status(200).send(publicUsers)
-})
-
-app.get("/api/users/:id", (req, res) => {
-	const { id } = req.params
-
-	let user = getUserByID(id)
-	if (!user) {
-		res.status(404).send({
-			"message": "User not found"
-		})
-		return
-	}
-
-	res.status(200).send(getPublicInfoFromUser(user))
-})
-
-app.get("/api/books/", (req, res) => {
-	res.status(200).send(data.books)
-})
-
-app.get("/api/books/:id", (req, res) => {
-	const { id } = req.params
-
-	let book = getBookByID(id)
-	if (!book) {
-		res.status(404).send({
-			"message": "Book not found"
-		})
-		return
-	}
-
-	res.status(200).send(book)
-})
-
-// POST
-app.post("/api/users/register", (req, res) => {
-	const { name, mail, pwd } = req.body
-
-	if (!name || !mail || !pwd) {
-		res.status(400).send({
-			"message": "Missing name, mail and/or password field."
-		})
-		return
-	}
-
-	let newUser = createUser(GLOBAL_USER_ID, name, mail, pwd)
-
-	GLOBAL_USER_ID++
-
-	data.users.push(newUser)
-
-	res.status(201).send({
-		"message": "New user created",
-		"user": newUser
+app.get("/api/users/", async (req, res) => {
+	await getAllUsers()
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 400, err)
 	})
 })
 
-app.post("/api/users/login", (req, res) => {
-	const { username, pwd } = req.body
+app.get("/api/users/:id", async (req, res) => {
+	const { id } = req.params
 
-	if (!username || !pwd) {
-		res.status(400).send({
-			"message": "Missing username and/or password field."
-		})
+	await getUserById(id)
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 404, err)
+	})
+})
+
+app.get("/api/users/:id/favorites", async (req, res) => {
+	const { id } = req.params
+
+	await getUsersFavorites(id)
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 404, err)
+	});
+
+})
+
+app.get("/api/books/", async (req, res) => {
+	// If there are parameters, we will use them to filter the books
+	if (Object.keys(req.query).length !== 0) {
+		await getNumberOfBooks(req.query)
+			.then((result) => {
+				res.status(200).send(result);
+			})
+			.catch((err) => {
+				sendError(res, 400, err);
+			});
+	} else {
+		// If no query parameters, return all books
+		await getAllBooks()
+			.then((result) => {
+				res.status(200).send(result);
+			})
+			.catch((err) => {
+				sendError(res, 400, err);
+			});
+	}
+});
+
+app.get("/api/books/", async (req, res) => {
+	try {
+		// Default pagination settings
+		const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
+		const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
+		const offset = (page - 1) * limit; // Calculate the offset
+
+		if (Object.keys(req.query).length > 1) {
+			// If there are other query parameters (like filters), handle them
+			const filteredBooks = await getNumberOfbooks(req.query, limit, offset);
+			res.status(200).json(filteredBooks);
+		} else {
+			// No filters, just return all books with pagination
+			const allBooks = await getAllBooks(limit, offset);
+			res.status(200).json(allBooks);
+		}
+	} catch (err) {
+		sendError(res, 400, err);  // Send an error response if something goes wrong
+	}
+});
+
+app.get("/api/books/:id", async (req, res) => {
+	const { id } = req.params
+
+	await getBookById(id)
+	.then((result) => {
+		res.status(200).send(result)
+	}).catch((err) => {
+		sendError(res, 404, err)
+	});
+})
+
+// POST
+app.post("/api/users/register", async (req, res) => {
+	const { pseudo, email, pwd } = req.body
+
+	if (!pseudo || !email || !pwd) {
+		sendError(res, 400, "Missing pseudo, email and/or pwd field.")
 		return
 	}
 
-	let user = getUserByName(username)
-	if (!user || user.pwd != pwd) {
-		res.status(401).send({
-			"message": "Incorrect login information"
+	await addNewUser(pseudo, email, pwd)
+	.then((result) => {
+		res.status(201).send({
+			"message": "New user created",
+			"user_id": result.insertId
 		})
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
+})
+
+app.post("/api/users/login", async (req, res) => {
+	const { pseudo, pwd } = req.body
+
+	if (!pseudo || !pwd) {
+		sendError(res, 400, "Missing name and/or password field.")
+		return
+	}
+	
+	let user
+
+	await getPassword(pseudo)
+	.then((result) => {
+		user = result
+	}).catch((err) => {
+		sendError(res, 404, err)
+		return
+	});
+
+	if (user.pwd !== pwd) {
+		sendError(res, 400, "Wrong login information.")
 		return
 	}
 
 	let jwtSecretKey = process.env.JWT_SECRET_KEY
 	let data = {
 		time: Date(),
-		user_id: user.id,
+		user_id: user.user_id,
 	}
 
-	const token = jwt.sign(data, jwtSecretKey, {expiresIn: '10m'});
+	const token = sign(data, jwtSecretKey, {expiresIn: '24h'});
 
 	res.status(200).send({
-		"message": "Logged in 👍",
 		"token": token
 	})
 })
 
-app.post("/api/books", (req, res) => {
-	// TODO: Auth admin
-	const { name, author, description } = req.body
+app.post("/api/books", async (req, res) => {
+	const { title, author, description, year } = req.body
 	const token = req.headers.authorization
 
-	if (isTokenAdmin(token)) {
-		res.status(405).send({
-			"message": "You must be an administator to create a book.",
-		})
+	if (await isTokenAdmin(token)) {
+		sendError(res, 405, "You are not an administrator.")
 		return
 	}
 
-	if (!name || !author || !description) {
-		res.status(400).send({
-			"message": "Missing name, author and/or description field."
-		})
+	if (!title || !author || !description) {
+		sendError(res, 400, "Missing name, author and/or description field.")
 		return
 	}
 
-	let newBook = createBook(GLOBAL_BOOK_ID, name, author, description)
+	await addNewBook(title, author, description, year, "")
+	.then((result) => {
+		res.status(201).send({
+			"message": "New book created",
+			"book_id": result.insertId
+		})
+	}).catch((err) => {
+		sendError(res, 404, err)
+	});
 
-	GLOBAL_BOOK_ID++
-
-	data.books.push(newBook)
-
-	res.status(201).send({
-		"message": "New book created",
-		"book": newBook
-	})
 })
 
-app.post("/api/books/:id/favorite", (req, res) => {
+app.post("/api/books/:id/favorite", async (req, res) => {
 	// TODO: Auth user
 	const { id } = req.params
-	const { user_id } = req.body
+	const token = req.headers.authorization
 
 	if (!id) {
-		res.status(400).send({
-			"message": "Missing book id."
-		})
+		sendError(res, 400, "Missing book id.")
 		return
 	}
 
-	if (!user_id) {
-		res.status(400).send({
-			"message": "You must be logged in."
-		})
-		return
-	}
-	
-	let book = getBookByID(id)
-	if (!book) {
-		res.status(404).send({
-			"message": "Book not found"
-		})
-		return
-	}
-	
-	let user = getUserByID(user_id)
-	if (!user) {
-		res.status(404).send({
-			"message": "User not found"
-		})
+	if (!isTokenValid(token)) {
+		sendError(res, 400, "You must be logged in.")
 		return
 	}
 
-	let infav = isBookInUsersFavorite(user_id, id);
-	if (infav == true) {
-		res.status(400).send({
-			"message": "Book is already in users favorite.",
+	let user_id = getUserByToken(token)
+
+	await addBookToUsersFavorite(user_id, id)
+	.then((result) => {
+		res.status(200).send({
+			"message": "Book has been favorited."
 		})
-		return
-	}
-
-	addBookToUsersFavorite(user_id, id)
-
-	res.status(200).send({
-		"message": "Book has been favorited.",
-		"book": book,
-		"usersFavorite": user.favorites
-	})
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
 })
 
-// DELETE
-app.delete("/api/users/:id", (req, res) => {
-	// TODO: Let the user kms
-	if (isTokenAdmin(token)) {
-		res.status(403).send({
-			"message": "You must be an administator to delete this user.",
-		})
-		return
-	}
-
-	let user = data.users.find(obj => {
-		return obj.id === sid
-	})
-
-	if (!user) {
-		res.status(404).send({
-			"message": "User not found"
-		})
-		return
-	}
-
-	let index = data.users.indexOf(user);
-	if (index > -1) {
-		data.users.splice(index, 1);
-	}
-
-	res.status(200).send({
-		"message": "User deleted"
-	})
-})
-
-app.delete("/api/books/:id", (req, res) => {
-	if (isTokenAdmin(token)) {
-		res.status(403).send({
-			"message": "You must be an administator to delete this book.",
-		})
-		return
-	}
-
-	let book = data.books.find(obj => {
-		return obj.id === sid
-	})
-
-	if (!book) {
-		res.status(404).send({
-			"message": "User not found"
-		})
-		return
-	}
-
-	let index = data.books.indexOf(book);
-	if (index > -1) {
-		data.books.splice(index, 1);
-	}
-
-	res.status(200).send({
-		"message": "Book deleted"
-	})
-})
-
-app.delete("/api/books/:id/favorite", (req, res) => {
-	// TODO: Auth user
+app.delete("/api/users/:id", async (req, res) => {
 	const { id } = req.params
-	const { user_id } = req.body
+	const token = req.headers.authorization
+
+	if (getUserByToken(token) != id && !await isTokenAdmin(token)) {
+		sendError(res, 403, "You must be an administator to delete this user.")
+		return
+	}
+
+	await deleteUser(id)
+	.then((result) => {
+		res.status(200).send({
+			"message": "User deleted"
+		})
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
+})
+
+app.delete("/api/books/:id", async (req, res) => {
+	const { id } = req.params
+	const token = req.headers.authorization
+
+	if (!await isTokenAdmin(token)) {
+		sendError(res, 403, "You must be an administator to delete this book.")
+		return
+	}
+
+	await deleteBook(id)
+	.then((result) => {
+		res.status(200).send({
+			"message": "Book deleted"
+		})
+	}).catch((error) => {
+		sendError(res, 400, error)
+	});
+
+})
+
+app.delete("/api/books/:id/favorite", async (req, res) => {
+	const { id } = req.params
+	const token = req.headers.authorization
 
 	if (!id) {
-		res.status(400).send({
-			"message": "Missing book id."
-		})
-		return
-	}
-
-	if (!user_id) {
-		res.status(400).send({
-			"message": "You must be logged in."
-		})
-		return
-	}
-
-	let book = getBookByID(id)
-	if (!book) {
-		res.status(404).send({
-			"message": "Book not found"
-		})
+		sendError(res, 400, "Missing book id.")
 		return
 	}
 	
-	let user = getUserByID(user_id)
-	if (!user) {
-		res.status(404).send({
-			"message": "User not found"
-		})
+	if (!isTokenValid(token)) {
+		sendError(res, 400, "You must be logged in.")
 		return
 	}
 
-	let infav = isBookInUsersFavorite(user_id, id);
-	if (infav == false) {
-		res.status(400).send({
-			"message": "Book is not in users favorite.",
+	let user_id = getUserByToken(token)
+
+	await removeBookFromUsersFavorite(user_id, id)
+	.then((result) => {
+		res.status(200).send({
+			"message": "Book has been unfavorited.",
 		})
-		return
-	}
-
-	removeBookFromUsersFavorite(user_id, id)
-
-	res.status(200).send({
-		"message": "Book has been unfavorited.",
-		"book": book,
-		"usersFavorite": user.favorites
-	})
-
-
+	}).catch((err) => {
+		throw err
+	});
 })
 
 // Functions
@@ -366,7 +313,7 @@ function isTokenValid(token) {
 	let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 	try {
-		jwt.verify(token, jwtSecretKey)
+		verify(token, jwtSecretKey)
 	} catch (error) {
 		return false
 	}
@@ -374,105 +321,45 @@ function isTokenValid(token) {
 	return true
 }
 
-function isTokenAdmin(token) {
+function getUserByToken(token) {
+	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+
+	let data
+
+	try {
+		data = verify(token, jwtSecretKey)
+	} catch (error) {
+		return -1
+	}
+
+	return data.user_id
+}
+
+async function isTokenAdmin(token) {
 	if (!isTokenValid(token)) return false
 
 	let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 	try {
-		var tk = jwt.verify(token, jwtSecretKey)
+		var tk = verify(token, jwtSecretKey)
 	} catch (error) {
 		return false
 	}
-	let user = getUserByID(tk.user_id)
 
-	return Boolean(user.admin)
+	let isAdmin = false
+
+	await getUserById(tk.user_id)
+	.then((result) => {
+		isAdmin = Boolean(result.role)
+	}).catch((err) => {
+		isAdmin = false
+	});
+
+	return isAdmin
 }
 
-// Replaced by a database
-function createUser(id, name, mail, pwd) {
-	return {
-		"id": id,
-		"name": name,
-		"mail": mail,
-		"pwd": pwd,
-		"favorites": [],
-		"admin": false,
-	}
-}
-
-function createBook(id, name, author, description) {
-	return {
-		"id": id,
-		"name": name,
-		"author": author,
-		"description": description
-	}
-}
-
-function getUserByName(name) {
-	return data.users.find(obj => {
-		return obj.name === name
+function sendError(res, statuscode, error) {
+	res.status(statuscode).send({
+		"message": "" + error
 	})
-}
-
-function getUserByID(id) {
-	sid = id * 1 // Convert id to a number
-	return data.users.find(obj => {
-		return obj.id === sid
-	})
-}
-
-function getBookByID(id) {
-	sid = id * 1 // Convert id to a number
-	return data.books.find(obj => {
-		return obj.id === sid
-	})
-}
-
-function getPublicInfoFromUser(user) {
-	const { id, name, mail } = user
-	let data = {
-		id: id,
-		name: name,
-		mail: mail
-	}
-
-	return data
-}
-
-function isBookInUsersFavorite(user_id, book_id) {
-	// Assuming proper error handling beforehand by the caller
-	let user = getUserByID(user_id)
-	let book = getBookByID(book_id)
-	
-	if (!user || !book) return false
-
-	let index = user.favorites.indexOf(book_id)
-	if (index > -1) return true
-	
-	return false
-}
-
-function addBookToUsersFavorite(user_id, book_id) {
-	// Assuming proper error handling beforehand by the caller
-	let user = getUserByID(user_id)
-	let book = getUserByID(book_id)
-
-	if (!user || !book) return false
-
-	user.favorites.push(book_id)
-}
-
-function removeBookFromUsersFavorite(user_id, book_id) {
-	// Assuming proper error handling beforehand by the caller
-	let user = getUserByID(user_id)
-	let book = getUserByID(book_id)
-
-	if (!user || !book) return false
-
-	var index = user.favorites.indexOf(book_id);
-	if (index > -1) {
-		user.favorites.splice(index, 1);
-	}
 }
