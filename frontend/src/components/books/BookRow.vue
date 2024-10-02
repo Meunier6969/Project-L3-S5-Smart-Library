@@ -37,9 +37,15 @@ const openBookModal = () => {
 
 <style scoped>
 .scroll-container {
-  overflow-x: auto; /* Enable horizontal scroll */
+  overflow-x: auto;
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
   white-space: nowrap; /* Prevent line breaks, force items on the same line */
   margin-left: 10%;
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
 }
 
 .scroll-row {
