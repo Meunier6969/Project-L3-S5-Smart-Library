@@ -9,6 +9,9 @@ export const useUserStore = defineStore('userStore', {
         isLoggedIn(state) {
             return (typeof state.user !== 'undefined');
         },
+        isAdmin(state) {
+            return this.isLoggedIn && state.user.isAdmin;
+        },
         getUser(state) {
             return state.user;
         }
@@ -16,7 +19,7 @@ export const useUserStore = defineStore('userStore', {
     actions : {
         login() {
             //TODO: implement real login
-            this.user = new User(0);
+            this.user = new User(0, "AHHHHH", "BBBBBBBB", "hhfghhf", true);
         },
         signOut() {
             this.user = undefined;
