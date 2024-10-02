@@ -1,6 +1,7 @@
 <template>
   <div>
-    <BookGrid :books="bookList" :searchQuery="searchQuery"></BookGrid>
+    <BookRow :books="bookList" :searchQuery="searchQuery"/>
+    <BookGrid :books="bookList" :searchQuery="searchQuery"/>
   </div>
 </template>
 
@@ -8,10 +9,11 @@
 import NavBar from "@/components/NavBar.vue";
 import BookGrid from "@/components/books/BookGrid.vue";
 import Book from "@/models/book.js";
+import BookRow from "@/components/books/BookRow.vue";
 
 export default {
   name: 'Home',
-  components: {BookGrid},
+  components: {BookRow, BookGrid},
   props: {
     searchQuery: {
       type: String,
