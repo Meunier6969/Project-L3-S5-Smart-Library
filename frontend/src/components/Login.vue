@@ -39,6 +39,7 @@
 import { ref, getCurrentInstance } from 'vue';
 import ModalSignUp from '@/components/SignUp.vue';
 import {useUserStore} from "@/stores/userStore.js";
+import router from "@/router/router.js";
 
 const userStore = useUserStore();
 
@@ -52,6 +53,7 @@ function switchToSignUp() {
 
 function onSubmit() {
   userStore.login();
+  router.push('/')
 }
 </script>
 
