@@ -6,7 +6,7 @@ const userStore = useUserStore();
 
 <template>
   <nav class="col">
-    <h1 class="text-white">Smart Library</h1>
+    <a href="/"><h1 class="text-white">Smart Library</h1></a>
     <!--Main container-->
     <div class="row align-items-center">
       <!--User icon top left-->
