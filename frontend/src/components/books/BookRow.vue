@@ -44,7 +44,7 @@ const openBookModal = () => {
 
 .scroll-row {
   display: flex; /* Flexbox to arrange items in a row */
-  gap: calc(8vw/3.0);
+  gap: 1.64vw;
 }
 
 .scroll-item {
