@@ -7,7 +7,9 @@ const userStore = useUserStore();
 <template>
   <nav class="col">
     <h1 class="text-white">Smart Library</h1>
+    <!--Main container-->
     <div class="row align-items-center">
+      <!--User icon top left-->
       <div>
         <div class="text-white text-center" v-if="userStore.isLoggedIn" @click="openModalProfile">
           <i class="bi bi-person-circle icon"></i>
@@ -16,15 +18,17 @@ const userStore = useUserStore();
           <i class="bi bi-box-arrow-in-right icon"></i>
         </div>
       </div>
+
+      <!--Search bar-->
       <div class="col text-white text-center">
-        <div class="flex-grow-1" style="margin-right: 2rem; margin-left: 4rem;">
+        <div class="flex-grow-1" style="margin: 0 2rem">
           <form class="d-flex w-100">
             <div class="input-group" >
               <div class="input-group-prepend">
                 <i class="bi bi-search input-group-text" id="basic-addon1"></i>
               </div>
               <input
-                  class="form-control w-90 "
+                  class="form-control"
                   style="border:  1px solid #FFFFFF; box-shadow: none;"
                   type="search"
                   placeholder="Search"
@@ -41,7 +45,8 @@ const userStore = useUserStore();
           </form>
         </div>
       </div>
-      <div class="row">
+
+      <!--Dropdowns-->
         <div class="dropdown show mrhalfrem">
           <i class="btn btn-secondary dropdown-toggle bi bi-sort-alpha-down" role="button" id="dropdownMenuLink"
              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -89,7 +94,6 @@ const userStore = useUserStore();
           </div>
         </div>
       </div>
-    </div>
   </nav>
   <ModalLogin></ModalLogin>
   <ModalProfile></ModalProfile>
