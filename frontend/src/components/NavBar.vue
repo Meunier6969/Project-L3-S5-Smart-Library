@@ -6,7 +6,7 @@ const userStore = useUserStore();
 
 <template>
   <nav class="col">
-    <a href="/"><h1 class="text-white">Smart Library</h1></a>
+    <a href="/" style="padding: 0"><h1 class="text-white">Smart Library</h1></a>
     <!--Main container-->
     <div class="row align-items-center">
       <!--User icon top left-->
@@ -34,6 +34,7 @@ const userStore = useUserStore();
                   placeholder="Search"
                   aria-label="Search"
                   v-model="searchTerm"
+                  ref="searchInput"
                   @input="onSearch"
                   aria-describedby="search-addon"
               />
@@ -135,6 +136,14 @@ export default {
       }
     }
   },
+  mounted() {
+    // Listen for keypress events to trigger the search focus
+    window.addEventListener("keydown", this.focusSearchInput);
+  },
+  beforeUnmount() {
+    // Clean up the event listener
+    window.removeEventListener("keydown", this.focusSearchInput);
+  },
   methods: {
     onSearch() {
       this.$emit('search', this.searchTerm);
@@ -148,6 +157,14 @@ export default {
     },
     openModalProfile() {
       $("#modalProfile").modal('show');
+    },
+    focusSearchInput(event) {
+      const ignoredKeys = ["Shift", "Control", "Alt", "Meta", "Tab"];
+
+      // If the user presses any non-special key, focus the search input
+      if (!ignoredKeys.includes(event.key)) {
+        this.$refs.searchInput.focus();
+      }
     }
   },
 
