@@ -56,7 +56,9 @@
       />
       <button class="btn-disabled" disabled>DELETE</button>
     </div>
+
   </div>
+  <router-view></router-view>
 </template>
 
 <script>

@@ -42,6 +42,29 @@
 </form>
 <pre id="usersResponse"></pre>
 
+<!-- Test GET /api/users/:id -->
+<h2>Get User by ID</h2>
+<form id="getUserByIdForm">
+    <input type="number" id="userId" placeholder="User ID" required>
+    <button type="submit">Get User</button>
+</form>
+<pre id="userByIdResponse"></pre>
+
+<!-- Test GET /api/books -->
+<h2>Get All Books</h2>
+<form id="getBooksForm">
+    <button type="submit">Get Books</button>
+</form>
+<pre id="booksResponse"></pre>
+
+<!-- Test GET /api/books/:id -->
+<h2>Get Book by ID</h2>
+<form id="getBookByIdForm">
+    <input type="number" id="bookId" placeholder="Book ID" required>
+    <button type="submit">Get Book</button>
+</form>
+<pre id="bookByIdResponse"></pre>
+
 <!-- Test POST /api/users/register -->
 <h2>Register a New User</h2>
 <form id="registerForm">
@@ -61,6 +84,25 @@
 </form>
 <pre id="loginResponse"></pre>
 
+<!-- Test POST /api/books -->
+<h2>Create a New Book</h2>
+<form id="createBookForm">
+    <input type="text" id="bookName" placeholder="Book Name" required>
+    <input type="text" id="bookAuthor" placeholder="Author" required>
+    <input type="text" id="bookDescription" placeholder="Description" required>
+    <button type="submit">Create Book</button>
+</form>
+<pre id="createBookResponse"></pre>
+
+<!-- Test POST /api/books/:id/favorite -->
+<h2>Favorite a Book</h2>
+<form id="favoriteBookForm">
+    <input type="number" id="favBookId" placeholder="Book ID" required>
+    <input type="number" id="favUserId" placeholder="User ID" required>
+    <button type="submit">Favorite Book</button>
+</form>
+<pre id="favoriteBookResponse"></pre>
+
 <!-- JavaScript to handle form submissions -->
 <script>
     // URL de l'API
@@ -76,6 +118,47 @@
             })
             .catch(error => {
                 document.getElementById('usersResponse').textContent = 'Error: ' + error;
+            });
+    });
+
+    // Get user by ID
+    document.getElementById('getUserByIdForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const userId = document.getElementById('userId').value;
+        fetch(`${API_URL}/users/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('userByIdResponse').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('userByIdResponse').textContent = 'Error: ' + error;
+            });
+    });
+
+    // Get all books
+    document.getElementById('getBooksForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        fetch(`${API_URL}/books/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('booksResponse').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('booksResponse').textContent = 'Error: ' + error;
+            });
+    });
+
+    // Get book by ID
+    document.getElementById('getBookByIdForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const bookId = document.getElementById('bookId').value;
+        fetch(`${API_URL}/books/${bookId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('bookByIdResponse').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('bookByIdResponse').textContent = 'Error: ' + error;
             });
     });
 
@@ -117,6 +200,47 @@
             })
             .catch(error => {
                 document.getElementById('loginResponse').textContent = 'Error: ' + error;
+            });
+    });
+
+    // Create a new book
+    document.getElementById('createBookForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('bookName').value;
+        const author = document.getElementById('bookAuthor').value;
+        const description = document.getElementById('bookDescription').value;
+
+        fetch(`${API_URL}/books`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, author, description })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('createBookResponse').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('createBookResponse').textContent = 'Error: ' + error;
+            });
+    });
+
+    // Favorite a book
+    document.getElementById('favoriteBookForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const bookId = document.getElementById('favBookId').value;
+        const userId = document.getElementById('favUserId').value;
+
+        fetch(`${API_URL}/books/${bookId}/favorite`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('favoriteBookResponse').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('favoriteBookResponse').textContent = 'Error: ' + error;
             });
     });
 </script>
