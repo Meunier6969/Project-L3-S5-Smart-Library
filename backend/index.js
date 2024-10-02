@@ -10,13 +10,14 @@ const cors = corspkg;
 
 import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
 import { addNewBook, getAllBooks, getBookById, deleteBook } from "./routes/books.js"
+import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite } from "./routes/favorites.js"
+
+//==========================================
 
 const app = express()
 const PORT = 1234
 
 config() // Setup env variables
-
-//==========================================
 
 // Middleware
 app.use(cors())
@@ -26,6 +27,8 @@ app.use((req, res, next) => {
 	next()
 })
 
+//==========================================
+
 // Running the api
 app.listen(PORT, () => {
 	console.log(`Listening on localhost:${PORT}`)
@@ -34,13 +37,9 @@ app.listen(PORT, () => {
 //==========================================
 
 app.get("/api/test", async (req, res) => {
-	const token = req.headers.authorization
+	const {us, bo} = req.body
 
-	let data = {
-		"tok": token,
-		"val": isTokenValid(token),
-		"adm": isTokenAdmin(token),
-	}
+	let data = await getUsersFavorites(us)
 
 	res.status(418).send(data)
 })
@@ -318,41 +317,4 @@ function sendError(res, statuscode, error) {
 	res.status(statuscode).send({
 		"message": "There has been an error: " + error
 	})
-}
-
-// Replaced by a database
-function isBookInUsersFavorite(user_id, book_id) {
-	// Assuming proper error handling beforehand by the caller
-	let user = getUserByID(user_id)
-	let book = getBookByID(book_id)
-	
-	if (!user || !book) return false
-
-	let index = user.favorites.indexOf(book_id)
-	if (index > -1) return true
-	
-	return false
-}
-
-function addBookToUsersFavorite(user_id, book_id) {
-	// Assuming proper error handling beforehand by the caller
-	let user = getUserByID(user_id)
-	let book = getUserByID(book_id)
-
-	if (!user || !book) return false
-
-	user.favorites.push(book_id)
-}
-
-function removeBookFromUsersFavorite(user_id, book_id) {
-	// Assuming proper error handling beforehand by the caller
-	let user = getUserByID(user_id)
-	let book = getUserByID(book_id)
-
-	if (!user || !book) return false
-
-	var index = user.favorites.indexOf(book_id);
-	if (index > -1) {
-		user.favorites.splice(index, 1);
-	}
 }
