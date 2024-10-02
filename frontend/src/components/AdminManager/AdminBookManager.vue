@@ -1,8 +1,5 @@
 <template>
-  <div class="admin-container">
-    <div class="admin-header">
-      <h2>Admin Page</h2>
-    </div>
+  <div class="admin-books">
 
     <!-- Left Column: Action Buttons -->
     <div class="action-buttons">
@@ -145,23 +142,15 @@ export default {
   width: 100%;
 }
 
-.admin-container {
+.admin-books {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 30px;
-  padding: 50px;
-  background-color: #f5f5f5;
-  min-height: 100vh;
-  align-items: center;
-}
 
-.admin-header {
-  grid-column: span 2;
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #333;
+  background-color: #f5f5f5;
+  height: 40vh;
+  padding: 50px;
+
+  align-items: center;
 }
 
 .action-buttons {
