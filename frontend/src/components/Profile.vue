@@ -111,6 +111,7 @@ export default {
     },
     signOut() {
       this.userStore.signOut();
+
       window.location.reload();
     }
   },
