@@ -9,7 +9,7 @@ import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
 import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
-import { addNewBook, getAllBooks, getBookById, deleteBook } from "./routes/books.js"
+import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook} from "./routes/books.js"
 import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite } from "./routes/favorites.js"
 
 //==========================================
@@ -81,13 +81,47 @@ app.get("/api/users/:id/favorites", async (req, res) => {
 })
 
 app.get("/api/books/", async (req, res) => {
-	await getAllBooks()
-	.then((result) => {
-		res.status(200).send(result)
-	}).catch((err) => {
-		sendError(res, 400, err)
-	});
-})
+	// If there are parameters, we will use them to filter the books
+	if (Object.keys(req.query).length !== 0) {
+		await getNumberOfBooks(req.query)
+			.then((result) => {
+				res.status(200).send(result);
+			})
+			.catch((err) => {
+				sendError(res, 400, err);
+			});
+	} else {
+		// If no query parameters, return all books
+		await getAllBooks()
+			.then((result) => {
+				res.status(200).send(result);
+			})
+			.catch((err) => {
+				sendError(res, 400, err);
+			});
+	}
+});
+
+app.get("/api/books/", async (req, res) => {
+	try {
+		// Default pagination settings
+		const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
+		const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
+		const offset = (page - 1) * limit; // Calculate the offset
+
+		if (Object.keys(req.query).length > 1) {
+			// If there are other query parameters (like filters), handle them
+			const filteredBooks = await getNumberOfbooks(req.query, limit, offset);
+			res.status(200).json(filteredBooks);
+		} else {
+			// No filters, just return all books with pagination
+			const allBooks = await getAllBooks(limit, offset);
+			res.status(200).json(allBooks);
+		}
+	} catch (err) {
+		sendError(res, 400, err);  // Send an error response if something goes wrong
+	}
+});
 
 app.get("/api/books/:id", async (req, res) => {
 	const { id } = req.params

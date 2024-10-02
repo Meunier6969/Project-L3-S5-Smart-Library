@@ -21,6 +21,21 @@ export async function getAllBooks() {
 	}
 }
 
+export async function getNumberOfBooks(query) {
+	try {
+		const limit = parseInt(query.limit) || 10; // Default limit
+		const page = parseInt(query.page) || 1;   // Default page
+		const offset = (page - 1) * limit;         // Calculate offset
+
+		// SQL query with parameters
+		const sql = 'SELECT * FROM book LIMIT ? OFFSET ?;';
+		const [books] = await pool.query(sql, [limit, offset]); // Pass parameters
+
+		return books;
+	} catch (error) {
+		throw error;
+	}
+}
 export async function getBookById(id) {
 	try {
 		const sql = 'SELECT * FROM Book WHERE book_id=?'
@@ -76,3 +91,4 @@ async function doesBookExist(title) {
 		return false
 	}
 }
+
