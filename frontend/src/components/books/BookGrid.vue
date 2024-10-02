@@ -11,8 +11,6 @@ const userStore = useUserStore();
           :key="book.id"
           :class="[
           'col-12 col-md-6 col-lg-3 mb-4',
-          { 'pl-0': index % 4 === 0 }, /* No padding-left for first column in a row */
-          { 'pr-0': (index + 1) % 4 === 0 } /* No padding-right for last column in a row */
         ]"
       >
         <BookCard :book="book" :isLoggedIn="userStore.isLoggedIn"></BookCard>
@@ -77,13 +75,5 @@ export default {
   padding-left: 0;
   padding-right: 0;
   max-width: 80%;
-}
-
-.pl-0 {
-  padding-left: 0 !important; /* Remove left padding */
-}
-
-.pr-0 {
-  padding-right: 0 !important; /* Remove right padding */
 }
 </style>
