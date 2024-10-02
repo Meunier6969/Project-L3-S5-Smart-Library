@@ -5,7 +5,7 @@
         :alt="this.book.title"
         class="card-img-top"
     />
-    <div class="bgIcon  custom-rounded" style="height: 35px; width: 45px; background-color: hsla(0,0%,55%,0.51)"  v-if="isLoggedIn">
+    <div class="bgIcon  custom-rounded" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)"  v-if="isLoggedIn">
       <div class="favorite-icon">
         <i
             :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
@@ -14,7 +14,7 @@
         ></i>
       </div>
     </div>
-    <div class="rankIcon custom-rounded-left" style="height: 35px; width: 45px; background-color: hsla(0,0%,55%,0.51)" v-if="rank !== 0" >
+    <div class="rankIcon custom-rounded-left" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)" v-if="rank !== 0" >
       <div style="font-size: 24px;">
         <h3 class="text-white">{{rank}}</h3>
       </div>
