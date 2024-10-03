@@ -1,19 +1,19 @@
 <template>
-  <div @scroll="handleScroll" class="scroll-container">
+  <div>
     <div v-if="searchQuery === ''">
       <h3 class="text-white" style="text-align: start; margin-left: 10vw">
         Most searched books
       </h3>
       <BookRow
-        :books="visibleBooks"
-        :searchQuery="searchQuery"
-        style="margin-bottom: 1.5rem"
+          :books="visibleBooks"
+          :searchQuery="searchQuery"
+          style="margin-bottom: 1.5rem"
       />
     </div>
     <h3 class="text-white" style="text-align: start; margin-left: 10vw">
       All books
     </h3>
-    <BookGrid :books="visibleBooks" :searchQuery="searchQuery" />
+    <BookGrid :books="visibleBooks" :searchQuery="searchQuery" style="height: 80vh;" />
   </div>
 </template>
 
@@ -44,22 +44,22 @@ export default {
     fetchBooks() {
       const API_URL = "http://localhost:1234/api";
       fetch(`${API_URL}/books/`)
-        .then(response => response.json())
-        .then(data => {
-          this.bookList = data.map(book => new Book(
-            book.id,
-            book.title,
-            book.author,
-            "https://m.media-amazon.com/images/I/91ZYBjR+gYL._SL1500_.jpg",
-            book.categories || [],
-            book.description || '',
-            Boolean(this.favList.includes(book.id))
-          ));
-          this.loadMoreBooks();  // Initial load of 8 books
-        })
-        .catch(error => {
-          console.error("Error fetching books:", error);
-        });
+          .then(response => response.json())
+          .then(data => {
+            this.bookList = data.map(book => new Book(
+                book.id,
+                book.title,
+                book.author,
+                "https://m.media-amazon.com/images/I/91ZYBjR+gYL._SL1500_.jpg",
+                book.categories || [],
+                book.description || '',
+                Boolean(this.favList.includes(book.id))
+            ));
+            this.loadMoreBooks();  // Initial load of 8 books
+          })
+          .catch(error => {
+            console.error("Error fetching books:", error);
+          });
     },
     loadMoreBooks() {
       const start = this.currentPage * this.booksPerPage;
@@ -68,27 +68,20 @@ export default {
       this.visibleBooks = [...this.visibleBooks, ...newBooks];
       this.currentPage += 1;
     },
-    handleScroll(event) {
-      const bottom = event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight;
+    handleScroll() {
+      const bottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight;
       if (bottom) {
         this.loadMoreBooks();
       }
     }
   },
-  beforeMount() {
+  mounted() {
+    window.addEventListener('scroll', this.handleScroll);
     this.fetchBooks();
+  },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.handleScroll);
   }
 };
 </script>
 
-<style scoped>
-.scroll-container {
-  overflow-y: auto;
-  height: 80vh; /* Adjust this height based on your design */
-  scrollbar-width: none; /* For Firefox */
-}
-
-.scroll-container::-webkit-scrollbar {
-  display: none; /* For Chrome, Safari, and Edge */
-}
-</style>
