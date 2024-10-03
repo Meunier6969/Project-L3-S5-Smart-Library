@@ -9,21 +9,23 @@
           </button>
         </div>
         <div class="modal-body">
-          <form @submit="onSubmit">
+          <form @submit.prevent="onSubmit">
             <div class="form-group mb-3">
               <label for="emailLogIn">Email</label>
-              <input type="email" class="form-control" id="emailLogIn" v-model="emailLogIn">
+              <input class="form-control" id="emailLogIn" v-model="formData.email">
             </div>
 
             <div class="form-group mb-3">
               <label for="passwordLogIn">Password</label>
-              <input type="password" class="form-control" id="passwordLogIn" v-model="passwordLogIn">
+              <input type="password" class="form-control" id="passwordLogIn" v-model="formData.password">
             </div>
 
             <div class="d-grid mb-3">
               <button type="submit" class="btn btn-dark btn-block">Sign In</button>
             </div>
           </form>
+
+          <p v-if="errorMessage">{{ errorMessage }}</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-link" data-dismiss="modal" @click="switchToSignUp">No account ? Sign up</button>
@@ -36,25 +38,47 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance } from 'vue';
+import {ref, getCurrentInstance, reactive} from 'vue';
 import ModalSignUp from '@/components/SignUp.vue';
 import {useUserStore} from "@/stores/userStore.js";
 import router from "@/router/router.js";
+import axios from "axios";
 
 const userStore = useUserStore();
 
-const emailLogIn = ref('');
-const passwordLogIn = ref('');
+const formData = reactive({
+  email: '',
+  password: ''
+});
+
+const errorMessage = ref('');
+const API_URL = 'http://localhost:1234/api'
 
 // Fonction pour passer de la modal de login à celle de signup
 function switchToSignUp() {
   $("#modalSignUp").modal('show')
 }
 
-function onSubmit() {
-  userStore.login();
-  router.push('/')
-}
+const onSubmit = async () => {
+  try {
+    const response = await axios.post(API_URL + '/login', {
+      email: formData.email,
+      password: formData.password,
+    });
+
+    const { token } = response.data;
+
+    // Save the token (e.g., in localStorage)
+    //localStorage.setItem('authToken', token);
+
+    // Redirect or update UI as needed
+    // Example: router.push('/dashboard') if using Vue Router
+    console.log('Login successful');
+    console.log(token)
+  } catch (error) {
+    errorMessage.value = 'Login failed. Please check your email and password.';
+  }
+};
 </script>
 
 <style scoped>
