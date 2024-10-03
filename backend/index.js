@@ -9,7 +9,7 @@ import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
 import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
-import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook, } from "./routes/books.js"
+import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook,  } from "./routes/books.js"
 import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite ,decrementBookFavoriteCount,incrementBookFavoriteCount} from "./routes/favorites.js"
 
 //==========================================
@@ -111,12 +111,24 @@ app.get("/api/books/", async (req, res) => {
 
 		if (Object.keys(req.query).length > 1) {
 			// If there are other query parameters (like filters), handle them
-			const filteredBooks = await getNumberOfbooks(req.query, limit, offset);
-			res.status(200).json(filteredBooks);
+			await getNumberOfBooks(req.query, limit, offset)
+			.then((filterdBooks) => {
+				res.status(200).json(filterdBooks);
+			}).catch((err) => {
+				sendError(res, 400, err);
+				return
+			});
 		} else {
 			// No filters, just return all books with pagination
-			const allBooks = await getAllBooks(limit, offset);
-			res.status(200).json(allBooks);
+			// const allBooks = await getAllBooks(limit, offset);
+			// res.status(200).json(allBooks);
+			await getAllBooks(limit, offset)
+			.then((allBooks) => {
+				res.status(200).json(allBooks);
+			}).catch((err) => {
+				sendError(res, 400, err);
+				return
+			});
 		}
 	} catch (err) {
 		sendError(res, 400, err);  // Send an error response if something goes wrong
@@ -236,6 +248,7 @@ app.post("/api/books/:id/favorite", async (req, res) => {
 	await incrementBookFavoriteCount(id)
 	.catch((err) => {
 		sendError(res, 400, err)
+		return
 	});
 	await addBookToUsersFavorite(user_id, id)
 	.then((result) => {
@@ -308,6 +321,7 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 	await decrementBookFavoriteCount(id)
 	.catch((err) => {
 		sendError(res, 400, err)
+		return
 	});
 	await removeBookFromUsersFavorite(user_id, id)
 	.then((result) => {
