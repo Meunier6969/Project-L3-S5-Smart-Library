@@ -183,7 +183,6 @@ app.post("/api/users/login", async (req, res) => {
 		sendError(res, 404, err)
 	});
 
-	console.log(user)
 	if (user === undefined) return;
 	if (user.pwd !== pwd) {
 		sendError(res, 400, "Wrong login information.")
@@ -199,7 +198,8 @@ app.post("/api/users/login", async (req, res) => {
 	const token = sign(data, jwtSecretKey, {expiresIn: '24h'});
 
 	res.status(200).send({
-		"token": token
+		"token": token,
+		"user": user
 	})
 })
 
