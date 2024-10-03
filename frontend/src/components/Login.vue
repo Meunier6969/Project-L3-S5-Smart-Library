@@ -43,6 +43,7 @@ import ModalSignUp from '@/components/SignUp.vue';
 import {useUserStore} from "@/stores/userStore.js";
 import router from "@/router/router.js";
 import axios from "axios";
+import {useRouter} from "vue-router";
 
 const userStore = useUserStore();
 
@@ -61,20 +62,16 @@ function switchToSignUp() {
 
 const onSubmit = async () => {
   try {
-    const response = await axios.post(API_URL + '/login', {
+    const response = await axios.post(API_URL + '/users/login', {
       email: formData.email,
-      password: formData.password,
+      pwd: formData.password,
     });
 
-    const { token } = response.data;
-
-    // Save the token (e.g., in localStorage)
-    //localStorage.setItem('authToken', token);
-
-    // Redirect or update UI as needed
-    // Example: router.push('/dashboard') if using Vue Router
-    console.log('Login successful');
-    console.log(token)
+    const { token, user } = response.data;
+    localStorage.setItem('authToken', token);
+    console.log(user)
+    userStore.login(user.user_id, user.pseudo, user.email, '', user.role === 1);
+    $("#modalLogin").modal('hide')
   } catch (error) {
     errorMessage.value = 'Login failed. Please check your email and password.';
   }
