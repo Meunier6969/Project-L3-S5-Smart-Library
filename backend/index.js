@@ -169,8 +169,8 @@ app.post("/api/users/register", async (req, res) => {
 app.post("/api/users/login", async (req, res) => {
 	const { email, pwd } = req.body
 
-	if (!pseudo || !pwd) {
-		sendError(res, 400, "Missing name and/or password field.")
+	if (!email || !pwd) {
+		sendError(res, 400, "Missing email and/or password field.")
 		return
 	}
 	

@@ -67,10 +67,10 @@ export async function deleteUser(user_id) {
 
 }
 
-export async function getPassword(pseudo) {
+export async function getPassword(email) {
 	try {
-		const sql = 'SELECT user_id, pwd FROM Users WHERE pseudo=?'
-		const [user] = await pool.query(sql, [pseudo]);
+		const sql = 'SELECT user_id, pwd FROM Users WHERE email=?'
+		const [user] = await pool.query(sql, [email]);
 		
 		console.log(user)
 
