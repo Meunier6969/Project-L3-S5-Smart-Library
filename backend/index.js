@@ -174,6 +174,8 @@ app.post("/api/users/login", async (req, res) => {
 		return
 	}
 	
+	let user
+
 	await getPassword(email)
 	.then((result) => {
 		user = result
@@ -181,6 +183,8 @@ app.post("/api/users/login", async (req, res) => {
 		sendError(res, 404, err)
 	});
 
+	console.log(user)
+	if (user === undefined) return;
 	if (user.pwd !== pwd) {
 		sendError(res, 400, "Wrong login information.")
 		return
