@@ -155,15 +155,36 @@ app.post("/api/users/register", async (req, res) => {
 		return
 	}
 
+	let user_id
+	let user
+
 	await addNewUser(pseudo, email, pwd)
 	.then((result) => {
-		res.status(201).send({
-			"message": "New user created",
-			"user_id": result.insertId
-		})
+		user_id = result.insertId
 	}).catch((err) => {
 		sendError(res, 400, err)
+		return
 	});
+
+	if (user_id === undefined) return
+	
+	await getUserById(user_id)
+	.then((result) => {
+		user = result
+	}).catch((err) => {
+		sendError(res, 500, err)
+		return
+	});
+
+	if (user === undefined) return
+	
+	const token = generateToken(user_id);
+
+	res.status(201).send({
+		"message": "New user created",
+		"token": token,
+		"user": user
+	})
 })
 
 app.post("/api/users/login", async (req, res) => {
@@ -189,17 +210,11 @@ app.post("/api/users/login", async (req, res) => {
 		return
 	}
 
-	let jwtSecretKey = process.env.JWT_SECRET_KEY
-	let data = {
-		time: Date(),
-		user_id: user.user_id,
-	}
-
-	const token = sign(data, jwtSecretKey, {expiresIn: '24h'});
+	const token = generateToken(user.user_id);
 
 	res.status(200).send({
 		"token": token,
-		"user": user
+		"user": await getUserById(user.user_id)
 	})
 })
 
@@ -391,4 +406,15 @@ function sendError(res, statuscode, error) {
 	})
 }
 
+function generateToken(user_id) {
+	let jwtSecretKey = process.env.JWT_SECRET_KEY
 
+	let data = {
+		time: Date(),
+		user_id: user_id,
+	}
+
+	const token = sign(data, jwtSecretKey, { expiresIn: '24h' });
+
+	return token
+}
