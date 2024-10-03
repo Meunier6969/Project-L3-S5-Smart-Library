@@ -1,5 +1,5 @@
 export default class Book {
-    constructor(id, title, author, cover, categories = [], description = '', isFav = false) {
+    constructor(id, title, author, cover, categories="", description = '', isFav = false) {
         this.id = id;
         this.title = title;
         this.author = author;
