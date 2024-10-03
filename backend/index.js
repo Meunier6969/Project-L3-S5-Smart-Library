@@ -167,21 +167,18 @@ app.post("/api/users/register", async (req, res) => {
 })
 
 app.post("/api/users/login", async (req, res) => {
-	const { pseudo, pwd } = req.body
+	const { email, pwd } = req.body
 
 	if (!pseudo || !pwd) {
 		sendError(res, 400, "Missing name and/or password field.")
 		return
 	}
 	
-	let user
-
-	await getPassword(pseudo)
+	await getPassword(email)
 	.then((result) => {
 		user = result
 	}).catch((err) => {
 		sendError(res, 404, err)
-		return
 	});
 
 	if (user.pwd !== pwd) {
@@ -216,7 +213,7 @@ app.post("/api/books", async (req, res) => {
 		return
 	}
 
-	await addNewBook(title, author, description, year, "")
+	await addNewBook(title, author, description, year, "", category)
 	.then((result) => {
 		res.status(201).send({
 			"message": "New book created",

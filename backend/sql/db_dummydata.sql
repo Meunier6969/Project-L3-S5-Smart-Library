@@ -15,13 +15,11 @@ INSERT INTO Categories (category_name) VALUES ('Educational');
 
 -- Books
 INSERT INTO Book (title, author, description, years, img) 
-	VALUES ("L'art de la guerre", "Sun Tzu", "Good book", "2022-06-27", "");
+VALUES ("L'art de la guerre", "Sun Tzu", "Good book", "2022-06-27", "");
 INSERT INTO Book (title, author, description, years, img) 
-	VALUES ("Death Note", "Tsugumi Ohba, Takeshi Obata", "Death book", "2003-12-01", "");
+VALUES ("Death Note", "Tsugumi Ohba, Takeshi Obata", "Death book", "2003-12-01", "");
 INSERT INTO Book (title, author, description, years, img) 
-	VALUES ("Farnheit 451", "Ray Bradbury", "Book book", "1953-10-19", "");
-
-
+VALUES ("Farnheit 451", "Ray Bradbury", "Book book", "1953-10-19", "");
 INSERT INTO Book (title, author, description, years, img)
 VALUES ("1984", "George Orwell", "Dystopian novel about totalitarianism.", "1949-06-08", "https://example.com/1984.jpg");
 INSERT INTO Book (title, author, description, years, img)

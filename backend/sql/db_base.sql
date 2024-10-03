@@ -21,7 +21,10 @@ CREATE TABLE Book (
    img TEXT,
    favorites_count INT DEFAULT 0, -- Ajout d'un compteur de favoris
    search_count INT DEFAULT 0,    -- Ajout d'un compteur de recherches
+   category_id INT ,
+	FOREIGN KEY(user_id) REFERENCES Users(user_id) ON DELETE CASCADE,  
    PRIMARY KEY(book_id)
+
 );
 
 -- Table des catégories (anciennement KeyWord)
