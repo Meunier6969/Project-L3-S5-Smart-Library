@@ -9,8 +9,8 @@ import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
 import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
-import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook} from "./routes/books.js"
-import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite } from "./routes/favorites.js"
+import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook, } from "./routes/books.js"
+import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite ,decrementBookFavoriteCount,incrementBookFavoriteCount} from "./routes/favorites.js"
 
 //==========================================
 
@@ -233,6 +233,10 @@ app.post("/api/books/:id/favorite", async (req, res) => {
 
 	let user_id = getUserByToken(token)
 
+	await incrementBookFavoriteCount(id)
+	.catch((err) => {
+		sendError(res, 400, err)
+	});
 	await addBookToUsersFavorite(user_id, id)
 	.then((result) => {
 		res.status(200).send({
@@ -282,6 +286,9 @@ app.delete("/api/books/:id", async (req, res) => {
 
 })
 
+
+
+
 app.delete("/api/books/:id/favorite", async (req, res) => {
 	const { id } = req.params
 	const token = req.headers.authorization
@@ -298,6 +305,10 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 
 	let user_id = getUserByToken(token)
 
+	await decrementBookFavoriteCount(id)
+	.catch((err) => {
+		sendError(res, 400, err)
+	});
 	await removeBookFromUsersFavorite(user_id, id)
 	.then((result) => {
 		res.status(200).send({
@@ -306,6 +317,7 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 	}).catch((err) => {
 		throw err
 	});
+
 })
 
 // Functions
@@ -363,3 +375,5 @@ function sendError(res, statuscode, error) {
 		"message": "" + error
 	})
 }
+
+

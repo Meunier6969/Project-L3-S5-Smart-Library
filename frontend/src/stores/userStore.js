@@ -19,7 +19,7 @@ export const useUserStore = defineStore('userStore', {
     actions : {
         login() {
             //TODO: implement real login
-            this.user = new User(0, "AHHHHH", "BBBBBBBB", "hhfghhf", true);
+            this.user = new User(0, "ADMIN", "BBBBBBBB", "hhfghhf", true);
         },
         signOut() {
             this.user = undefined;

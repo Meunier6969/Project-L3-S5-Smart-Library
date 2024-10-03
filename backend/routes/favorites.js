@@ -54,3 +54,26 @@ export async function removeBookFromUsersFavorite(user_id, book_id) {
 		throw error
 	}
 }
+
+export async function decrementBookFavoriteCount(id) {
+	try {
+		const sql = 'UPDATE book SET favorites_count = favorites_count - 1 WHERE book_id=?'
+		const [result] = await pool.execute(sql, [id]);
+
+		return result
+	} catch (error) {
+		throw error
+	}
+}
+
+export async function incrementBookFavoriteCount (id) {
+	try {
+		const sql = 'UPDATE book SET favorites_count = favorites_count + 1 WHERE book_id=?'
+		const [result] = await pool.execute(sql, [id]);
+
+		return result
+	} catch (error) {
+		throw error
+	}
+
+}
