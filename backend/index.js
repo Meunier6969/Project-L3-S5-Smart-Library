@@ -155,15 +155,33 @@ app.post("/api/users/register", async (req, res) => {
 		return
 	}
 
+	let user_id
+	let user
+
 	await addNewUser(pseudo, email, pwd)
 	.then((result) => {
-		res.status(201).send({
-			"message": "New user created",
-			"user_id": result.insertId
-		})
+		user_id = result.insertId
 	}).catch((err) => {
 		sendError(res, 400, err)
+		return
 	});
+
+	if (user_id === undefined) return
+	
+	await getUserById(user_id)
+	.then((result) => {
+		user = result
+	}).catch((err) => {
+		sendError(res, 500, err)
+		return
+	});
+
+	if (user === undefined) return
+	
+	res.status(201).send({
+		"message": "New user created",
+		"user": user
+	})
 })
 
 app.post("/api/users/login", async (req, res) => {
