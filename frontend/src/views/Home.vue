@@ -42,38 +42,52 @@ export default {
   },
   methods: {
     fetchBooks() {
+      const categories = [
+        "Science Fiction",
+        "Mystery and Thriller",
+        "Children's Book", // Correction de l'apostrophe
+        "Historical",
+        "Educational"
+      ];
+
       const API_URL = "http://localhost:1234/api";
-      fetch(`${API_URL}/books/`)
+      fetch(`${API_URL}/books`)
           .then(response => response.json())
           .then(data => {
             this.bookList = data.map(book => new Book(
-                book.id,
+                book.book_id,
                 book.title,
                 book.author,
-                "https://m.media-amazon.com/images/I/91ZYBjR+gYL._SL1500_.jpg",
-                book.categories || [],
+                book.img,
+                categories[book.category_id - 1], // Correction pour accéder à la bonne catégorie
                 book.description || '',
                 Boolean(this.favList.includes(book.id))
             ));
             this.loadMoreBooks();  // Initial load of 8 books
           })
-          .catch(error => {
-            console.error("Error fetching books:", error);
-          });
+
     },
     loadMoreBooks() {
       const start = this.currentPage * this.booksPerPage;
-      const end = start + this.booksPerPage;
+      const end = Math.min(start + this.booksPerPage, this.bookList.length); // Assurez-vous de ne pas dépasser la longueur du tableau
       const newBooks = this.bookList.slice(start, end);
       this.visibleBooks = [...this.visibleBooks, ...newBooks];
       this.currentPage += 1;
+
+      // Vérifiez si nous avons chargé tous les livres
+      if (end >= this.bookList.length) {
+        // Ici, vous pouvez désactiver le défilement si nécessaire
+        window.removeEventListener('scroll', this.handleScroll);
+      }
     },
+
     handleScroll() {
-      const bottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight;
-      if (bottom) {
+      const bottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50; // Ajout d'un offset de 50 pixels
+      if (bottom && this.currentPage * this.booksPerPage < this.bookList.length) {
         this.loadMoreBooks();
       }
     }
+
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll);
@@ -84,4 +98,3 @@ export default {
   }
 };
 </script>
-
