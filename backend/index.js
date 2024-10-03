@@ -199,7 +199,7 @@ app.post("/api/users/login", async (req, res) => {
 
 	res.status(200).send({
 		"token": token,
-		"user": user
+		"user": await getUserById(user.user_id)
 	})
 })
 
