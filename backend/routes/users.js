@@ -82,6 +82,44 @@ export async function getPassword(email) {
 	}
 }
 
+export async function editUser(user_id, pseudo = undefined, email = undefined, pwd = undefined) {
+	try {
+		let sql = "UPDATE Users SET "
+		let values = []
+
+		if (!pseudo && !email && !pwd) throw new Error("No fields to change");
+
+		if (pseudo) {
+			sql += "pseudo=? "
+			values.push(pseudo)
+			if (email || pwd) sql += ", "
+		}
+		
+		
+		if (email) {
+			sql += "email=? "
+			values.push(email)
+			if (pwd) sql += ", "
+		}
+		
+		if (pwd) {
+			sql += "pwd=? "
+			values.push(pwd)
+		}
+
+		sql += "WHERE user_id=?;"
+		values.push(user_id)
+
+		const [result, fields] = await pool.execute(sql, values);
+
+		if (result.affectedRows == 0) throw new Error("User does not exist.");
+
+		return result
+	} catch (error) {
+		throw error
+	}
+}
+
 
 export async function doesUserExistPseudo(pseudo) {
 	try {

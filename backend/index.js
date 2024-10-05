@@ -8,7 +8,7 @@ const { sign, verify } = jwtpkg;
 import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
-import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
+import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser, editUser } from "./routes/users.js"
 import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook,  } from "./routes/books.js"
 import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite ,decrementBookFavoriteCount,incrementBookFavoriteCount} from "./routes/favorites.js"
 
@@ -276,6 +276,7 @@ app.post("/api/books/:id/favorite", async (req, res) => {
 	});
 })
 
+// DELETE
 app.delete("/api/users/:id", async (req, res) => {
 	const { id } = req.params
 	const token = req.headers.authorization
@@ -315,9 +316,6 @@ app.delete("/api/books/:id", async (req, res) => {
 
 })
 
-
-
-
 app.delete("/api/books/:id/favorite", async (req, res) => {
 	const { id } = req.params
 	const token = req.headers.authorization
@@ -347,6 +345,38 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 	}).catch((err) => {
 		throw err
 	});
+
+})
+
+// UPDATE
+app.patch("/api/users/:id", async (req, res) => {
+	const { id } = req.params
+	const { pseudo, email, pwd } = req.body
+	const token = req.headers.authorization
+
+	// Check id, just in case
+	if (!id) {
+		sendError(res, 400, "Missing user id.")
+		return
+	}
+
+	// Check token -> either admin or user
+	if (getUserByToken(token) != id && !await isTokenAdmin(token)) {
+		sendError(res, 403, "You must be an administator to delete this user.")
+		return
+	}
+
+	await editUser(id, pseudo, email, pwd)
+	.then((result) => {
+		res.status(200).send({
+			"message": "User updated succesfuly"
+		})
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
+})
+
+app.patch("/api/books/:id", async (req, res) => {
 
 })
 
