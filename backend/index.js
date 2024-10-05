@@ -362,7 +362,7 @@ app.patch("/api/users/:id", async (req, res) => {
 
 	// Check token -> either admin or user
 	if (getUserByToken(token) != id && !await isTokenAdmin(token)) {
-		sendError(res, 403, "You must be an administator to delete this user.")
+		sendError(res, 403, "You must be an administator to update this user.")
 		return
 	}
 
@@ -377,7 +377,30 @@ app.patch("/api/users/:id", async (req, res) => {
 })
 
 app.patch("/api/books/:id", async (req, res) => {
+	const { id } = req.params
+	const { title, author, description, year } = req.body
+	const token = req.headers.authorization
 
+	// Check id, just in case
+	if (!id) {
+		sendError(res, 400, "Missing book id.")
+		return
+	}
+
+	// Check token -> either admin or user
+	if (!await isTokenAdmin(token)) {
+		sendError(res, 403, "You must be an administator to update this book.")
+		return
+	}
+
+	await editBook(id, title, author, description, year)
+	.then((result) => {
+		res.status(200).send({
+			"message": "Book updated succesfuly"
+		})
+	}).catch((err) => {
+		sendError(res, 400, err)
+	});
 })
 
 // Functions
