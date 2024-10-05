@@ -119,6 +119,8 @@ export default {
     ModalLogin,
     ModalProfile
   },
+  emits: ['search'],
+
   data() {
     return {
       searchTerm: '',

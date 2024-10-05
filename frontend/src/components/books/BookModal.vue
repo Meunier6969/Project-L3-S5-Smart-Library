@@ -25,7 +25,7 @@ function switchToLogin() {
              style="margin-right: auto; color: red"
              aria-hidden="true"
           ></i>
-          <h4 class="modal-title w-100">{{ this.book.title }}</h4>
+          <h4 class="modal-title w-100">{{ book.title }}</h4>
 
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -35,23 +35,26 @@ function switchToLogin() {
           <div class="row align-items-center justify-content-center">
             <div class="col-4">
               <img
-                  :src="this.book.cover"
-                  :alt="this.book.title"
+                  :src="book.cover"
+                  :alt="book.title"
                   class="img-fluid coverimg"
               />
             </div>
             <div class="col-6">
               <h6 class="mb-1">Author:
                 <span>
-                  {{this.book.author}}
+                  {{book.author}}
                 </span>
               </h6>
               <h6 class="mb-3">Categories:
-                <span v-for="(category, index) in this.book.categories" :key="index">
-                {{ category }}<span v-if="index < this.book.categories.length - 1">, </span>
+              <!--  <span v-for="(category, index) in this.book.categories" :key="index">
+                {{ category }}<span v-if="index < this.book.categories.length - 1">, </span>-->
+                <span>
+                  {{book.categories}}
+
               </span>
               </h6>
-              <p style="text-align: justify; white-space: normal">{{this.book.description}}
+              <p style="text-align: justify; white-space: normal">{{book.description}}
               </p>
             </div>
 
@@ -60,7 +63,7 @@ function switchToLogin() {
         </div>
         <div class="modal-footer">
           <div class="col" v-if="userStore.isLoggedIn">
-            <button class="btn btn-primary" v-if="!this.book.isFav">Add to favorites</button>
+            <button class="btn btn-primary" v-if="!book.isFav">Add to favorites</button>
             <button class="btn btn-danger" v-else>Remove from favorites</button>
           </div>
           <div class="col" v-else>

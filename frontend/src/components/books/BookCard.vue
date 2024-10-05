@@ -1,8 +1,8 @@
 <template>
   <div class="card bg-dark" @click="openBookModal()">
     <img
-        :src="this.book.cover"
-        :alt="this.book.title"
+        :src="book.cover"
+        :alt="book.title"
         class="card-img-top"
     />
     <div class="bgIcon custom-rounded" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)"  v-if="isLoggedIn">
@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="card-footer" style="height: 5rem">
-      <h5 class="card-title text-white text-clamp">{{ this.book.title }}</h5>
+      <h5 class="card-title text-white text-clamp">{{ book.title }}</h5>
     </div>
     <BookModal :book="book"></BookModal>
   </div>
