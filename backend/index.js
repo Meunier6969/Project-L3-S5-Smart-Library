@@ -1,16 +1,22 @@
 //==========================================
-import express, { json } from "express";
-import { config } from 'dotenv';
+import express, {json} from "express";
+import {config} from 'dotenv';
 
 import jwtpkg from 'node-jsonwebtoken';
+import corspkg from 'cors'; // Fixing some potential network errors
+import {addNewUser, deleteUser, getAllUsers, getPassword, getUserById} from "./routes/users.js"
+import {addNewBook, deleteBook, getAllBooks, getBookById, getNumberOfBooks, modifyBookById,searchBooksByTitle} from "./routes/books.js"
+import {
+	addBookToUsersFavorite,
+	decrementBookFavoriteCount,
+	getUsersFavorites,
+	incrementBookFavoriteCount,
+	removeBookFromUsersFavorite
+} from "./routes/favorites.js"
+
 const { sign, verify } = jwtpkg;
 
-import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
-
-import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser } from "./routes/users.js"
-import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook,  } from "./routes/books.js"
-import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite ,decrementBookFavoriteCount,incrementBookFavoriteCount} from "./routes/favorites.js"
 
 //==========================================
 
@@ -79,61 +85,59 @@ app.get("/api/users/:id/favorites", async (req, res) => {
 	});
 
 })
-
-app.get("/api/books/", async (req, res) => {
-	// If there are parameters, we will use them to filter the books
-	if (Object.keys(req.query).length !== 0) {
-		await getNumberOfBooks(req.query)
-			.then((result) => {
-				res.status(200).send(result);
-			})
-			.catch((err) => {
-				sendError(res, 400, err);
-			});
-	} else {
-		// If no query parameters, return all books
-		await getAllBooks()
-			.then((result) => {
-				res.status(200).send(result);
-			})
-			.catch((err) => {
-				sendError(res, 400, err);
-			});
-	}
-});
-
-app.get("/api/books/", async (req, res) => {
+app.get("/api/books/:title?", async (req, res) => {
 	try {
+		const title = req.params.title; // Get the title from the URL parameters
+
 		// Default pagination settings
 		const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
 		const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
 		const offset = (page - 1) * limit; // Calculate the offset
 
-		if (Object.keys(req.query).length > 1) {
-			// If there are other query parameters (like filters), handle them
-			await getNumberOfBooks(req.query, limit, offset)
-			.then((filterdBooks) => {
-				res.status(200).json(filterdBooks);
-			}).catch((err) => {
-				sendError(res, 400, err);
-				return
-			});
+		if (title) {
+			// If a title is provided, perform a search
+			await searchBooksByTitle(title)
+				.then((filteredBooks) => {
+					res.status(200).json(filteredBooks);
+				})
+				.catch((err) => {
+					sendError(res, 400, err);
+				});
 		} else {
-			// No filters, just return all books with pagination
-			// const allBooks = await getAllBooks(limit, offset);
-			// res.status(200).json(allBooks);
-			await getAllBooks(limit, offset)
-			.then((allBooks) => {
-				res.status(200).json(allBooks);
-			}).catch((err) => {
-				sendError(res, 400, err);
-				return
-			});
+			// No title provided, return all books with pagination
+			if (Object.keys(req.query).length > 1) {
+				// If there are other query parameters (like filters), handle them
+				await getNumberOfBooks(req.query, limit, offset)
+					.then((filteredBooks) => {
+						res.status(200).json(filteredBooks);
+					})
+					.catch((err) => {
+						sendError(res, 400, err);
+					});
+			} else {
+				// Just return all books
+				await getAllBooks(limit, offset)
+					.then((allBooks) => {
+						res.status(200).json(allBooks);
+					})
+					.catch((err) => {
+						sendError(res, 400, err);
+					});
+			}
 		}
 	} catch (err) {
 		sendError(res, 400, err);  // Send an error response if something goes wrong
 	}
 });
+
+// Exemple de code pour l'API
+app.get('/api/books/search/:query', async (req, res) => {
+	const query = req.params.query.toLowerCase();
+	const books = await getAllBooks(); // Fonction qui récupère tous les livres
+	const filteredBooks = books.filter(book => book.title.toLowerCase().includes(query));
+	res.json(filteredBooks);
+});
+
 
 app.get("/api/books/:id", async (req, res) => {
 	const { id } = req.params
@@ -219,20 +223,15 @@ app.post("/api/users/login", async (req, res) => {
 })
 
 app.post("/api/books", async (req, res) => {
-	const { title, author, description, year } = req.body
-	const token = req.headers.authorization
+	const { title, author, description, years,imageURL,category } = req.body
 
-	if (await isTokenAdmin(token)) {
-		sendError(res, 405, "You are not an administrator.")
-		return
-	}
 
-	if (!title || !author || !description) {
+	if (!title || !author || !description || !years || !imageURL || !category) {
 		sendError(res, 400, "Missing name, author and/or description field.")
 		return
 	}
 
-	await addNewBook(title, author, description, year, "", category)
+	await addNewBook(title, author, description, years, imageURL, category)
 	.then((result) => {
 		res.status(201).send({
 			"message": "New book created",
@@ -418,3 +417,26 @@ function generateToken(user_id) {
 
 	return token
 }
+
+
+
+// PUT - Modifier un livre
+app.put("/api/books/:id", async (req, res) => {
+	const { id } = req.params;
+	const { title, author, description, years, imageURL, category } = req.body;
+
+	if (!title || !author || !description || !years || !imageURL || !category) {
+		sendError(res, 400, "Missing fields for modification.");
+		return;
+	}
+
+	try {
+		const result = await modifyBookById(id, title, author, description, years, imageURL, category); // Remplacez par votre logique
+		res.status(200).send({
+			message: "Book modified successfully",
+			result,
+		});
+	} catch (error) {
+		sendError(res, 500, error);
+	}
+});

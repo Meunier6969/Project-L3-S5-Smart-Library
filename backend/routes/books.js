@@ -23,19 +23,20 @@ export async function getAllBooks() {
 
 export async function getNumberOfBooks(query) {
 	try {
-		const limit = parseInt(query.limit) || 10; // Default limit
-		const page = parseInt(query.page) || 1;   // Default page
-		const offset = (page - 1) * limit;         // Calculate offset
+		const limit = parseInt(query.limit) || 10;  // Default limit
+		const page = parseInt(query.page) || 1;     // Default page
+		const offset = (page - 1) * limit;          // Calculate offset
 
-		// SQL query with parameters
-		const sql = 'SELECT * FROM book LIMIT ? OFFSET ?;';
-		const [books] = await pool.query(sql, [limit, offset]); // Pass parameters
+		// Interpolating limit and offset directly in the query
+		const sql = `SELECT * FROM book LIMIT ${limit} OFFSET ${offset}`;
+		const [books] = await pool.query(sql); // No need to pass them as parameters
 
 		return books;
 	} catch (error) {
 		throw error;
 	}
 }
+
 export async function getBookById(id) {
 	try {
 		const sql = 'SELECT * FROM Book WHERE book_id=?'
@@ -48,21 +49,41 @@ export async function getBookById(id) {
 		throw error
 	}
 }
-
-export async function addNewBook(title, author, description, year, img) {
+export async function addNewBook(title, author, description, years, imageUrl, category) {
 	try {
+
+		console.log('Step 1: Start adding book');
+		console.log('Step 2: Checking if book exists...');
 		if (await doesBookExist(title)) throw new Error("Book already exists.");
-		
-		const sql = "INSERT INTO Book (title, author, description, years, img) VALUES (?,?,?,?,?);"
-		const values = [title, author, description, year, img]
-		
+
+		console.log('Step 3: Preparing SQL...');
+		const sql = 'INSERT INTO Book (title, author, description, years, img, category_id) VALUES (?, ?, ?, ?, ?, ?)';
+		console.log('Step 4: Preparing values...');
+		const values = [title, author, description, years, imageUrl, category];
+
+		console.log('Step 5: Executing SQL query...');
 		const [result, fields] = await pool.execute(sql, values);
-		
-		return result
+
+		console.log('Step 6: SQL query executed successfully.');
+		return result;
+
 	} catch (error) {
+		// Afficher plus de détails sur l'erreur
+		console.log('MySQL error code:', error.code);
+		console.log('MySQL error message:', error.sql);
+		console.error("Error adding new book:", error.message, error.stack);
 		throw error;
 	}
 }
+
+export async function searchBooksByTitle(title) {
+	// Récupérer tous les livres
+	const allBooks = await getAllBooks();
+
+	// Filtrer les livres par titre
+	return allBooks.filter(book => book.title.toLowerCase().includes(title.toLowerCase()));
+}
+
 
 export async function deleteBook(book_id) {
 	try {
@@ -84,11 +105,37 @@ async function doesBookExist(title) {
 		const sql = 'SELECT book_id, author, description, years, img FROM Book WHERE title=?'
 		const [book] = await pool.query(sql, [title]);
 
-		if (!book[0]) return false
+		return book[0];
 
-		return true
+
 	} catch (error) {
 		return false
 	}
 }
 
+export async function modifyBookById(bookId, updatedData) {
+	try {
+		const { title, author, description, years, imageUrl, category } = updatedData;
+
+		// SQL pour mettre à jour le livre
+		const sql = `
+			UPDATE Book 
+			SET title = ?, author = ?, description = ?, years = ?, img = ?, category_id = ?
+			WHERE book_id = ?
+		`;
+
+		// Valeurs à mettre à jour
+		const values = [title, author, description, years, imageUrl, category, bookId];
+
+		const [result] = await pool.execute(sql, values); // Exécution de la requête
+
+		// Vérifier si le livre a été modifié
+		if (result.affectedRows === 0) throw new Error("Book not found or no changes made.");
+
+		return result; // Retourner le résultat
+	} catch (error) {
+		// Gestion des erreurs
+		console.error("Error modifying book:", error.message);
+		throw error;
+	}
+}

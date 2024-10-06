@@ -47,7 +47,7 @@ function switchToLogin() {
                 </span>
               </h6>
               <h6 class="mb-3">Categories:
-              <!--  <span v-for="(category, index) in this.book.categories" :key="index">
+                <!--  <span v-for="(category, index) in this.book.categories" :key="index">
                 {{ category }}<span v-if="index < this.book.categories.length - 1">, </span>-->
                 <span>
                   {{book.categories}}
