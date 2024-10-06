@@ -52,16 +52,22 @@
         />
         <button @click="fetchBookToModify" class="btn-black-white">Search</button>
 
-        <div v-if="modifyMode && foundBooks.length > 0" class="found-books">
+        <div v-if="foundBooks.length > 0" class="found-books">
           <h3>Found Books:</h3>
           <ul>
             <li v-for="foundBook in foundBooks" :key="foundBook.id">
               {{ foundBook.title }} - {{ foundBook.author }}
-              <button @click="selectBook(foundBook)">Select</button>
+              <button
+                  @click="deleteMode ? confirmDeleteBook(foundBook) : selectBook(foundBook)"
+                  class="btn-black-red"
+              >
+                {{ deleteMode ? 'DELETE' : 'Select' }}
+              </button>
             </li>
           </ul>
         </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -208,6 +214,32 @@ export default {
       this.isAdding = false;
       this.deleteMode = true;
       this.modifyMode = false;
+    },
+
+    async confirmDeleteBook(book) {
+      if (!book.book_id) {
+        console.error("Book ID is not defined.");
+        alert("Please select a book to delete.");
+        return;
+      }
+
+      const confirmed = confirm(`Are you sure you want to delete "${book.title}"?`);
+      if (!confirmed) return;
+
+      console.log("Deleting book:", book.book_id);
+      fetch(`http://localhost:1234/api/books/${book.book_id}`, {
+        method: 'DELETE',
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Failed to delete book: ${response.statusText}`);
+            }
+            console.log("Book deleted successfully.");
+            this.resetForm(); // Reset the form after deletion
+          })
+          .catch(err => {
+            console.error("Error deleting book:", err.message);
+          });
     },
 
     uploadImage(event) {

@@ -87,16 +87,20 @@ export async function searchBooksByTitle(title) {
 
 export async function deleteBook(book_id) {
 	try {
-		const sql = "DELETE FROM Book WHERE book_id=?"
-		const values = [book_id]
-	
-		const [result, fields] = await pool.execute(sql, values);
-		
-		if (result.affectedRows === 0) throw new Error("Book does not exist.");
+		const sql = "DELETE FROM Book WHERE book_id = ?";
+		const values = [book_id];
 
-		return result
+		// Exécution de la requête SQL
+		const [result] = await pool.execute(sql, values);
+
+		// Si aucun livre n'a été supprimé (ID non existant)
+		if (result.affectedRows === 0) {
+			throw new Error("Book does not exist.");
+		}
+
+		return result;
 	} catch (error) {
-		throw error
+		throw error;
 	}
 }
 export async function editBook(book_id, title = undefined, author = undefined, description = undefined, year = undefined) {

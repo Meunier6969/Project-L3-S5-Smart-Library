@@ -304,24 +304,29 @@ app.delete("/api/users/:id", async (req, res) => {
 })
 
 app.delete("/api/books/:id", async (req, res) => {
-	const { id } = req.params
-	const token = req.headers.authorization
+	const { id } = req.params;
 
-	if (!await isTokenAdmin(token)) {
-		sendError(res, 403, "You must be an administator to delete this book.")
-		return
-	}
+	try {
+		// Vérifier si l'utilisateur est un administrateur
 
-	await deleteBook(id)
-	.then(() => {
+
+		// Suppression du livre
+		const result = await deleteBook(id);
+
+		// Vérification si un livre a été supprimé
+		if (result.affectedRows === 0) {
+			return sendError(res, 404, "Book does not exist.");
+		}
+
+		// Réponse de succès
 		res.status(200).send({
-			"message": "Book deleted"
-		})
-	}).catch((error) => {
-		sendError(res, 400, error)
-	});
-
-})
+			message: "Book deleted successfully."
+		});
+	} catch (error) {
+		// Gestion des erreurs
+		sendError(res, 400, error.message || "An error occurred while deleting the book.");
+	}
+});
 
 
 
