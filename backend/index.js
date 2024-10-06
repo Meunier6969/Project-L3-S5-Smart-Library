@@ -1,4 +1,27 @@
-//==========================================
+// Description: Main entry point for the backend server.
+
+// Function: This file is the main entry point for the backend server. It sets up the server, connects to the database, and defines the routes for the API.
+// GET /api/books/:title? - Get all books or search for books by title
+// GET /api/books/:id - Get a book by its ID
+// POST /api/books - Add a new book
+// POST /api/books/:id/favorite - Add a book to the user's favorites
+// DELETE /api/books/:id - Delete a book
+// DELETE /api/books/:id/favorite - Remove a book from the user's favorites
+// PUT /api/books/:id - Modify a book
+// PUT /api/users/:id - Modify a user
+// GET /api/users/ - Get all users
+// GET /api/users/:id - Get a user by its ID
+// GET /api/users/:id/favorites - Get a user's favorite books
+// POST /api/users/register - Register a new user
+// POST /api/users/login - Login a user
+// DELETE /api/users/:id - Delete a user
+// GET /api/test - Test route to check if the API is running
+
+
+
+
+//==============IMPORT============================
+
 import express, {json} from "express";
 import {config} from 'dotenv';
 
@@ -27,7 +50,7 @@ const { sign, verify } = jwtpkg;
 
 const cors = corspkg;
 
-//==========================================
+//==============CONFIG============================
 
 const app = express()
 const PORT = 1234
@@ -42,14 +65,12 @@ app.use((req, res, next) => {
 	next()
 })
 
-//==========================================
-
 // Running the api
 app.listen(PORT, () => {
 	console.log(`Listening on localhost:${PORT}`)
 })
 
-//==========================================
+//==============TEST============================
 
 app.get("/api/test", async (req, res) => {
 	const token = req.headers.authorization
@@ -62,7 +83,17 @@ app.get("/api/test", async (req, res) => {
 	})
 })
 
-// GET
+//==============ROUTES============================
+
+//--------------USERS-----------------------------
+
+// USERS - GET
+
+/**
+ * @route GET /api/users/
+ * @description Get all users
+ * @access Public
+ */
 app.get("/api/users/", async (req, res) => {
 	await getAllUsers()
 	.then((result) => {
@@ -72,6 +103,11 @@ app.get("/api/users/", async (req, res) => {
 	})
 })
 
+/**
+ * @route GET /api/users/:id
+ * @description Get a user by its ID
+ * @access Public
+ */
 app.get("/api/users/:id", async (req, res) => {
 	const { id } = req.params
 
@@ -83,6 +119,11 @@ app.get("/api/users/:id", async (req, res) => {
 	})
 })
 
+/**
+ * @route GET /api/users/:id/favorites
+ * @description Get a user's favorite books
+ * @access Public
+ */
 app.get("/api/users/:id/favorites", async (req, res) => {
 	const { id } = req.params
 
@@ -94,6 +135,158 @@ app.get("/api/users/:id/favorites", async (req, res) => {
 	});
 
 })
+
+// USERS - POST
+
+/**
+ * @route POST /api/users/register
+ * @description Register a new user
+ * @access Public
+ */
+app.post("/api/users/register", async (req, res) => {
+	const { pseudo, email, pwd } = req.body
+
+	if (!pseudo || !email || !pwd) {
+		sendError(res, 400, "Missing pseudo, email and/or pwd field.")
+		return
+	}
+
+	let user_id
+	let user
+
+	await addNewUser(pseudo, email, pwd)
+		.then((result) => {
+			user_id = result.insertId
+		}).catch((err) => {
+			sendError(res, 400, err)
+
+		});
+
+	if (user_id === undefined) return
+
+	await getUserById(user_id)
+		.then((result) => {
+			user = result
+		}).catch((err) => {
+			sendError(res, 500, err)
+
+		});
+
+	if (user === undefined) return
+
+	const token = generateToken(user_id);
+
+	res.status(201).send({
+		"message": "New user created",
+		"token": token,
+		"user": user
+	})
+})
+
+/**
+ * @route POST /api/users/login
+ * @description Login a user
+ * @access Public
+ */
+app.post("/api/users/login", async (req, res) => {
+	const { email, pwd } = req.body
+
+	if (!email || !pwd) {
+		sendError(res, 400, "Missing email and/or password field.")
+		return
+	}
+
+	let user
+
+	await getPassword(email)
+		.then((result) => {
+			user = result
+		}).catch((err) => {
+			sendError(res, 404, err)
+		});
+
+	if (user === undefined) return;
+	if (user.pwd !== pwd) {
+		sendError(res, 400, "Wrong login information.")
+		return
+	}
+
+	const token = generateToken(user.user_id);
+
+	res.status(200).send({
+		"token": token,
+		"user": await getUserById(user.user_id)
+	})
+})
+
+// USERS - DELETE
+/**
+ * @route DELETE /api/users/:id
+ * @description Delete a user
+ * @access Private
+ */
+app.delete("/api/users/:id", async (req, res) => {
+	const { id } = req.params
+	const token = req.headers.authorization
+
+	if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
+		sendError(res, 403, "You must be an administator to delete this user.")
+		return
+	}
+
+	await deleteUser(id)
+		.then(() => {
+			res.status(200).send({
+				"message": "User deleted"
+			})
+		}).catch((err) => {
+			sendError(res, 400, err)
+		});
+})
+
+// USERS - PATCH
+/**
+ * @route PATCH /api/users/:id
+ * @description Modify a user
+ * @access Private
+ */
+app.patch("/api/users/:id", async (req, res) => {
+	const { id } = req.params
+	const { pseudo, email, pwd } = req.body
+	const token = req.headers.authorization
+
+	// Check id, just in case
+	if (!id) {
+		sendError(res, 400, "Missing user id.")
+		return
+	}
+
+	// Check token -> either admin or user
+	if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
+		sendError(res, 403, "You must be an administator to update this user.")
+		return
+	}
+
+	await editUser(id, pseudo, email, pwd)
+		.then(() => {
+			res.status(200).send({
+				"message": "User updated succesfuly"
+			})
+		}).catch((err) => {
+			sendError(res, 400, err)
+		});
+})
+
+
+//--------------BOOKS-----------------------------
+
+// BOOKS - GET
+
+/**
+ * @route GET /api/books/:title?
+ * @description Get all books or search for books by title
+ * @access Public
+ */
 app.get("/api/books/:title?", async (req, res) => {
 	try {
 		const title = req.params.title; // Get the title from the URL parameters
@@ -139,7 +332,14 @@ app.get("/api/books/:title?", async (req, res) => {
 	}
 });
 
-// Exemple de code pour l'API
+/**
+ * @route GET /api/books/search/:query
+ * @description Search for books by title
+ * @access Public
+ * @param {string} query - The search query
+ * @returns {object} - The filtered books
+ *
+**/
 app.get('/api/books/search/:query', async (req, res) => {
 	const query = req.params.query.toLowerCase();
 	const books = await getAllBooks(); // Fonction qui récupère tous les livres
@@ -147,7 +347,13 @@ app.get('/api/books/search/:query', async (req, res) => {
 	res.json(filteredBooks);
 });
 
-
+/**
+ * @route GET /api/books/:id
+ * @description Get a book by its ID
+ * @access Public
+ * @param {string} id - The ID of the book
+ * @returns {object} - The book object
+ */
 app.get("/api/books/:id", async (req, res) => {
 	const { id } = req.params
 
@@ -159,78 +365,20 @@ app.get("/api/books/:id", async (req, res) => {
 	});
 })
 
-// POST
-app.post("/api/users/register", async (req, res) => {
-	const { pseudo, email, pwd } = req.body
+// BOOKS - POST
 
-	if (!pseudo || !email || !pwd) {
-		sendError(res, 400, "Missing pseudo, email and/or pwd field.")
-		return
-	}
-
-	let user_id
-	let user
-
-	await addNewUser(pseudo, email, pwd)
-	.then((result) => {
-		user_id = result.insertId
-	}).catch((err) => {
-		sendError(res, 400, err)
-
-	});
-
-	if (user_id === undefined) return
-	
-	await getUserById(user_id)
-	.then((result) => {
-		user = result
-	}).catch((err) => {
-		sendError(res, 500, err)
-
-	});
-
-	if (user === undefined) return
-	
-	const token = generateToken(user_id);
-
-	res.status(201).send({
-		"message": "New user created",
-		"token": token,
-		"user": user
-	})
-})
-
-app.post("/api/users/login", async (req, res) => {
-	const { email, pwd } = req.body
-
-	if (!email || !pwd) {
-		sendError(res, 400, "Missing email and/or password field.")
-		return
-	}
-	
-	let user
-
-	await getPassword(email)
-	.then((result) => {
-		user = result
-	}).catch((err) => {
-		sendError(res, 404, err)
-	});
-
-	if (user === undefined) return;
-	if (user.pwd !== pwd) {
-		sendError(res, 400, "Wrong login information.")
-		return
-	}
-
-	const token = generateToken(user.user_id);
-
-	res.status(200).send({
-		"token": token,
-		"user": await getUserById(user.user_id)
-	})
-})
-
+/**
+ * @route POST /api/books
+ * @description Add a new book
+ * @access Private
+ * @param {string} title - The title of the book
+ * @param {string} author - The author of the book
+ * @param {string} description - The description of the book
+ * @param {number} year - The year the book was published
+ * @param {string} imageURL - The URL of the book's image
+ * @param {string} category - The category of the book
+ * @returns {object} - The new book object
+ */
 app.post("/api/books", async (req, res) => {
 	const { title, author, description, years,imageURL,category } = req.body
 
@@ -252,6 +400,13 @@ app.post("/api/books", async (req, res) => {
 
 })
 
+/**
+ * @route POST /api/books/:id/favorite
+ * @description Add a book to the user's favorites
+ * @access Private
+ * @param {string} id - The ID of the book
+ * @returns {object} - Success message
+ */
 app.post("/api/books/:id/favorite", async (req, res) => {
 	// TODO: Auth user
 	const { id } = req.params
@@ -284,25 +439,7 @@ app.post("/api/books/:id/favorite", async (req, res) => {
 	});
 })
 
-app.delete("/api/users/:id", async (req, res) => {
-	const { id } = req.params
-	const token = req.headers.authorization
-
-	if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
-		sendError(res, 403, "You must be an administator to delete this user.")
-		return
-	}
-
-	await deleteUser(id)
-	.then(() => {
-		res.status(200).send({
-			"message": "User deleted"
-		})
-	}).catch((err) => {
-		sendError(res, 400, err)
-	});
-})
-
+// BOOKS - DELETE
 app.delete("/api/books/:id", async (req, res) => {
 	const { id } = req.params;
 
@@ -327,9 +464,6 @@ app.delete("/api/books/:id", async (req, res) => {
 		sendError(res, 400, error.message || "An error occurred while deleting the book.");
 	}
 });
-
-
-
 
 app.delete("/api/books/:id/favorite", async (req, res) => {
 	const { id } = req.params
@@ -363,33 +497,7 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 
 })
 
-// UPDATE
-app.patch("/api/users/:id", async (req, res) => {
-	const { id } = req.params
-	const { pseudo, email, pwd } = req.body
-	const token = req.headers.authorization
-
-	// Check id, just in case
-	if (!id) {
-		sendError(res, 400, "Missing user id.")
-		return
-	}
-
-	// Check token -> either admin or user
-	if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
-		sendError(res, 403, "You must be an administator to update this user.")
-		return
-	}
-
-	await editUser(id, pseudo, email, pwd)
-		.then(() => {
-			res.status(200).send({
-				"message": "User updated succesfuly"
-			})
-		}).catch((err) => {
-			sendError(res, 400, err)
-		});
-})
+// BOOKS - PATCH
 app.patch("/api/books/:id", async (req, res) => {
 	const { id } = req.params;
 	const { title, author, description, year } = req.body; // Extraction des champs
@@ -412,8 +520,30 @@ app.patch("/api/books/:id", async (req, res) => {
 		});
 });
 
+// BOOKS - PUT
+app.put("/api/books/:id", async (req, res) => {
+	const { id } = req.params;
+	const { title, author, description, years, imageURL, category } = req.body;
 
-// Functions
+	if (!title || !author || !description || !years || !imageURL || !category) {
+		sendError(res, 400, "Missing fields for modification.");
+		return;
+	}
+
+	try {
+		const result = await modifyBookById(id, title, author, description, years, imageURL, category); // Remplacez par votre logique
+		res.status(200).send({
+			message: "Book modified successfully",
+			result,
+		});
+	} catch (error) {
+		sendError(res, 500, error);
+	}
+});
+
+
+//==============FUNCTIONS============================
+
 function isTokenValid(token) {
 	let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
@@ -482,23 +612,3 @@ function generateToken(user_id) {
 
 
 
-// PUT - Modifier un livre
-app.put("/api/books/:id", async (req, res) => {
-	const { id } = req.params;
-	const { title, author, description, years, imageURL, category } = req.body;
-
-	if (!title || !author || !description || !years || !imageURL || !category) {
-		sendError(res, 400, "Missing fields for modification.");
-		return;
-	}
-
-	try {
-		const result = await modifyBookById(id, title, author, description, years, imageURL, category); // Remplacez par votre logique
-		res.status(200).send({
-			message: "Book modified successfully",
-			result,
-		});
-	} catch (error) {
-		sendError(res, 500, error);
-	}
-});
