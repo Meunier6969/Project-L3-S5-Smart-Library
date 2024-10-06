@@ -5,7 +5,16 @@ import {config} from 'dotenv';
 import jwtpkg from 'node-jsonwebtoken';
 import corspkg from 'cors'; // Fixing some potential network errors
 import {addNewUser, deleteUser, getAllUsers, getPassword, getUserById} from "./routes/users.js"
-import {addNewBook, deleteBook, getAllBooks, getBookById, getNumberOfBooks, modifyBookById,searchBooksByTitle} from "./routes/books.js"
+import {
+	addNewBook,
+	deleteBook,
+	editBook,
+	getAllBooks,
+	getBookById,
+	getNumberOfBooks,
+	modifyBookById,
+	searchBooksByTitle
+} from "./routes/books.js"
 import {
 	addBookToUsersFavorite,
 	decrementBookFavoriteCount,
@@ -167,7 +176,7 @@ app.post("/api/users/register", async (req, res) => {
 		user_id = result.insertId
 	}).catch((err) => {
 		sendError(res, 400, err)
-		return
+
 	});
 
 	if (user_id === undefined) return
@@ -177,7 +186,7 @@ app.post("/api/users/register", async (req, res) => {
 		user = result
 	}).catch((err) => {
 		sendError(res, 500, err)
-		return
+
 	});
 
 	if (user === undefined) return
@@ -263,10 +272,10 @@ app.post("/api/books/:id/favorite", async (req, res) => {
 	await incrementBookFavoriteCount(id)
 	.catch((err) => {
 		sendError(res, 400, err)
-		return
+
 	});
 	await addBookToUsersFavorite(user_id, id)
-	.then((result) => {
+	.then(() => {
 		res.status(200).send({
 			"message": "Book has been favorited."
 		})
@@ -279,13 +288,13 @@ app.delete("/api/users/:id", async (req, res) => {
 	const { id } = req.params
 	const token = req.headers.authorization
 
-	if (getUserByToken(token) != id && !await isTokenAdmin(token)) {
+	if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
 		sendError(res, 403, "You must be an administator to delete this user.")
 		return
 	}
 
 	await deleteUser(id)
-	.then((result) => {
+	.then(() => {
 		res.status(200).send({
 			"message": "User deleted"
 		})
@@ -304,7 +313,7 @@ app.delete("/api/books/:id", async (req, res) => {
 	}
 
 	await deleteBook(id)
-	.then((result) => {
+	.then(() => {
 		res.status(200).send({
 			"message": "Book deleted"
 		})
@@ -336,10 +345,10 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 	await decrementBookFavoriteCount(id)
 	.catch((err) => {
 		sendError(res, 400, err)
-		return
+
 	});
 	await removeBookFromUsersFavorite(user_id, id)
-	.then((result) => {
+	.then(() => {
 		res.status(200).send({
 			"message": "Book has been unfavorited.",
 		})
@@ -348,6 +357,56 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 	});
 
 })
+
+// UPDATE
+app.patch("/api/users/:id", async (req, res) => {
+	const { id } = req.params
+	const { pseudo, email, pwd } = req.body
+	const token = req.headers.authorization
+
+	// Check id, just in case
+	if (!id) {
+		sendError(res, 400, "Missing user id.")
+		return
+	}
+
+	// Check token -> either admin or user
+	if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
+		sendError(res, 403, "You must be an administator to update this user.")
+		return
+	}
+
+	await editUser(id, pseudo, email, pwd)
+		.then(() => {
+			res.status(200).send({
+				"message": "User updated succesfuly"
+			})
+		}).catch((err) => {
+			sendError(res, 400, err)
+		});
+})
+app.patch("/api/books/:id", async (req, res) => {
+	const { id } = req.params;
+	const { title, author, description, year } = req.body; // Extraction des champs
+
+
+	if (!id) {
+		sendError(res, 400, "Missing book id.");
+		return;
+	}
+
+
+
+	await editBook(id, title, author, description, year)
+		.then(() => {
+			res.status(200).send({
+				"message": "Book updated successfully"
+			});
+		}).catch((err) => {
+			sendError(res, 400, err);
+		});
+});
+
 
 // Functions
 function isTokenValid(token) {
@@ -392,7 +451,7 @@ async function isTokenAdmin(token) {
 	await getUserById(tk.user_id)
 	.then((result) => {
 		isAdmin = Boolean(result.role)
-	}).catch((err) => {
+	}).catch(() => {
 		isAdmin = false
 	});
 
@@ -413,9 +472,7 @@ function generateToken(user_id) {
 		user_id: user_id,
 	}
 
-	const token = sign(data, jwtSecretKey, { expiresIn: '24h' });
-
-	return token
+	return sign(data, jwtSecretKey, {expiresIn: '24h'})
 }
 
 

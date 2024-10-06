@@ -99,6 +99,50 @@ export async function deleteBook(book_id) {
 		throw error
 	}
 }
+export async function editBook(book_id, title = undefined, author = undefined, description = undefined, year = undefined) {
+	try {
+		let sql = "UPDATE Book SET ";
+		let values = [];
+
+		if (!title && !author && !description && !year) throw new Error("No fields to change");
+
+		// Construction de la requête SQL en fonction des champs fournis
+		if (title) {
+			sql += "title=? ";
+			values.push(title);
+			if (author || description || year) sql += ", ";
+		}
+
+		if (author) {
+			sql += "author=? ";
+			values.push(author);
+			if (description || year) sql += ", ";
+		}
+
+		if (description) {
+			sql += "description=? ";
+			values.push(description);
+			if (year) sql += ", ";
+		}
+
+		if (year) {
+			sql += "year=? ";
+			values.push(year);
+		}
+
+		sql += "WHERE book_id=?;"; // Ajout de la condition pour book_id
+		values.push(book_id); // Ajout de l'identifiant du livre à la fin du tableau
+
+		const [result, fields] = await pool.execute(sql, values);
+
+		if (result.affectedRows === 0) throw new Error("Book does not exist.");
+
+		return result;
+	} catch (error) {
+		throw error;
+	}
+}
+
 
 async function doesBookExist(title) {
 	try {

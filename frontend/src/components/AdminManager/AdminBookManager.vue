@@ -1,95 +1,90 @@
 <template>
   <div class="admin-books">
-    <!-- Left Column: Action Buttons -->
     <div class="action-buttons">
       <button @click="addBook" class="btn-black-white">Add a Book</button>
       <button @click="modifyBook" class="btn-black-white">Modify a Book</button>
       <button @click="deleteBook" class="btn-black-red">Delete a Book</button>
     </div>
-    <!-- Book Form for Adding or Modifying a Book -->
     <div style="grid-column: 2;">
       <h2>Book Manager</h2>
-    <div v-if="!deleteMode && (isAdding || modifyMode)" class="book-form">
-      <div class="upload-zone" @click="triggerUpload">
-        <input type="file" ref="fileInput" @change="uploadImage" hidden />
-        <div class="upload-content">
-          <i class="upload-icon">⇧</i>
-          <p><em>Drop your image here</em></p>
+      <div v-if="!deleteMode && (isAdding || modifyMode)" class="book-form">
+        <div class="upload-zone" @click="triggerUpload">
+          <input type="file" ref="fileInput" @change="uploadImage" hidden />
+          <div class="upload-content">
+            <i class="upload-icon">⇧</i>
+            <p><em>Drop your image here</em></p>
+          </div>
+        </div>
+        <div class="book-details">
+          <input
+              v-model="book.title"
+              :placeholder="isAdding ? 'Add Title' : 'Edit Title'"
+              class="input-field"
+          />
+          <input
+              v-model="book.author"
+              :placeholder="isAdding ? 'Add Author' : 'Edit Author'"
+              class="input-field"
+          />
+          <input
+              v-model="book.years"
+              :placeholder="isAdding ? 'Add publishing date' : 'Edit publishing date'"
+              class="input-field"
+          />
+          <textarea
+              v-model="book.description"
+              :placeholder="isAdding ? 'Add Description' : 'Edit Description'"
+              class="textarea-field"
+          ></textarea>
+          <button
+              @click="isAdding ? confirmAddBook() : confirmModifyBook()"
+              class="btn-black-white"
+          >
+            {{ isAdding ? "ADD" : "MODIFY" }}
+          </button>
         </div>
       </div>
-      <div class="book-details">
+      <div v-if="deleteMode || modifyMode" class="delete-form">
         <input
-            v-model="book.title"
-            :placeholder="isAdding ? 'Add Title' : 'Edit Title'"
+            v-model="searchQuery"
+            :placeholder="modifyMode ? 'Search for a book to modify' : 'Search for a book to delete'"
             class="input-field"
         />
-        <input
-            v-model="book.author"
-            :placeholder="isAdding ? 'Add Author' : 'Edit Author'"
-            class="input-field"
-        />
-        <input
-            v-model="book.years"
-            :placeholder="isAdding ? 'Add publishing date' : 'Edit publishing date'"
-            class="input-field"
-        />
-        <textarea
-            v-model="book.description"
-            :placeholder="isAdding ? 'Add Description' : 'Edit Description'"
-            class="textarea-field"
-        ></textarea>
-        <button
-            @click="isAdding ? confirmAddBook() : confirmModifyBook()"
-            class="btn-black-white"
-        >
-          {{ isAdding ? "ADD" : "MODIFY" }}
-        </button>
+        <button @click="fetchBookToModify" class="btn-black-white">Search</button>
+
+        <div v-if="modifyMode && foundBooks.length > 0" class="found-books">
+          <h3>Found Books:</h3>
+          <ul>
+            <li v-for="foundBook in foundBooks" :key="foundBook.id">
+              {{ foundBook.title }} - {{ foundBook.author }}
+              <button @click="selectBook(foundBook)">Select</button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-    <!-- Right Column: Book Modification Form -->
-    <div v-if="deleteMode || modifyMode" class="delete-form">
-      <input
-          v-model="searchQuery"
-          :placeholder="modifyMode ? 'Search for a book to modify' : 'Search for a book to delete'"
-          class="input-field"
-      />
-      <button @click="fetchBookToModify" class="btn-black-white">Search</button>
-
-      <div v-if="modifyMode && foundBooks.length > 0" class="found-books">
-        <h3>Found Books:</h3>
-        <ul>
-          <li v-for="foundBook in foundBooks" :key="foundBook.id">
-            {{ foundBook.title }} - {{ foundBook.author }}
-            <button @click="selectBook(foundBook)">Select</button>
-          </li>
-        </ul>
-      </div>
-    </div>
-    </div>
-
   </div>
 </template>
-
 
 <script>
 export default {
   data() {
     return {
-      searchQuery: "", // For the search functionality
-      foundBooks: [], // For storing found books
+      searchQuery: "",
+      foundBooks: [],
       book: {
-        title: "Fondation",
-        author: "Isaac Asimov",
-        years: 1968,
-        description: "For twelve thousand years the Galactic Empire has ruled supreme...",
+        id: null, // ID du livre ajouté ici
+        title: "",
+        author: "",
+        years: '',
+        description: "",
       },
-      isAdding: false, // Tracks if we're in "add" mode
-      deleteMode: false, // Tracks if we're in "delete" mode
-      modifyMode: false, // Tracks if we're in "modify" mode
+      isAdding: false,
+      deleteMode: false,
+      modifyMode: false,
     };
   },
   methods: {
-    // Function to handle book modification
     async fetchBookToModify() {
       if (this.searchQuery.length < 3) {
         console.error("Search query must be at least 3 characters long.");
@@ -105,33 +100,42 @@ export default {
       }
 
       const bookData = await response.json();
-
-      // Check if any books were found
       if (Array.isArray(bookData) && bookData.length > 0) {
-        this.foundBooks = bookData; // Store all found books
+        this.foundBooks = bookData;
         this.isAdding = false;
         this.modifyMode = true;
         console.log("Books found:", this.foundBooks);
       } else {
         console.error("No books found with that title.");
         alert("No books found with that title.");
-        this.foundBooks = []; // Reset list if no books are found
+        this.foundBooks = [];
       }
     },
 
-    // Function to handle selecting a book
     selectBook(book) {
-      this.book = book; // Update selected book
-      this.isAdding = false;
-      this.modifyMode = true;
-      console.log("Selected book:", this.book);
+      if (book && book.book_id) { // Assurez-vous que l'objet book et son id existent
+        this.book = { ...book }; // Copie de l'objet book
+        this.isAdding = false;
+        this.modifyMode = true;
+        console.log("Selected book:", this.book);
+      } else {
+        console.error("Selected book does not have an ID.");
+        alert("The selected book does not have a valid ID.");
+      }
     },
+
 
     confirmModifyBook() {
       console.log("Modifying book:", this.book);
-      // Add fetch request to update book in the database
-      fetch(`http://localhost:1234/api/books/${this.book.id}`, {
-        method: 'PUT', // Assuming you want to update the book
+      if (!this.book.book_id) {
+        console.error("Book ID is not defined.");
+        alert("Please select a book to modify.");
+        return;
+      }
+
+      console.log("Modifying book:", this.book);
+      fetch(`http://localhost:1234/api/books/${this.book.book_id}`, {
+        method: 'PATCH', // Utiliser PATCH au lieu de PUT
         headers: {
           'Content-Type': 'application/json',
         },
@@ -152,87 +156,79 @@ export default {
           });
     },
 
-    // Function to handle adding a book
-    // Switch to add mode
+
     addBook() {
       this.isAdding = true;
       this.deleteMode = false;
       this.modifyMode = false;
       this.resetForm();
     },
+
     confirmAddBook() {
       const newBook = {
         title: this.book.title,
         author: this.book.author,
-        year: this.book.year,
+        years: this.book.years,
         description: this.book.description,
-        imageURL: "https://via.placeholder.com/150", // Default value for the image
-        category: 1, // Default category (to adjust if necessary)
+        imageURL: "https://via.placeholder.com/150", // Valeur par défaut pour l'image
+        category: 1, // Catégorie par défaut
       };
 
-      console.log("Step 1: New book object created:", newBook); // Check data before sending
-
-      // Log before fetch request
-      console.log("Step 2: Sending fetch request...");
+      console.log("Step 1: New book object created:", newBook);
 
       fetch('http://localhost:1234/api/books', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', // Ensure the server knows it's JSON
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(newBook),
       })
           .then(response => {
-            // Log the response
-            console.log("Step 3: Received response:", response);
-
             if (!response.ok) {
               throw new Error(`Failed to add book: ${response.statusText}`);
             }
             return response.json();
           })
           .then(data => {
-            // Log success
             console.log("Step 4: Book added successfully:", data);
-            this.resetForm(); // Reset form after successful addition
+            this.resetForm();
           })
           .catch(err => {
-            // Log detailed error
             console.error("Step 5: Error adding book:", err.message, err.stack);
           });
     },
 
-    // Switch to modify mode
     modifyBook() {
       this.isAdding = false;
       this.deleteMode = false;
       this.modifyMode = true;
     },
-    // Switch to delete mode
+
     deleteBook() {
       this.isAdding = false;
       this.deleteMode = true;
       this.modifyMode = false;
     },
-    // Handle image upload
+
     uploadImage(event) {
       const file = event.target.files[0];
       console.log("Uploading image:", file);
     },
-    // Trigger file input click
+
     triggerUpload() {
       this.$refs.fileInput.click();
     },
-    // Reset the form when adding a book
+
     resetForm() {
       this.book = {
+        id: null,
         title: "",
         author: "",
-        year: "",
+        years: "",
         description: "",
       };
-      this.searchQuery = ""; // Reset search query
-      this.foundBooks = []; // Reset found books
+      this.searchQuery = "";
+      this.foundBooks = [];
     },
   },
 };
