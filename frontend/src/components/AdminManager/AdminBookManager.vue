@@ -4,23 +4,23 @@
       <!-- Left Column: Action Buttons -->
       <div class="action-buttons">
         <button
-          @click="selectButton('add')"
-          :class="getButtonClass('add')"
-          class="btn-black-white"
+            @click="selectButton('add')"
+            :class="getButtonClass('add')"
+            class="btn-black-white"
         >
           Add a Book
         </button>
         <button
-          @click="selectButton('modify')"
-          :class="getButtonClass('modify')"
-          class="btn-black-white"
+            @click="selectButton('modify')"
+            :class="getButtonClass('modify')"
+            class="btn-black-white"
         >
           Modify a Book
         </button>
         <button
-          @click="selectButton('delete')"
-          :class="getButtonClass('delete')"
-          class="btn-black-red"
+            @click="selectButton('delete')"
+            :class="getButtonClass('delete')"
+            class="btn-black-red"
         >
           Delete a Book
         </button>
@@ -43,57 +43,57 @@
             <h3 style="margin: 30px">Categories</h3>
 
             <label
-              ><input type="radio" name="category" value="Science-Fiction" />
+            ><input type="radio" name="category" value="1" v-model="selectedCategory" />
               Science-Fiction</label
             >
             <label
-              ><input type="radio" name="category" value="Mystery & Thriller" />
+            ><input type="radio" name="category" value="2" v-model="selectedCategory" />
               Mystery & Thriller</label
             >
             <label
-              ><input type="radio" name="category" value="Historical" />
+            ><input type="radio" name="category" value="3" v-model="selectedCategory" />
               Historical</label
             >
             <label
-              ><input type="radio" name="category" value="Educational" />
+            ><input type="radio" name="category" value="4" v-model="selectedCategory" />
               Educational</label
             >
             <label
-              ><input type="radio" name="category" value="For Children" /> For
-              Children</label
+            ><input type="radio" name="category" value="5" v-model="selectedCategory" />
+              For Children</label
             >
           </div>
 
           <div class="book-details col p-3">
             <input
-              v-model="book.title"
-              :placeholder="isAdding ? 'Add Title' : ''"
-              class="input-field"
+                v-model="book.title"
+                :placeholder="isAdding ? 'Add Title' : ''"
+                class="input-field"
             />
             <input
-              v-model="book.author"
-              :placeholder="isAdding ? 'Add Author' : ''"
-              class="input-field"
+                v-model="book.author"
+                :placeholder="isAdding ? 'Add Author' : ''"
+                class="input-field"
             />
             <input
-              v-model="book.year"
-              :placeholder="isAdding ? 'Add publishing date' : ''"
-              class="input-field"
+                v-model="book.year"
+                :placeholder="isAdding ? 'Add publishing date' : ''"
+                class="input-field"
             />
             <textarea
-              v-model="book.description"
-              :placeholder="isAdding ? 'Add Description' : ''"
-              class="textarea-field"
+                v-model="book.description"
+                :placeholder="isAdding ? 'Add Description' : ''"
+                class="textarea-field"
             ></textarea>
             <button
-              @click="
+                @click="
                 isAdding
                   ? confirmAddBook()
                   : deleteMode
                   ? confirmDeleteBook()
                   : confirmModifyBook()
               "
-              class="btn-black-white"
+                class="btn-black-white"
             >
               {{ isAdding ? "ADD" : rightButtonLabel }}
             </button>
@@ -103,19 +103,36 @@
     </div>
 
     <!-- Search Bar for Modifying or Deleting a Book -->
-    <div v-if="deleteMode || modifyMode" class="delete-form">
+    <div v-if="deleteMode || modifyMode" class="delete-form dropdown">
       <div class="search-content">
         <input
-          v-model="searchQuery"
-          :placeholder="
-            modifyMode
-              ? 'Search for a book to modify'
-              : 'Search for a book to delete'
-          "
-          class="input-field"
+            v-model="searchQuery"
+            :placeholder="modifyMode ? 'Search for a book to modify' : 'Search for a book to delete'"
+            class="form-control"
+            @input="fetchBookToModify"
         />
+
+        <!-- Dropdown des résultats -->
+        <ul v-if="isDropdownVisible && foundBooks.length > 0" class="dropdown-menu show" style="display: block; position: absolute;">
+          <h3 class="dropdown-header">Found Books:</h3>
+          <li v-for="foundBook in foundBooks" :key="foundBook.id" class="dropdown-item">
+            <label>
+              <input
+                  type="radio"
+                  name="selectedBook"
+                  :value="foundBook"
+                  v-model="selectedBook"
+                  @click="selectBook(foundBook)"
+              />
+              {{ foundBook.title }}
+            </label>
+          </li>
+        </ul>
       </div>
     </div>
+
+
+
   </div>
 </template>
 
@@ -124,16 +141,21 @@ export default {
   data() {
     return {
       searchQuery: "",
+      foundBooks: [],
+      selectedBook: null,
+      isDropdownVisible: false,
       book: {
         title: "",
         author: "",
         year: null,
         description: "",
+        category_id:null,
       },
       isAdding: true,
       deleteMode: false,
       modifyMode: false,
-      selectedButton: "add", // Tracks the selected button
+      selectedButton: "add",
+      selectedCategory: null,
     };
   },
   methods: {
@@ -161,49 +183,176 @@ export default {
         this.addBook();
       }
     },
-
-    confirmDeleteBook() {
-      console.log("Deleting book:", this.book);
-    },
     getButtonClass(button) {
       return this.selectedButton === button ? "selected" : "";
     },
+
+    async fetchBookToModify() {
+      if (this.searchQuery.trim().length < 3) return; // Vérifie la longueur de la recherche
+
+      try {
+        const response = await fetch(`http://localhost:1234/api/books/search/${encodeURIComponent(this.searchQuery)}`);
+
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération des livres");
+        }
+
+        const books = await response.json();
+
+
+        if (Array.isArray(books) && books.length > 0) {
+          this.foundBooks = books;  // Stocke les livres trouvés
+          this.isDropdownVisible = this.foundBooks.length > 0;
+        } else {
+          this.foundBooks = []; // Si aucun livre trouvé, vide la liste
+        }
+      } catch (error) {
+        console.error("Erreur API:", error);
+      }
+    },
+
+
+    selectBook(book) {
+      if (book && book.book_id) {
+        this.book = { ...book }; // Remplit les détails du livre
+        this.isAdding = false;
+        console.log("Selected book:", this.book);
+        this.isDropdownVisible = false;
+        this.searchQuery = "";
+        console.log("Category book:", this.book.category_id);
+        this.selectedCategory = this.book.category_id;
+      } else {
+        console.error("Selected book does not have an ID.");
+        alert("The selected book does not have a valid ID.");
+      }
+    },
+
+
+
     confirmModifyBook() {
       console.log("Modifying book:", this.book);
+      if (!this.book.book_id) {
+        console.error("Book ID is not defined.");
+        alert("Please select a book to modify.");
+        return;
+      }
+      this.book.category_id = this.selectedCategory;
+      console.log("Modifying book CCCCCCCCCCC:", this.book.category_id);
+      fetch(`http://localhost:1234/api/books/${this.book.book_id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.book),
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Failed : ${response.statusText}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log("Book modified successfully:", data);
+            this.resetForm(); // Reset form after modification
+          })
+          .catch((err) => {
+            console.error(`Failed to modify book ${this.book.book_id}:`, err); // Plus de détails dans les logs
+            alert(`Error: ${err.message}`);
+          });
     },
-    confirmAddBook() {
-      console.log("Adding book:", this.book);
-    },
+
+
     addBook() {
       this.isAdding = true;
       this.deleteMode = false;
       this.modifyMode = false;
       this.resetForm();
     },
-    modifyBook() {
-      this.isAdding = false;
-      this.deleteMode = false;
-      this.modifyMode = true;
+
+    confirmAddBook() {
+      const newBook = {
+        title: this.book.title,
+        author: this.book.author,
+        years: this.book.year,
+        description: this.book.description,
+        imageURL: "https://via.placeholder.com/150", // Valeur par défaut pour l'image
+        category: this.selectedCategory,
+
+      };
+
+      console.log("Step 1: New book object created:", newBook);
+
+      fetch('http://localhost:1234/api/books', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newBook),
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Failed to add book: ${response.statusText}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log("Step 4: Book added successfully:", data);
+            this.resetForm();
+          })
+          .catch(err => {
+            console.error("Step 5: Error adding book:", err.message, err.stack);
+          });
     },
-    deleteBook() {
-      this.isAdding = false;
-      this.deleteMode = true;
-      this.modifyMode = false;
+
+
+
+    async confirmDeleteBook(book) {
+      if (!this.book.book_id) {
+        console.error("Book ID is not defined.");
+        alert("Please select a book to delete.");
+        return;
+      }
+
+      const confirmed = confirm(`Are you sure you want to delete "${this.book.title}"?`);
+      if (!confirmed) return;
+
+      console.log("Deleting book:", this.book.book_id);
+      fetch(`http://localhost:1234/api/books/${this.book.book_id}`, {
+        method: 'DELETE',
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Failed to delete book: ${response.statusText}`);
+            }
+            console.log("Book deleted successfully.");
+            this.resetForm(); // Reset the form after deletion
+          })
+          .catch(err => {
+            console.error("Error deleting book:", err.message);
+          });
     },
+
     uploadImage(event) {
       const file = event.target.files[0];
       console.log("Uploading image:", file);
     },
+
     triggerUpload() {
       this.$refs.fileInput.click();
     },
+
     resetForm() {
       this.book = {
+        id: null,
         title: "",
         author: "",
-        year: "",
+        years: "",
         description: "",
+        category: null,
       };
+      this.searchQuery = "";
+      this.foundBooks = [];
+      this.selectedCategory=null;
     },
   },
 };

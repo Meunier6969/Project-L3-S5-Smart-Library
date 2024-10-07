@@ -25,17 +25,17 @@ VALUES ('1984', 'George Orwell', 'Dystopian novel about totalitarianism.', '1949
 INSERT INTO Book (title, author, description, years, img)
 VALUES ('To Kill a Mockingbird',' "Harper Lee"', 'A novel about racial injustice in the Deep South.', '1960-07-11', 'https://m.media-amazon.com/images/I/61vD63WqmeL._SY425_.jpg');
 INSERT INTO Book (title, author, description, years, img)
-VALUES ('"The Great Gatsby", "F. Scott Fitzgerald", "A critique of the American Dream."', '1925-04-10', 'https://m.media-amazon.com/images/I/71mSLwEpHEL._SY425_.jpg');
+VALUES ('The Great Gatsby', 'F. Scott Fitzgerald', 'A critique of the American Dream.', '1925-04-10', 'https://m.media-amazon.com/images/I/71mSLwEpHEL._SY425_.jpg');
 INSERT INTO Book (title, author, description, years, img)
-VALUES ('"Brave New World", "Aldous Huxley"', 'A novel about a future dystopia.', '1932-08-30', 'https://m.media-amazon.com/images/I/618C1NjkmzL._SY425_.jpg');
+VALUES ('Brave New World', 'Aldous Huxley', 'A novel about a future dystopia.', '1932-08-30', 'https://m.media-amazon.com/images/I/618C1NjkmzL._SY425_.jpg');
 INSERT INTO Book (title, author, description, years, img)
-VALUES ('"The Catcher in the Rye", "J.D. Salinger", "A story about teenage alienation."', '1951-07-16', 'https://m.media-amazon.com/images/I/8125BDk3l9L._SL1500_.jpg');
+VALUES ('The Catcher in the Rye', 'J.D. Salinger', 'A story about teenage alienation.', '1951-07-16', 'https://m.media-amazon.com/images/I/8125BDk3l9L._SL1500_.jpg');
 INSERT INTO Book (title, author, description, years, img)
-VALUES ('"Moby Dick", "Herman Melville"', 'The quest for revenge against a giant whale.', '1851-10-18', 'https://m.media-amazon.com/images/I/91EQgLKb1TL._SY425_.jpg');
+VALUES ('Moby Dick', 'Herman Melville', 'The quest for revenge against a giant whale.', '1851-10-18', 'https://m.media-amazon.com/images/I/91EQgLKb1TL._SY425_.jpg');
 INSERT INTO Book (title, author, description, years, img)
 VALUES ('Pride and Prejudice', 'Jane Austen', 'A romantic novel about manners and marriage.','1813-01-28' ,'https://m.media-amazon.com/images/I/412bjj40hoL._SY445_SX342_.jpg');
 INSERT INTO Book (title, author, description, years, img)
-VALUES ('"The Hobbit", "J.R.R. Tolkien"', 'A fantasy novel about a hobbit s adventure.', '1937-09-21', 'https://m.media-amazon.com/images/I/41iWAOOaw4L._SY445_SX342_.jpg');
+VALUES ('The Hobbit', 'J.R.R. Tolkien', 'A fantasy novel about a hobbit s adventure.', '1937-09-21', 'https://m.media-amazon.com/images/I/41iWAOOaw4L._SY445_SX342_.jpg');
 INSERT INTO Book (title, author, description, years, img)
 VALUES ('The Diary of a Young Girl', 'Anne Frank', 'A young girl s account during the Holocaust.', '1947-06-25', 'https://m.media-amazon.com/images/I/71LxcogUxpL._SY425_.jpg');
 INSERT INTO Book (title, author, description, years, img)
@@ -49,7 +49,7 @@ VALUES ('The Odyssey', 'Homer', 'An epic poem about Odysseus s journey home.', '
 
 
 INSERT INTO Book (title, author, description, years, img)
-VALUES ('Wuthering Heights", "Emily Bronte', 'A tale of love and revenge on the Yorkshire moors.', '1847-12-01', 'https://m.media-amazon.com/images/I/81T34Sem-tL._SY425_.jpg');
+VALUES ('Wuthering Heights', 'Emily Bronte', 'A tale of love and revenge on the Yorkshire moors.', '1847-12-01', 'https://m.media-amazon.com/images/I/81T34Sem-tL._SY425_.jpg');
 INSERT INTO Book (title, author, description, years, img)
 VALUES ('The Brothers Karamazov', 'Fyodor Dostoevsky', 'A philosophical novel about faith and doubt.', '1880-11-01', 'https://m.media-amazon.com/images/I/41pnRR1QyiL._SY445_SX342_.jpg');
 INSERT INTO Book (title, author, description, years, img)
