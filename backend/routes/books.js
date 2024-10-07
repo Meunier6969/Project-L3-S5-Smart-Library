@@ -50,12 +50,12 @@ export async function getBookById(id) {
 	}
 }
 
-export async function addNewBook(title, author, description, year, img) {
+export async function addNewBook(title, author, description, year, img, category_id) {
 	try {
 		if (await doesBookExist(title)) throw new Error("Book already exists.");
 		
-		const sql = "INSERT INTO Book (title, author, description, years, img) VALUES (?,?,?,?,?);"
-		const values = [title, author, description, year, img]
+		const sql = "INSERT INTO Book (title, author, description, years, img, category_id) VALUES (?,?,?,?,?,?);"
+		const values = [title, author, description, year, img, category_id]
 		
 		const [result, fields] = await pool.execute(sql, values);
 		
@@ -80,34 +80,40 @@ export async function deleteBook(book_id) {
 	}
 }
 
-export async function editBook(book_id, title = undefined, author = undefined, description = undefined, year = undefined) {
+export async function editBook(book_id, title = undefined, author = undefined, description = undefined, year = undefined, category_id = undefined) {
 	try {
 		let sql = "UPDATE Book SET "
 		let values = []
 
-		if (!title && !author && !description && !year) throw new Error("No fields to change");
+		if (!title && !author && !description && !year && !category_id) throw new Error("No fields to change");
 
 		if (title) {
 			sql += "title=? "
 			values.push(title)
-			if (author || description || year) sql += ", "
+			if (author || description || year || category_id) sql += ", "
 		}
 
 		if (author) {
 			sql += "author=? "
 			values.push(author)
-			if (description || year) sql += ", "
+			if (description || year || category_id) sql += ", "
 		}
 
 		if (description) {
 			sql += "description=? "
 			values.push(description)
-			if (year) sql += ", "
+			if (year || category_id) sql += ", "
 		}
-
+		
 		if (year) {
 			sql += "year=? "
 			values.push(year)
+			if (category_id) sql += ", "
+		}
+		
+		if (category_id) {
+			sql += "category_id=? "
+			values.push(category_id)
 		}
 		
 		sql += "WHERE book_id=?;"

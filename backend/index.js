@@ -9,7 +9,7 @@ import corspkg from 'cors'; // Fixing some potential network errors
 const cors = corspkg;
 
 import { getAllUsers, getUserById, addNewUser, getPassword, deleteUser, editUser } from "./routes/users.js"
-import {addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook,  } from "./routes/books.js"
+import { addNewBook, getAllBooks, getNumberOfBooks, getBookById, deleteBook, editBook } from "./routes/books.js"
 import { getUsersFavorites, addBookToUsersFavorite, removeBookFromUsersFavorite ,decrementBookFavoriteCount,incrementBookFavoriteCount} from "./routes/favorites.js"
 
 //==========================================
@@ -219,7 +219,7 @@ app.post("/api/users/login", async (req, res) => {
 })
 
 app.post("/api/books", async (req, res) => {
-	const { title, author, description, year } = req.body
+	const { title, author, description, year, category_id } = req.body
 	const token = req.headers.authorization
 
 	if (await isTokenAdmin(token)) {
@@ -227,12 +227,12 @@ app.post("/api/books", async (req, res) => {
 		return
 	}
 
-	if (!title || !author || !description) {
+	if (!title || !author || !description || !category_id) {
 		sendError(res, 400, "Missing name, author and/or description field.")
 		return
 	}
 
-	await addNewBook(title, author, description, year, "", category)
+	await addNewBook(title, author, description, year, "", category_id)
 	.then((result) => {
 		res.status(201).send({
 			"message": "New book created",
@@ -378,7 +378,7 @@ app.patch("/api/users/:id", async (req, res) => {
 
 app.patch("/api/books/:id", async (req, res) => {
 	const { id } = req.params
-	const { title, author, description, year } = req.body
+	const { title, author, description, year, category_id } = req.body
 	const token = req.headers.authorization
 
 	// Check id, just in case
@@ -393,7 +393,7 @@ app.patch("/api/books/:id", async (req, res) => {
 		return
 	}
 
-	await editBook(id, title, author, description, year)
+	await editBook(id, title, author, description, year, category_id)
 	.then((result) => {
 		res.status(200).send({
 			"message": "Book updated succesfuly"

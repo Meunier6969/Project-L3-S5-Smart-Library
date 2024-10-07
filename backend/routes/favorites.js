@@ -16,7 +16,7 @@ export async function getUsersFavorites(user_id) {
 	try {
 		if (!await getUserById(user_id)) throw new Error("User Not found");
 
-		const sql = 'SELECT Favoris.book_id, Book.title FROM Favoris INNER JOIN Book ON Book.book_id=Favoris.book_id WHERE Favoris.user_id=?;'
+		const sql = 'SELECT Favorites.book_id, Book.title FROM Favorites INNER JOIN Book ON Book.book_id=Favorites.book_id WHERE Favorites.user_id=?;'
 		const [favorites] = await pool.query(sql, [user_id]);
 	
 		return favorites
@@ -29,7 +29,7 @@ export async function addBookToUsersFavorite(user_id, book_id) {
 	try {
 		if (!await doesUserExistId(user_id)) throw new Error("User does not exist");
 		
-		const sql = 'INSERT INTO Favoris (user_id, book_id) VALUES(?, ?);'
+		const sql = 'INSERT INTO Favorites (user_id, book_id) VALUES(?, ?);'
 		const values = [user_id, book_id]
 		
 		const [result, fields] = await pool.execute(sql, values)
@@ -44,7 +44,7 @@ export async function removeBookFromUsersFavorite(user_id, book_id) {
 	try {
 		if (!await doesUserExistId(user_id)) throw new Error("User does not exist");
 
-		const sql = 'DELETE FROM Favoris WHERE user_id=? AND book_id=?;'
+		const sql = 'DELETE FROM Favorites WHERE user_id=? AND book_id=?;'
 		const values = [user_id, book_id]
 
 		const [result, fields] = await pool.execute(sql, values)
