@@ -64,7 +64,7 @@ export async function getNumberOfBooks(query) {
 		const page = parseInt(query.page) || 1;     // Default page
 		const offset = (page - 1) * limit;          // Calculate the offset
 
-		const sql = `SELECT * FROM book LIMIT ${limit} OFFSET ${offset}`; // SQL query to retrieve books with pagination
+		const sql = `SELECT * FROM Book LIMIT ${limit} OFFSET ${offset}`; // SQL query to retrieve books with pagination
 		const [books] = await pool.query(sql); // Execute the query
 		return books; // Return the list of books
 	} catch (error) {
