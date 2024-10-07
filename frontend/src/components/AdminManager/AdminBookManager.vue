@@ -307,17 +307,17 @@ export default {
 
 
     async confirmDeleteBook(book) {
-      if (!book.book_id) {
+      if (!this.book.book_id) {
         console.error("Book ID is not defined.");
         alert("Please select a book to delete.");
         return;
       }
 
-      const confirmed = confirm(`Are you sure you want to delete "${book.title}"?`);
+      const confirmed = confirm(`Are you sure you want to delete "${this.book.title}"?`);
       if (!confirmed) return;
 
-      console.log("Deleting book:", book.book_id);
-      fetch(`http://localhost:1234/api/books/${book.book_id}`, {
+      console.log("Deleting book:", this.book.book_id);
+      fetch(`http://localhost:1234/api/books/${this.book.book_id}`, {
         method: 'DELETE',
       })
           .then(response => {
