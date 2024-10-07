@@ -35,7 +35,6 @@ import {
 	getAllBooks,
 	getBookById,
 	getNumberOfBooks,
-	modifyBookById,
 	searchBooksByTitle
 } from "./routes/books.js"
 import {
@@ -500,46 +499,30 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 // BOOKS - PATCH
 app.patch("/api/books/:id", async (req, res) => {
 	const { id } = req.params;
-	const { title, author, description, year } = req.body; // Extraction des champs
+	const { title, author, description, years, category_id } = req.body;
 
+	console.log("Received data:", { title, author, description, years, category_id });
 
 	if (!id) {
-		sendError(res, 400, "Missing book id.");
-		return;
+		return sendError(res, 400, "Missing book id.");
 	}
-
-
-
-	await editBook(id, title, author, description, year)
-		.then(() => {
-			res.status(200).send({
-				"message": "Book updated successfully"
-			});
-		}).catch((err) => {
-			sendError(res, 400, err);
-		});
-});
-
-// BOOKS - PUT
-app.put("/api/books/:id", async (req, res) => {
-	const { id } = req.params;
-	const { title, author, description, years, imageURL, category } = req.body;
-
-	if (!title || !author || !description || !years || !imageURL || !category) {
-		sendError(res, 400, "Missing fields for modification.");
-		return;
-	}
-
 	try {
-		const result = await modifyBookById(id, title, author, description, years, imageURL, category); // Remplacez par votre logique
-		res.status(200).send({
-			message: "Book modified successfully",
-			result,
+		const result = await editBook(id, title, author, description, years, category_id);
+		console.log("Update result:", result);
+
+		res.status(200).json({
+			success: true,
+			message: "Book updated successfully",
+			result
 		});
-	} catch (error) {
-		sendError(res, 500, error);
+	} catch (err) {
+		console.error("Error updating book:", err); // Log the error
+		sendError(res, 400, err.message);
 	}
 });
+
+
+
 
 
 //==============FUNCTIONS============================

@@ -44,7 +44,9 @@ const pool = mysql.createPool({
 export async function getAllBooks() {
 	try {
 		const sql = 'SELECT * FROM Book' // SQL query to retrieve all books
+
 		const [books] = await pool.query(sql); // Execute the query
+		console.log(books)
 		return books // Return the list of books
 	} catch (error) {
 		throw error // Throw an error if it fails
@@ -159,7 +161,10 @@ export async function deleteBook(book_id) {
 		throw error; // Throw an error if it fails
 	}
 }
-
+function formatDateToMySQL(dateString) {
+	const date = new Date(dateString);
+	return date.toISOString().slice(0, 19).replace('T', ' '); // Format 'YYYY-MM-DD HH:MM:SS'
+}
 /**
  * Edits the information of a book.
  * @param {number} book_id - The ID of the book to edit.
@@ -167,49 +172,49 @@ export async function deleteBook(book_id) {
  * @param {string} author - New author (optional).
  * @param {string} description - New description (optional).
  * @param {number} year - New year (optional).
+ * @param {number} category - Category of the book (optional).
  * @returns {Promise<Object>} - A promise that resolves to the object representing the result of the edit.
  * @throws {Error} - Throws an error if no fields are provided or if the book does not exist.
  */
-export async function editBook(book_id, title = undefined, author = undefined, description = undefined, year = undefined) {
+export async function editBook(book_id, title = undefined, author = undefined, description = undefined, year = undefined, category = undefined) {
 	try {
-		let sql = "UPDATE Book SET "; // Start of the SQL update query
+		let sql = "UPDATE Book SET"; // Start of the SQL update query
 		let values = []; // Values to update
 
-		if (!title && !author && !description && !year) throw new Error("No fields to change"); // Throw an error if no fields are provided
-
-		// Build the SQL query based on provided fields
 		if (title) {
-			sql += "title=? ";
+			sql += " title=?, ";
 			values.push(title);
-			if (author || description || year) sql += ", ";
 		}
-
 		if (author) {
-			sql += "author=? ";
+			sql += " author=?, ";
 			values.push(author);
-			if (description || year) sql += ", ";
 		}
-
 		if (description) {
-			sql += "description=? ";
+			sql += " description=?, ";
 			values.push(description);
-			if (year) sql += ", ";
 		}
-
 		if (year) {
-			sql += "year=? ";
-			values.push(year);
+			sql += " years=?, ";
+			values.push(formatDateToMySQL(year));
+		}
+		if (category) {
+			sql += " category_id=? ";
+			values.push(category);
+		} else {
+			sql = sql.replace(/, $/, " ");
 		}
 
-		sql += "WHERE book_id=?;";
+		sql = sql.replace(/, $/, " ");
+
+		sql += " WHERE book_id=?;";
 		values.push(book_id); // Add the book ID to the values list
 
-		const [result, fields] = await pool.execute(sql, values); // Execute the query
-
-		if (result.affectedRows === 0) throw new Error("Book does not exist."); // Throw an error if the book does not exist
+		const [result] = await pool.execute(sql, values);
+		if (result.affectedRows === 0) throw new Error("Book does not exist.");
 
 		return result; // Return the result of the edit
 	} catch (error) {
+		console.error("Error in editBook:", error.message); // Log the error for debugging
 		throw error; // Throw an error if it fails
 	}
 }
@@ -226,47 +231,8 @@ async function doesBookExist(title) {
 
 		return result.length > 0; // Return true if the book exists, otherwise false
 	} catch (error) {
+		console.error("Error checking book existence:", error.message); // Log the error for debugging
 		throw error; // Throw an error if it fails
 	}
 }
 
-/**
- * Retrieves all books from the database.
- * @param {number} bookId - The ID of the book to modify
- * @param {Object} updatedData - The updated data for the book
- * @param {string} updatedData.title - The updated title of the book
- * @param {string} updatedData.author - The updated author of the book
- * @param {string} updatedData.description - The updated description of the book
- * @param {number} updatedData.years - The updated year of the book
- * @param {string} updatedData.imageUrl - The updated image URL of the book
- * @param {number} updatedData.category - The updated category ID of the book
- *
- * @throws {Error} - Throws an error if the book is not found or no changes were made.
- * @returns {Promise<*>}
- */
-export async function modifyBookById(bookId, updatedData) {
-	try {
-		const { title, author, description, years, imageUrl, category } = updatedData;
-
-		// SQL pour mettre à jour le livre
-		const sql = `
-			UPDATE Book 
-			SET title = ?, author = ?, description = ?, years = ?, img = ?, category_id = ?
-			WHERE book_id = ?
-		`;
-
-		// Valeurs à mettre à jour
-		const values = [title, author, description, years, imageUrl, category, bookId];
-
-		const [result] = await pool.execute(sql, values); // Exécution de la requête
-
-		// Vérifier si le livre a été modifié
-		if (result.affectedRows === 0) throw new Error("Book not found or no changes made.");
-
-		return result; // Retourner le résultat
-	} catch (error) {
-		// Gestion des erreurs
-		console.error("Error modifying book:", error.message);
-		throw error;
-	}
-}

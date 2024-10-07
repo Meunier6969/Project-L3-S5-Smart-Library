@@ -1,74 +1,138 @@
 <template>
-  <div class="admin-books">
-    <div class="action-buttons">
-      <button @click="addBook" class="btn-black-white">Add a Book</button>
-      <button @click="modifyBook" class="btn-black-white">Modify a Book</button>
-      <button @click="deleteBook" class="btn-black-red">Delete a Book</button>
-    </div>
-    <div style="grid-column: 2;">
-      <h2>Book Manager</h2>
-      <div v-if="!deleteMode && (isAdding || modifyMode)" class="book-form">
-        <div class="upload-zone" @click="triggerUpload">
-          <input type="file" ref="fileInput" @change="uploadImage" hidden />
-          <div class="upload-content">
-            <i class="upload-icon">⇧</i>
-            <p><em>Drop your image here</em></p>
+  <div class="container-fluid mt-3">
+    <div class="admin-books col p-3">
+      <!-- Left Column: Action Buttons -->
+      <div class="action-buttons">
+        <button
+            @click="selectButton('add')"
+            :class="getButtonClass('add')"
+            class="btn-black-white"
+        >
+          Add a Book
+        </button>
+        <button
+            @click="selectButton('modify')"
+            :class="getButtonClass('modify')"
+            class="btn-black-white"
+        >
+          Modify a Book
+        </button>
+        <button
+            @click="selectButton('delete')"
+            :class="getButtonClass('delete')"
+            class="btn-black-red"
+        >
+          Delete a Book
+        </button>
+      </div>
+
+      <!-- Right Content -->
+      <div class="right-content">
+        <!-- Book Modification Form and Categories -->
+        <div class="book-form">
+          <div class="upload-zone col p-3" @click="triggerUpload">
+            <input type="file" ref="fileInput" @change="uploadImage" hidden />
+            <div class="upload-content">
+              <i class="upload-icon">⇧</i>
+              <p><em>Drop your image here</em></p>
+            </div>
+          </div>
+
+          <!-- Radio Buttons for Categories (Only visible when adding a book) -->
+          <div class="category-container">
+            <h3 style="margin: 30px">Categories</h3>
+
+            <label
+            ><input type="radio" name="category" value="1" v-model="selectedCategory" />
+              Science-Fiction</label
+            >
+            <label
+            ><input type="radio" name="category" value="2" v-model="selectedCategory" />
+              Mystery & Thriller</label
+            >
+            <label
+            ><input type="radio" name="category" value="3" v-model="selectedCategory" />
+              Historical</label
+            >
+            <label
+            ><input type="radio" name="category" value="4" v-model="selectedCategory" />
+              Educational</label
+            >
+            <label
+            ><input type="radio" name="category" value="5" v-model="selectedCategory" />
+              For Children</label
+            >
+          </div>
+
+          <div class="book-details col p-3">
+            <input
+                v-model="book.title"
+                :placeholder="isAdding ? 'Add Title' : ''"
+                class="input-field"
+            />
+            <input
+                v-model="book.author"
+                :placeholder="isAdding ? 'Add Author' : ''"
+                class="input-field"
+            />
+            <input
+                v-model="book.year"
+                :placeholder="isAdding ? 'Add publishing date' : ''"
+                class="input-field"
+            />
+            <textarea
+                v-model="book.description"
+                :placeholder="isAdding ? 'Add Description' : ''"
+                class="textarea-field"
+            ></textarea>
+            <button
+                @click="
+                isAdding
+                  ? confirmAddBook()
+                  : deleteMode
+                  ? confirmDeleteBook()
+                  : confirmModifyBook()
+              "
+                class="btn-black-white"
+            >
+              {{ isAdding ? "ADD" : rightButtonLabel }}
+            </button>
           </div>
         </div>
-        <div class="book-details">
-          <input
-              v-model="book.title"
-              :placeholder="isAdding ? 'Add Title' : 'Edit Title'"
-              class="input-field"
-          />
-          <input
-              v-model="book.author"
-              :placeholder="isAdding ? 'Add Author' : 'Edit Author'"
-              class="input-field"
-          />
-          <input
-              v-model="book.years"
-              :placeholder="isAdding ? 'Add publishing date' : 'Edit publishing date'"
-              class="input-field"
-          />
-          <textarea
-              v-model="book.description"
-              :placeholder="isAdding ? 'Add Description' : 'Edit Description'"
-              class="textarea-field"
-          ></textarea>
-          <button
-              @click="isAdding ? confirmAddBook() : confirmModifyBook()"
-              class="btn-black-white"
-          >
-            {{ isAdding ? "ADD" : "MODIFY" }}
-          </button>
-        </div>
       </div>
-      <div v-if="deleteMode || modifyMode" class="delete-form">
+    </div>
+
+    <!-- Search Bar for Modifying or Deleting a Book -->
+    <div v-if="deleteMode || modifyMode" class="delete-form dropdown">
+      <div class="search-content">
         <input
             v-model="searchQuery"
             :placeholder="modifyMode ? 'Search for a book to modify' : 'Search for a book to delete'"
-            class="input-field"
+            class="form-control"
+            @input="fetchBookToModify"
         />
-        <button @click="fetchBookToModify" class="btn-black-white">Search</button>
 
-        <div v-if="foundBooks.length > 0" class="found-books">
-          <h3>Found Books:</h3>
-          <ul>
-            <li v-for="foundBook in foundBooks" :key="foundBook.id">
-              {{ foundBook.title }} - {{ foundBook.author }}
-              <button
-                  @click="deleteMode ? confirmDeleteBook(foundBook) : selectBook(foundBook)"
-                  class="btn-black-red"
-              >
-                {{ deleteMode ? 'DELETE' : 'Select' }}
-              </button>
-            </li>
-          </ul>
-        </div>
+        <!-- Dropdown des résultats -->
+        <ul v-if="isDropdownVisible && foundBooks.length > 0" class="dropdown-menu show" style="display: block; position: absolute;">
+          <h3 class="dropdown-header">Found Books:</h3>
+          <li v-for="foundBook in foundBooks" :key="foundBook.id" class="dropdown-item">
+            <label>
+              <input
+                  type="radio"
+                  name="selectedBook"
+                  :value="foundBook"
+                  v-model="selectedBook"
+                  @click="selectBook(foundBook)"
+              />
+              {{ foundBook.title }}
+            </label>
+          </li>
+        </ul>
       </div>
-
     </div>
+
+
+
   </div>
 </template>
 
@@ -78,57 +142,91 @@ export default {
     return {
       searchQuery: "",
       foundBooks: [],
+      selectedBook: null,
+      isDropdownVisible: false,
       book: {
-        id: null, // ID du livre ajouté ici
         title: "",
         author: "",
-        years: '',
+        year: null,
         description: "",
+        category_id:null,
       },
-      isAdding: false,
+      isAdding: true,
       deleteMode: false,
       modifyMode: false,
+      selectedButton: "add",
+      selectedCategory: null,
     };
   },
   methods: {
-    async fetchBookToModify() {
-      if (this.searchQuery.length < 3) {
-        console.error("Search query must be at least 3 characters long.");
-        return;
-      }
+    selectButton(button) {
+      this.selectedButton = button;
 
-      console.log("Searching for books containing:", this.searchQuery);
-      const response = await fetch(`http://localhost:1234/api/books/search/${encodeURIComponent(this.searchQuery)}`);
-
-      if (!response.ok) {
-        console.error("Failed to fetch books:", response.statusText);
-        return;
-      }
-
-      const bookData = await response.json();
-      if (Array.isArray(bookData) && bookData.length > 0) {
-        this.foundBooks = bookData;
+      if (button === "delete") {
+        this.rightButtonLabel = "DELETE"; // Change button text
+        this.deleteMode = true;
+        this.modifyMode = false;
         this.isAdding = false;
+      } else if (button === "modify") {
+        this.rightButtonLabel = "MODIFY";
         this.modifyMode = true;
-        console.log("Books found:", this.foundBooks);
+        this.deleteMode = false;
+        this.isAdding = false;
       } else {
-        console.error("No books found with that title.");
-        alert("No books found with that title.");
-        this.foundBooks = [];
+        this.rightButtonLabel = "MODIFY"; // default text
+        this.deleteMode = false;
+        this.modifyMode = false;
+        this.isAdding = true;
+      }
+
+      if (button === "add") {
+        this.addBook();
+      }
+    },
+    getButtonClass(button) {
+      return this.selectedButton === button ? "selected" : "";
+    },
+
+    async fetchBookToModify() {
+      if (this.searchQuery.trim().length < 3) return; // Vérifie la longueur de la recherche
+
+      try {
+        const response = await fetch(`http://localhost:1234/api/books/search/${encodeURIComponent(this.searchQuery)}`);
+
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération des livres");
+        }
+
+        const books = await response.json();
+
+
+        if (Array.isArray(books) && books.length > 0) {
+          this.foundBooks = books;  // Stocke les livres trouvés
+          this.isDropdownVisible = this.foundBooks.length > 0;
+        } else {
+          this.foundBooks = []; // Si aucun livre trouvé, vide la liste
+        }
+      } catch (error) {
+        console.error("Erreur API:", error);
       }
     },
 
+
     selectBook(book) {
-      if (book && book.book_id) { // Assurez-vous que l'objet book et son id existent
-        this.book = { ...book }; // Copie de l'objet book
+      if (book && book.book_id) {
+        this.book = { ...book }; // Remplit les détails du livre
         this.isAdding = false;
-        this.modifyMode = true;
         console.log("Selected book:", this.book);
+        this.isDropdownVisible = false;
+        this.searchQuery = "";
+        console.log("Category book:", this.book.category_id);
+        this.selectedCategory = this.book.category_id;
       } else {
         console.error("Selected book does not have an ID.");
         alert("The selected book does not have a valid ID.");
       }
     },
+
 
 
     confirmModifyBook() {
@@ -138,10 +236,10 @@ export default {
         alert("Please select a book to modify.");
         return;
       }
-
-      console.log("Modifying book:", this.book);
+      this.book.category_id = this.selectedCategory;
+      console.log("Modifying book CCCCCCCCCCC:", this.book.category_id);
       fetch(`http://localhost:1234/api/books/${this.book.book_id}`, {
-        method: 'PATCH', // Utiliser PATCH au lieu de PUT
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -149,7 +247,7 @@ export default {
       })
           .then(response => {
             if (!response.ok) {
-              throw new Error(`Failed to modify book: ${response.statusText}`);
+              throw new Error(`Failed : ${response.statusText}`);
             }
             return response.json();
           })
@@ -157,8 +255,9 @@ export default {
             console.log("Book modified successfully:", data);
             this.resetForm(); // Reset form after modification
           })
-          .catch(err => {
-            console.error("Error modifying book:", err.message);
+          .catch((err) => {
+            console.error(`Failed to modify book ${this.book.book_id}:`, err); // Plus de détails dans les logs
+            alert(`Error: ${err.message}`);
           });
     },
 
@@ -174,10 +273,11 @@ export default {
       const newBook = {
         title: this.book.title,
         author: this.book.author,
-        years: this.book.years,
+        years: this.book.year,
         description: this.book.description,
         imageURL: "https://via.placeholder.com/150", // Valeur par défaut pour l'image
-        category: 1, // Catégorie par défaut
+        category: this.selectedCategory,
+
       };
 
       console.log("Step 1: New book object created:", newBook);
@@ -204,17 +304,7 @@ export default {
           });
     },
 
-    modifyBook() {
-      this.isAdding = false;
-      this.deleteMode = false;
-      this.modifyMode = true;
-    },
 
-    deleteBook() {
-      this.isAdding = false;
-      this.deleteMode = true;
-      this.modifyMode = false;
-    },
 
     async confirmDeleteBook(book) {
       if (!book.book_id) {
@@ -258,90 +348,105 @@ export default {
         author: "",
         years: "",
         description: "",
+        category: null,
       };
       this.searchQuery = "";
       this.foundBooks = [];
+      this.selectedCategory=null;
     },
   },
 };
 </script>
 
 <style scoped>
-.book-details {
-  flex-basis: 100%;
-  max-width: 420px;
-
-  width: 100%;
-}
-
 .admin-books {
   display: grid;
   grid-template-columns: 1fr 2fr;
-
-  background-color: #f5f5f5;
-  height: auto;
+  gap: 20px;
   padding: 50px;
+}
 
+.category-radio label {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Ajuste l'espace entre l'icône et le texte */
+}
+
+.category-radio input[type="radio"] {
+  margin: 0;
+  position: relative;
+  top: 0; /* Assure l'alignement vertical */
+  margin-right: 10px; /* Ajoute un espace fixe entre l'icône et le texte */
+  flex-shrink: 0; /* Empêche l'icône de se redimensionner avec le texte */
 }
 
 .action-buttons {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  position: relative;
+  margin-top: 50px;
+  width: 300px;
+}
 
-  flex-basis: 100%;
-  max-width: 300px;
-  min-width: 20px;
-
-  justify-content: center;
+.category-container {
+  display: flex;
+  flex-direction: column;
+  line-height: 2;
 }
 
 .action-buttons button {
-  padding: 15px;
+  padding: 12px;
   border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   text-transform: uppercase;
   transition: all 0.3s ease;
 }
 
-.btn-black-white {
+.btn-black-white,
+.btn-black-red {
   background-color: black;
   color: white;
   border: 1px solid black;
+  border-radius: 5px;
 }
 
-.btn-black-white:hover {
+.btn-black-white:hover,
+.btn-black-red:hover {
   background-color: white;
   color: black;
 }
 
-.btn-black-red {
-  background-color: black;
-  color: red;
-  border: 1px solid black;
+.selected {
+  background-color: white !important;
+  color: black !important;
 }
 
-.btn-black-red:hover {
-  background-color: red;
-  color: white;
+.right-content {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
 }
+
 .book-form {
   display: flex;
   flex-direction: row;
-  gap: 30px;
+  gap: 20px;
+  flex: 1;
 }
+
 .upload-zone {
-  width: 250px;
-  height: 250px;
+  width: 170px;
+  height: 300px;
   background-color: #e0e0e0;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 5px;
   cursor: pointer;
-  flex-direction: column;
   transition: background-color 0.3s ease;
+  position: relative;
+  top: 10px;
 }
 
 .upload-zone:hover {
@@ -359,34 +464,15 @@ export default {
   color: #666;
 }
 
-
-.found-books {
-  margin-top: 20px; /* Espace au-dessus des résultats */
-  max-height: 200px; /* Limiter la hauteur du conteneur */
-  overflow-y: auto; /* Permet le défilement si le contenu déborde */
-  border: 1px solid #ced4da; /* Pour délimiter visuellement le conteneur */
-  padding: 10px; /* Un peu de remplissage pour les résultats */
-  background-color: white; /* Fond pour le conteneur */
-}
-.found-books h3 {
-  margin-bottom: 10px;
-}
-
-.found-books ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.found-books li {
-  margin-bottom: 10px;
+.book-details {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
 }
 
-.delete-form {
+.category-radio {
   display: flex;
-  align-items: center;
-  margin-top: 20px;
   flex-direction: column;
   gap: 10px;
 }
@@ -399,13 +485,46 @@ export default {
   font-size: 16px;
   width: 100%;
 }
+
 .textarea-field {
-   resize: none;
-   height: 100px;
- }
+  resize: none;
+  height: 100px;
+}
 
+.delete-form {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
 
+.search-content {
+  display: flex;
+  align-items: center;
+  position: relative;
+  left: 55px;
+  top: -100px;
+}
 
+.btn-disabled {
+  background-color: #cccccc;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 5px;
+}
 
+.btn-disabled:hover {
+  cursor: not-allowed;
+}
 
+@media (max-width: 768px) {
+  .admin-books {
+    grid-template-columns: 1fr;
+  }
+
+  .right-content {
+    flex-direction: column;
+  }
+}
 </style>
