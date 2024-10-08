@@ -18,34 +18,24 @@
 // GET /api/test - Test route to check if the API is running
 
 
-
-
 //==============IMPORT============================
 
-import express, { json } from "express";
-import { config } from 'dotenv';
+import express, {json} from "express";
+import {config} from 'dotenv';
 
 import jwtpkg from 'node-jsonwebtoken';
 import corspkg from 'cors'; // Fixing some potential network errors
-import { addNewUser, deleteUser, getAllUsers, getPassword, getUserById } from "./routes/users.js"
+import {addNewUser, deleteUser, getAllUsers, getPassword, getUserById} from "./routes/users.js"
+import {addNewBook, deleteBook, editBook, getBookById, getNumberOfBooks,} from "./routes/books.js"
 import {
-	addNewBook,
-	deleteBook,
-	editBook,
-	getAllBooks,
-	getBookById,
-	getNumberOfBooks,
-	// searchBooksByTitle
-} from "./routes/books.js"
-import {
-	addBookToUsersFavorite,
-	decrementBookFavoriteCount,
-	getUsersFavorites,
-	incrementBookFavoriteCount,
-	removeBookFromUsersFavorite
+    addBookToUsersFavorite,
+    decrementBookFavoriteCount,
+    getUsersFavorites,
+    incrementBookFavoriteCount,
+    removeBookFromUsersFavorite
 } from "./routes/favorites.js"
 
-const { sign, verify } = jwtpkg;
+const {sign, verify} = jwtpkg;
 
 const cors = corspkg;
 
@@ -60,28 +50,28 @@ config() // Setup env variables
 app.use(cors())
 app.use(json())
 app.use((req, res, next) => {
-	console.log('%s %s', req.method, req.url)
-	next()
+    console.log('%s %s', req.method, req.url)
+    next()
 })
 
 // Running the api
 app.listen(PORT, () => {
-	console.log(`Listening on localhost:${PORT}`)
+    console.log(`Listening on localhost:${PORT}`)
 })
 
 //==============TEST============================
 
 app.get("/api/test", async (req, res) => {
-	const token = req.headers.authorization
+    const token = req.headers.authorization
 
-	console.log("efsderzegdfhgrtghfnbghfnhtrhgtrghgtrhgyghytrhgytrhj,jhtyjg,tgyrtj,hjhy")
+    console.log("efsderzegdfhgrtghfnbghfnhtrhgtrghgtrhgyghytrhgytrhj,jhtyjg,tgyrtj,hjhy")
 
-	res.status(418).send({
-		"tok": token,
-		"val": isTokenValid(token),
-		"adm": await isTokenAdmin(token),
-		"usr": getUserByToken(token)
-	})
+    res.status(418).send({
+        "tok": token,
+        "val": isTokenValid(token),
+        "adm": await isTokenAdmin(token),
+        "usr": getUserByToken(token)
+    })
 })
 
 //==============ROUTES============================
@@ -96,12 +86,12 @@ app.get("/api/test", async (req, res) => {
  * @access Public
  */
 app.get("/api/users/", async (req, res) => {
-	await getAllUsers()
-		.then((result) => {
-			res.status(200).send(result)
-		}).catch((err) => {
-			sendError(res, 400, err)
-		})
+    await getAllUsers()
+        .then((result) => {
+            res.status(200).send(result)
+        }).catch((err) => {
+            sendError(res, 400, err)
+        })
 })
 
 /**
@@ -110,14 +100,14 @@ app.get("/api/users/", async (req, res) => {
  * @access Public
  */
 app.get("/api/users/:id", async (req, res) => {
-	const { id } = req.params
+    const {id} = req.params
 
-	await getUserById(id)
-		.then((result) => {
-			res.status(200).send(result)
-		}).catch((err) => {
-			sendError(res, 404, err)
-		})
+    await getUserById(id)
+        .then((result) => {
+            res.status(200).send(result)
+        }).catch((err) => {
+            sendError(res, 404, err)
+        })
 })
 
 /**
@@ -126,14 +116,14 @@ app.get("/api/users/:id", async (req, res) => {
  * @access Public
  */
 app.get("/api/users/:id/favorites", async (req, res) => {
-	const { id } = req.params
+    const {id} = req.params
 
-	await getUsersFavorites(id)
-		.then((result) => {
-			res.status(200).send(result)
-		}).catch((err) => {
-			sendError(res, 404, err)
-		});
+    await getUsersFavorites(id)
+        .then((result) => {
+            res.status(200).send(result)
+        }).catch((err) => {
+            sendError(res, 404, err)
+        });
 
 })
 
@@ -145,43 +135,43 @@ app.get("/api/users/:id/favorites", async (req, res) => {
  * @access Public
  */
 app.post("/api/users/register", async (req, res) => {
-	const { pseudo, email, pwd } = req.body
+    const {pseudo, email, pwd} = req.body
 
-	if (!pseudo || !email || !pwd) {
-		sendError(res, 400, "Missing pseudo, email and/or pwd field.")
-		return
-	}
+    if (!pseudo || !email || !pwd) {
+        sendError(res, 400, "Missing pseudo, email and/or pwd field.")
+        return
+    }
 
-	let user_id
-	let user
+    let user_id
+    let user
 
-	await addNewUser(pseudo, email, pwd)
-		.then((result) => {
-			user_id = result.insertId
-		}).catch((err) => {
-			sendError(res, 400, err)
+    await addNewUser(pseudo, email, pwd)
+        .then((result) => {
+            user_id = result.insertId
+        }).catch((err) => {
+            sendError(res, 400, err)
 
-		});
+        });
 
-	if (user_id === undefined) return
+    if (user_id === undefined) return
 
-	await getUserById(user_id)
-		.then((result) => {
-			user = result
-		}).catch((err) => {
-			sendError(res, 500, err)
+    await getUserById(user_id)
+        .then((result) => {
+            user = result
+        }).catch((err) => {
+            sendError(res, 500, err)
 
-		});
+        });
 
-	if (user === undefined) return
+    if (user === undefined) return
 
-	const token = generateToken(user_id);
+    const token = generateToken(user_id);
 
-	res.status(201).send({
-		"message": "New user created",
-		"token": token,
-		"user": user
-	})
+    res.status(201).send({
+        "message": "New user created",
+        "token": token,
+        "user": user
+    })
 })
 
 /**
@@ -190,34 +180,34 @@ app.post("/api/users/register", async (req, res) => {
  * @access Public
  */
 app.post("/api/users/login", async (req, res) => {
-	const { email, pwd } = req.body
+    const {email, pwd} = req.body
 
-	if (!email || !pwd) {
-		sendError(res, 400, "Missing email and/or password field.")
-		return
-	}
+    if (!email || !pwd) {
+        sendError(res, 400, "Missing email and/or password field.")
+        return
+    }
 
-	let user
+    let user
 
-	await getPassword(email)
-		.then((result) => {
-			user = result
-		}).catch((err) => {
-			sendError(res, 404, err)
-		});
+    await getPassword(email)
+        .then((result) => {
+            user = result
+        }).catch((err) => {
+            sendError(res, 404, err)
+        });
 
-	if (user === undefined) return;
-	if (user.pwd !== pwd) {
-		sendError(res, 400, "Wrong login information.")
-		return
-	}
+    if (user === undefined) return;
+    if (user.pwd !== pwd) {
+        sendError(res, 400, "Wrong login information.")
+        return
+    }
 
-	const token = generateToken(user.user_id);
+    const token = generateToken(user.user_id);
 
-	res.status(200).send({
-		"token": token,
-		"user": await getUserById(user.user_id)
-	})
+    res.status(200).send({
+        "token": token,
+        "user": await getUserById(user.user_id)
+    })
 })
 
 // USERS - DELETE
@@ -227,22 +217,22 @@ app.post("/api/users/login", async (req, res) => {
  * @access Private
  */
 app.delete("/api/users/:id", async (req, res) => {
-	const { id } = req.params
-	const token = req.headers.authorization
+    const {id} = req.params
+    const token = req.headers.authorization
 
-	if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
-		sendError(res, 403, "You must be an administator to delete this user.")
-		return
-	}
+    if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
+        sendError(res, 403, "You must be an administator to delete this user.")
+        return
+    }
 
-	await deleteUser(id)
-		.then(() => {
-			res.status(200).send({
-				"message": "User deleted"
-			})
-		}).catch((err) => {
-			sendError(res, 400, err)
-		});
+    await deleteUser(id)
+        .then(() => {
+            res.status(200).send({
+                "message": "User deleted"
+            })
+        }).catch((err) => {
+            sendError(res, 400, err)
+        });
 })
 
 // USERS - PATCH
@@ -252,30 +242,30 @@ app.delete("/api/users/:id", async (req, res) => {
  * @access Private
  */
 app.patch("/api/users/:id", async (req, res) => {
-	const { id } = req.params
-	const { pseudo, email, pwd } = req.body
-	const token = req.headers.authorization
+    const {id} = req.params
+    const {pseudo, email, pwd} = req.body
+    const token = req.headers.authorization
 
-	// Check id, just in case
-	if (!id) {
-		sendError(res, 400, "Missing user id.")
-		return
-	}
+    // Check id, just in case
+    if (!id) {
+        sendError(res, 400, "Missing user id.")
+        return
+    }
 
-	// Check token -> either admin or user
-	if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
-		sendError(res, 403, "You must be an administator to update this user.")
-		return
-	}
+    // Check token -> either admin or user
+    if (getUserByToken(token) !== id && !await isTokenAdmin(token)) {
+        sendError(res, 403, "You must be an administator to update this user.")
+        return
+    }
 
-	await editUser(id, pseudo, email, pwd)
-		.then(() => {
-			res.status(200).send({
-				"message": "User updated succesfuly"
-			})
-		}).catch((err) => {
-			sendError(res, 400, err)
-		});
+    await editUser(id, pseudo, email, pwd)
+        .then(() => {
+            res.status(200).send({
+                "message": "User updated succesfuly"
+            })
+        }).catch((err) => {
+            sendError(res, 400, err)
+        });
 })
 
 
@@ -289,22 +279,22 @@ app.patch("/api/users/:id", async (req, res) => {
  * @access Public
  */
 app.get("/api/books/", async (req, res) => {
-	try {
-		const title = req.query.title; // Get the title from the URL parameters
-		const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
-		const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
-		const sort = req.query.sort;
+    try {
+        const title = req.query.title; // Get the title from the URL parameters
+        const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
+        const sort = req.query.sort;
 
-		await getNumberOfBooks(req.query)
-			.then((filteredBooks) => {
-				res.status(200).json(filteredBooks);
-			})
-			.catch((err) => {
-				sendError(res, 400, err);
-			});
-	} catch (err) {
-		sendError(res, 500, err);  // Send an error response if something goes wrong
-	}
+        await getNumberOfBooks(req.query)
+            .then((filteredBooks) => {
+                res.status(200).json(filteredBooks);
+            })
+            .catch((err) => {
+                sendError(res, 400, err);
+            });
+    } catch (err) {
+        sendError(res, 500, err);  // Send an error response if something goes wrong
+    }
 });
 
 /**
@@ -315,14 +305,14 @@ app.get("/api/books/", async (req, res) => {
  * @returns {object} - The book object
  */
 app.get("/api/books/:id", async (req, res) => {
-	const { id } = req.params
+    const {id} = req.params
 
-	await getBookById(id)
-		.then((result) => {
-			res.status(200).send(result)
-		}).catch((err) => {
-			sendError(res, 404, err)
-		});
+    await getBookById(id)
+        .then((result) => {
+            res.status(200).send(result)
+        }).catch((err) => {
+            sendError(res, 404, err)
+        });
 })
 
 // BOOKS - POST
@@ -340,23 +330,23 @@ app.get("/api/books/:id", async (req, res) => {
  * @returns {object} - The new book object
  */
 app.post("/api/books", async (req, res) => {
-	const { title, author, description, years, imageURL, category } = req.body
+    const {title, author, description, years, imageURL, category} = req.body
 
 
-	if (!title || !author || !description || !years || !imageURL || !category) {
-		sendError(res, 400, "Missing name, author and/or description field.")
-		return
-	}
+    if (!title || !author || !description || !years || !imageURL || !category) {
+        sendError(res, 400, "Missing name, author and/or description field.")
+        return
+    }
 
-	await addNewBook(title, author, description, years, imageURL, category)
-		.then((result) => {
-			res.status(201).send({
-				"message": "New book created",
-				"book_id": result.insertId
-			})
-		}).catch((err) => {
-			sendError(res, 404, err)
-		});
+    await addNewBook(title, author, description, years, imageURL, category)
+        .then((result) => {
+            res.status(201).send({
+                "message": "New book created",
+                "book_id": result.insertId
+            })
+        }).catch((err) => {
+            sendError(res, 404, err)
+        });
 
 })
 
@@ -368,194 +358,190 @@ app.post("/api/books", async (req, res) => {
  * @returns {object} - Success message
  */
 app.post("/api/books/:id/favorite", async (req, res) => {
-	// TODO: Auth user
-	const { id } = req.params
-	const token = req.headers.authorization
+    // TODO: Auth user
+    const {id} = req.params
+    const token = req.headers.authorization
 
-	if (!id) {
-		sendError(res, 400, "Missing book id.")
-		return
-	}
+    if (!id) {
+        sendError(res, 400, "Missing book id.")
+        return
+    }
 
-	if (!isTokenValid(token)) {
-		sendError(res, 400, "You must be logged in.")
-		return
-	}
+    if (!isTokenValid(token)) {
+        sendError(res, 400, "You must be logged in.")
+        return
+    }
 
-	let user_id = getUserByToken(token)
+    let user_id = getUserByToken(token)
 
-	await incrementBookFavoriteCount(id)
-		.catch((err) => {
-			sendError(res, 400, err)
+    await incrementBookFavoriteCount(id)
+        .catch((err) => {
+            sendError(res, 400, err)
 
-		});
-	await addBookToUsersFavorite(user_id, id)
-		.then(() => {
-			res.status(200).send({
-				"message": "Book has been favorited."
-			})
-		}).catch((err) => {
-			sendError(res, 400, err)
-		});
+        });
+    await addBookToUsersFavorite(user_id, id)
+        .then(() => {
+            res.status(200).send({
+                "message": "Book has been favorited."
+            })
+        }).catch((err) => {
+            sendError(res, 400, err)
+        });
 })
-	*
-	// BOOKS - DELETE
-	app.delete("/api/books/:id", async (req, res) => {
-		const { id } = req.params;
-		const token = req.headers.authorization;
+// BOOKS - DELETE
+app.delete("/api/books/:id", async (req, res) => {
+    const {id} = req.params;
+    const token = req.headers.authorization;
 
-		try {
-			// Vérifier si l'utilisateur est un administrateur
-			if (!await isTokenAdmin(token)) {
-				sendError(res, 403, "You must be an administator to update this user.")
-				return
-			}
+    try {
+        // Vérifier si l'utilisateur est un administrateur
+        if (!await isTokenAdmin(token)) {
+            sendError(res, 403, "You must be an administator to update this user.")
+            return
+        }
 
-			// Suppression du livre
-			const result = await deleteBook(id);
+        // Suppression du livre
+        const result = await deleteBook(id);
 
-			// Vérification si un livre a été supprimé
-			if (result.affectedRows === 0) {
-				return sendError(res, 404, "Book does not exist.");
-			}
+        // Vérification si un livre a été supprimé
+        if (result.affectedRows === 0) {
+            return sendError(res, 404, "Book does not exist.");
+        }
 
-			// Réponse de succès
-			res.status(200).send({
-				message: "Book deleted successfully."
-			});
-		} catch (error) {
-			// Gestion des erreurs
-			sendError(res, 400, error.message || "An error occurred while deleting the book.");
-		}
-	});
+        // Réponse de succès
+        res.status(200).send({
+            message: "Book deleted successfully."
+        });
+    } catch (error) {
+        // Gestion des erreurs
+        sendError(res, 400, error.message || "An error occurred while deleting the book.");
+    }
+});
 
 app.delete("/api/books/:id/favorite", async (req, res) => {
-	const { id } = req.params
-	const token = req.headers.authorization
+    const {id} = req.params
+    const token = req.headers.authorization
 
-	if (!id) {
-		sendError(res, 400, "Missing book id.")
-		return
-	}
+    if (!id) {
+        sendError(res, 400, "Missing book id.")
+        return
+    }
 
-	if (!isTokenValid(token)) {
-		sendError(res, 400, "You must be logged in.")
-		return
-	}
+    if (!isTokenValid(token)) {
+        sendError(res, 400, "You must be logged in.")
+        return
+    }
 
-	let user_id = getUserByToken(token)
+    let user_id = getUserByToken(token)
 
-	await decrementBookFavoriteCount(id)
-		.catch((err) => {
-			sendError(res, 400, err)
+    await decrementBookFavoriteCount(id)
+        .catch((err) => {
+            sendError(res, 400, err)
 
-		});
-	await removeBookFromUsersFavorite(user_id, id)
-		.then(() => {
-			res.status(200).send({
-				"message": "Book has been unfavorited.",
-			})
-		}).catch((err) => {
-			throw err
-		});
+        });
+    await removeBookFromUsersFavorite(user_id, id)
+        .then(() => {
+            res.status(200).send({
+                "message": "Book has been unfavorited.",
+            })
+        }).catch((err) => {
+            throw err
+        });
 
 })
 
 // BOOKS - PATCH
 app.patch("/api/books/:id", async (req, res) => {
-	const { id } = req.params;
-	const { title, author, description, years, category_id } = req.body;
+    const {id} = req.params;
+    const {title, author, description, years, category_id} = req.body;
 
-	console.log("Received data:", { title, author, description, years, category_id });
+    console.log("Received data:", {title, author, description, years, category_id});
 
-	if (!id) {
-		return sendError(res, 400, "Missing book id.");
-	}
-	try {
-		const result = await editBook(id, title, author, description, years, category_id);
-		console.log("Update result:", result);
+    if (!id) {
+        return sendError(res, 400, "Missing book id.");
+    }
+    try {
+        const result = await editBook(id, title, author, description, years, category_id);
+        console.log("Update result:", result);
 
-		res.status(200).json({
-			success: true,
-			message: "Book updated successfully",
-			result
-		});
-	} catch (err) {
-		console.error("Error updating book:", err); // Log the error
-		sendError(res, 400, err.message);
-	}
+        res.status(200).json({
+            success: true,
+            message: "Book updated successfully",
+            result
+        });
+    } catch (err) {
+        console.error("Error updating book:", err); // Log the error
+        sendError(res, 400, err.message);
+    }
 });
-
-
-
 
 
 //==============FUNCTIONS============================
 
 function isTokenValid(token) {
-	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+    let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
-	try {
-		verify(token, jwtSecretKey)
-	} catch (error) {
-		return false
-	}
+    try {
+        verify(token, jwtSecretKey)
+    } catch (error) {
+        return false
+    }
 
-	return true
+    return true
 }
 
 function getUserByToken(token) {
-	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+    let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
-	let data
+    let data
 
-	try {
-		data = verify(token, jwtSecretKey)
-	} catch (error) {
-		return -1
-	}
+    try {
+        data = verify(token, jwtSecretKey)
+    } catch (error) {
+        return -1
+    }
 
-	return data.user_id
+    return data.user_id
 }
 
 async function isTokenAdmin(token) {
-	if (!isTokenValid(token)) return false
+    if (!isTokenValid(token)) return false
 
-	let jwtSecretKey = process.env.JWT_SECRET_KEY;
+    let jwtSecretKey = process.env.JWT_SECRET_KEY;
 
-	try {
-		var tk = verify(token, jwtSecretKey)
-	} catch (error) {
-		return false
-	}
+    try {
+        var tk = verify(token, jwtSecretKey)
+    } catch (error) {
+        return false
+    }
 
-	let isAdmin = false
+    let isAdmin = false
 
-	await getUserById(tk.user_id)
-		.then((result) => {
-			isAdmin = Boolean(result.role)
-		}).catch(() => {
-			isAdmin = false
-		});
+    await getUserById(tk.user_id)
+        .then((result) => {
+            isAdmin = Boolean(result.role)
+        }).catch(() => {
+            isAdmin = false
+        });
 
-	return isAdmin
+    return isAdmin
 }
 
 function sendError(res, statuscode, error) {
-	res.status(statuscode).send({
-		"message": "" + error
-	})
+    res.status(statuscode).send({
+        "message": "" + error
+    })
 }
 
 function generateToken(user_id) {
-	let jwtSecretKey = process.env.JWT_SECRET_KEY
+    let jwtSecretKey = process.env.JWT_SECRET_KEY
 
-	let data = {
-		time: Date(),
-		user_id: user_id,
-	}
+    let data = {
+        time: Date(),
+        user_id: user_id,
+    }
 
-	return sign(data, jwtSecretKey, { expiresIn: '24h' })
+    return sign(data, jwtSecretKey, {expiresIn: '24h'})
 }
 
 

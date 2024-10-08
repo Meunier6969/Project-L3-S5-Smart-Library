@@ -50,8 +50,7 @@ export default {
 
       const API_URL = "http://localhost:1234/api";
       // Fetching user's favorite book list
-      const favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data.favorites;
-      console.log(favList);
+      let favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data;
 
       // Fetching books
       fetch(`${API_URL}/books`)
