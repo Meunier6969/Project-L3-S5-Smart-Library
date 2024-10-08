@@ -191,7 +191,7 @@ export default {
       if (this.searchQuery.trim().length < 3) return; // Vérifie la longueur de la recherche
 
       try {
-        const response = await fetch(`http://localhost:1234/api/books/search/${encodeURIComponent(this.searchQuery)}`);
+        const response = await fetch(`http://localhost:1234/api/books/?title=${encodeURIComponent(this.searchQuery)}&limit=999`);
 
         if (!response.ok) {
           throw new Error("Erreur lors de la récupération des livres");
