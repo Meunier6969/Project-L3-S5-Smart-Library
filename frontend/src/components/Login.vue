@@ -69,7 +69,6 @@ const onSubmit = async () => {
 
     const { token, user } = response.data;
     localStorage.setItem('authToken', token);
-    console.log(user)
     userStore.login(user.user_id, user.pseudo, user.email, '', user.role === 1);
     $("#modalLogin").modal('hide')
   } catch (error) {
