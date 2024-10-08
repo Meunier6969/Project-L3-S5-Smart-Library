@@ -40,7 +40,7 @@
               <label for="password" class="form-label">Password:</label>
               <input
                   :type="showPassword ? 'text' : 'password'"
-                  v-model="userStore.user.password"
+                  v-model="password"
                   id="password"
                   class="form-control"
               />
@@ -58,7 +58,6 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="signOut">Sign out</button>
-          <!--<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>-->
         </div>
       </div>
     </div>
@@ -68,6 +67,8 @@
 <script>
 import { useUserStore } from "@/stores/userStore.js"; // Import the store
 import { ref } from "vue";
+import axios from "axios";
+
 
 export default {
   setup() {
@@ -76,24 +77,58 @@ export default {
 
     // Reactive flag for edit mode
     const isEditing = ref(false);
+    const showPassword = ref(false); // To toggle password visibility
+    const password = ref(''); // Local password variable for editing
 
     // Toggle edit mode
     const toggleEdit = () => {
       isEditing.value = !isEditing.value;
+      if (!isEditing.value) {
+        // Reset the password field when exiting edit mode
+        password.value = '';
+      }
     };
 
     // Save changes (you will send the actual request here later)
-    const saveChanges = () => {
-      console.log("request"); // Placeholder for request to backend
+    const saveChanges = async () => {
+      try {
+        const userData = {
+          pseudo: userStore.user.username,
+          email: userStore.user.email,
+          pwd: password.value ,
+        };
+        console.log(userData)
+        const API_URL = 'http://localhost:1234/api';
+        const response = await axios.patch(`${API_URL}/users/${userStore.user.id}`, userData, {
+          headers: {
+            'Authorization': localStorage.getItem("authToken"),
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log(response.data.message);
+        // Update the userStore with new data if needed
+        userStore.user = { ...userStore.user, ...userData };
+
+
+      } catch (error) {
+        console.error('Error editing user:', error.response?.data || error.message);
+      }
+
       isEditing.value = false;
     };
 
     const cancelChanges = () => {
-      this.isEditing = false;
+      isEditing.value = false;
+      password.value = ''; // Clear password input on cancel
+    };
+
+    const togglePasswordVisibility = () => {
+      showPassword.value = !showPassword.value; // Toggle password visibility
     };
 
     const signOut = () => {
       userStore.signOut();
+      localStorage.removeItem("authToken");
       window.location.reload();
     };
 
@@ -102,6 +137,10 @@ export default {
       isEditing,
       toggleEdit,
       saveChanges,
+      cancelChanges,
+      togglePasswordVisibility,
+      showPassword,
+      password,
       signOut,
     };
   },
