@@ -57,6 +57,10 @@ export async function addNewBook(title, author, description, year, img, category
 		const sql = "INSERT INTO Book (title, author, description, years, img, category_id) VALUES (?,?,?,?,?,?);"
 		const values = [title, author, description, year, img, category_id]
 		
+		console.log({
+			title, author, description, year, img, category_id
+		})
+
 		const [result, fields] = await pool.execute(sql, values);
 		
 		return result

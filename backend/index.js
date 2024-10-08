@@ -219,7 +219,7 @@ app.post("/api/users/login", async (req, res) => {
 })
 
 app.post("/api/books", async (req, res) => {
-	const { title, author, description, year, category_id } = req.body
+	const { title, author, description, years, category_id } = req.body
 	const token = req.headers.authorization
 
 	if (await isTokenAdmin(token)) {
@@ -232,7 +232,7 @@ app.post("/api/books", async (req, res) => {
 		return
 	}
 
-	await addNewBook(title, author, description, year, "", category_id)
+	await addNewBook(title, author, description, years, "ye", category_id)
 	.then((result) => {
 		res.status(201).send({
 			"message": "New book created",
