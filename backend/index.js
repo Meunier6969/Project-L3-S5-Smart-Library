@@ -441,10 +441,14 @@ app.post("/api/books/:id/favorite", async (req, res) => {
 // BOOKS - DELETE
 app.delete("/api/books/:id", async (req, res) => {
 	const { id } = req.params;
+	const token = req.headers.authorization;
 
 	try {
 		// Vérifier si l'utilisateur est un administrateur
-
+		if (!await isTokenAdmin(token)) {
+			sendError(res, 403, "You must be an administator to update this user.")
+			return
+		}
 
 		// Suppression du livre
 		const result = await deleteBook(id);
