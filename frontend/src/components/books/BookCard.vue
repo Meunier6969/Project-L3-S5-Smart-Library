@@ -75,8 +75,12 @@ export default {
         }
       })
     },
-    removeRavorite: async () => {
-
+    async removeRavorite() {
+      await axios.delete(this.API_URL + '/books/' + this.book.id + '/favorite', {
+        headers: {
+          'Authorization': localStorage.getItem('authToken'),
+        }
+      })
     },
   },
 };
