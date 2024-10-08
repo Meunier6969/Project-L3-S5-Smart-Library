@@ -25,7 +25,7 @@ import {config} from 'dotenv';
 
 import jwtpkg from 'node-jsonwebtoken';
 import corspkg from 'cors'; // Fixing some potential network errors
-import {addNewUser, deleteUser, getAllUsers, getPassword, getUserById} from "./routes/users.js"
+import {addNewUser, deleteUser, editUser, getAllUsers, getPassword, getUserById} from "./routes/users.js"
 import {addNewBook, deleteBook, editBook, getBookById, getNumberOfBooks,} from "./routes/books.js"
 import {
     addBookToUsersFavorite,
@@ -135,7 +135,8 @@ app.get("/api/users/:id/favorites", async (req, res) => {
  * @access Public
  */
 app.post("/api/users/register", async (req, res) => {
-    const {pseudo, email, pwd} = req.body
+
+    const {pseudo, email, pwd, role} = req.body
 
     if (!pseudo || !email || !pwd) {
         sendError(res, 400, "Missing pseudo, email and/or pwd field.")
@@ -145,7 +146,7 @@ app.post("/api/users/register", async (req, res) => {
     let user_id
     let user
 
-    await addNewUser(pseudo, email, pwd)
+    await addNewUser(pseudo, email, pwd, role)
         .then((result) => {
             user_id = result.insertId
         }).catch((err) => {
@@ -243,7 +244,7 @@ app.delete("/api/users/:id", async (req, res) => {
  */
 app.patch("/api/users/:id", async (req, res) => {
     const {id} = req.params
-    const {pseudo, email, pwd} = req.body
+    const {pseudo, email, pwd,role} = req.body
     const token = req.headers.authorization
 
     // Check id, just in case
@@ -258,7 +259,7 @@ app.patch("/api/users/:id", async (req, res) => {
         return
     }
 
-    await editUser(id, pseudo, email, pwd)
+    await editUser(id, pseudo, email, pwd ,role)
         .then(() => {
             res.status(200).send({
                 "message": "User updated succesfuly"
@@ -501,7 +502,7 @@ function getUserByToken(token) {
         return -1
     }
 
-    return data.user_id
+    return String(data.user_id)
 }
 
 async function isTokenAdmin(token) {

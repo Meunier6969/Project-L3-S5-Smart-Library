@@ -35,13 +35,13 @@ export async function getUserById(user_id) {
 	}
 }
 
-export async function addNewUser(pseudo, email, pwd) {
+export async function addNewUser(pseudo, email, pwd,role=0) {
 	try {
 		if (await doesUserExistEmail(email)) throw new Error("User already exist");
 		
 		
 		const sql = "INSERT INTO Users (pseudo, email, role, pwd) VALUES (?,?,?,?);"
-		const values = [pseudo, email, 0, pwd]
+		const values = [pseudo, email, role, pwd]
 	
 		const [result, fields] = await pool.execute(sql, values);
 	
@@ -82,7 +82,7 @@ export async function getPassword(email) {
 	}
 }
 
-export async function editUser(user_id, pseudo = undefined, email = undefined, pwd = undefined) {
+export async function editUser(user_id, pseudo = undefined, email = undefined, pwd = undefined, role=undefined) {
 	try {
 		let sql = "UPDATE Users SET "
 		let values = []
@@ -92,27 +92,31 @@ export async function editUser(user_id, pseudo = undefined, email = undefined, p
 		if (pseudo) {
 			sql += "pseudo=? "
 			values.push(pseudo)
-			if (email || pwd) sql += ", "
+			if (email || pwd ||role ) sql += ", "
 		}
 		
 		
 		if (email) {
 			sql += "email=? "
 			values.push(email)
-			if (pwd) sql += ", "
+			if (pwd||role) sql += ", "
 		}
 		
 		if (pwd) {
 			sql += "pwd=? "
 			values.push(pwd)
+			if(role) sql += ", "
 		}
-
+		if (role) {
+			sql += "role=? "
+			values.push(role)
+		}
 		sql += "WHERE user_id=?;"
 		values.push(user_id)
 
 		const [result, fields] = await pool.execute(sql, values);
 
-		if (result.affectedRows == 0) throw new Error("User does not exist.");
+		if (result.affectedRows === 0) throw new Error("User does not exist.");
 
 		return result
 	} catch (error) {
