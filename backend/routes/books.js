@@ -46,7 +46,7 @@ export async function getAllBooks() {
 		const sql = 'SELECT * FROM Book' // SQL query to retrieve all books
 
 		const [books] = await pool.query(sql); // Execute the query
-		console.log(books)
+		// console.log(books)
 		return books // Return the list of books
 	} catch (error) {
 		throw error // Throw an error if it fails
@@ -60,14 +60,16 @@ export async function getAllBooks() {
  * @param {number} query.page - Page number to retrieve (default is 1).
  * @returns {Promise<Array>} - A promise that resolves to an array of objects representing the books.
  */
-export async function getNumberOfBooks(query) {
+export async function getNumberOfBooks(plimit, ppage, ptitle) {
 	try {
-		const limit = parseInt(query.limit) || 10;  // Default limit
-		const page = parseInt(query.page) || 1;     // Default page
+		const limit = parseInt(plimit) || 10;  // Default limit
+		const page = parseInt(ppage) || 1;     // Default page
+		const title = ptitle || "";          // Default title
 		const offset = (page - 1) * limit;          // Calculate the offset
 
-		const sql = `SELECT * FROM Book LIMIT ${limit} OFFSET ${offset}`; // SQL query to retrieve books with pagination
+		const sql = `SELECT * FROM Book WHERE title LIKE '%${title}%' LIMIT ${limit} OFFSET ${offset}`; // SQL query to retrieve books with pagination
 		const [books] = await pool.query(sql); // Execute the query
+
 		return books; // Return the list of books
 	} catch (error) {
 		throw error; // Throw an error if it fails

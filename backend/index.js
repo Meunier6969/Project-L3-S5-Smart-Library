@@ -22,12 +22,12 @@
 
 //==============IMPORT============================
 
-import express, {json} from "express";
-import {config} from 'dotenv';
+import express, { json } from "express";
+import { config } from 'dotenv';
 
 import jwtpkg from 'node-jsonwebtoken';
 import corspkg from 'cors'; // Fixing some potential network errors
-import {addNewUser, deleteUser, getAllUsers, getPassword, getUserById} from "./routes/users.js"
+import { addNewUser, deleteUser, getAllUsers, getPassword, getUserById } from "./routes/users.js"
 import {
 	addNewBook,
 	deleteBook,
@@ -35,7 +35,7 @@ import {
 	getAllBooks,
 	getBookById,
 	getNumberOfBooks,
-	searchBooksByTitle
+	// searchBooksByTitle
 } from "./routes/books.js"
 import {
 	addBookToUsersFavorite,
@@ -60,7 +60,7 @@ config() // Setup env variables
 app.use(cors())
 app.use(json())
 app.use((req, res, next) => {
-	console.log('%s %s %s', req.method, req.url, req.body)
+	console.log('%s %s', req.method, req.url)
 	next()
 })
 
@@ -73,6 +73,8 @@ app.listen(PORT, () => {
 
 app.get("/api/test", async (req, res) => {
 	const token = req.headers.authorization
+
+	console.log("efsderzegdfhgrtghfnbghfnhtrhgtrghgtrhgyghytrhgytrhj,jhtyjg,tgyrtj,hjhy")
 
 	res.status(418).send({
 		"tok": token,
@@ -95,11 +97,11 @@ app.get("/api/test", async (req, res) => {
  */
 app.get("/api/users/", async (req, res) => {
 	await getAllUsers()
-	.then((result) => {
-		res.status(200).send(result)
-	}).catch((err) => {
-		sendError(res, 400, err)
-	})
+		.then((result) => {
+			res.status(200).send(result)
+		}).catch((err) => {
+			sendError(res, 400, err)
+		})
 })
 
 /**
@@ -111,11 +113,11 @@ app.get("/api/users/:id", async (req, res) => {
 	const { id } = req.params
 
 	await getUserById(id)
-	.then((result) => {
-		res.status(200).send(result)
-	}).catch((err) => {
-		sendError(res, 404, err)
-	})
+		.then((result) => {
+			res.status(200).send(result)
+		}).catch((err) => {
+			sendError(res, 404, err)
+		})
 })
 
 /**
@@ -127,11 +129,11 @@ app.get("/api/users/:id/favorites", async (req, res) => {
 	const { id } = req.params
 
 	await getUsersFavorites(id)
-	.then((result) => {
-		res.status(200).send(result)
-	}).catch((err) => {
-		sendError(res, 404, err)
-	});
+		.then((result) => {
+			res.status(200).send(result)
+		}).catch((err) => {
+			sendError(res, 404, err)
+		});
 
 })
 
@@ -282,68 +284,28 @@ app.patch("/api/users/:id", async (req, res) => {
 // BOOKS - GET
 
 /**
- * @route GET /api/books/:title?
+ * @route GET /api/books/
  * @description Get all books or search for books by title
  * @access Public
  */
-app.get("/api/books/:title?", async (req, res) => {
+app.get("/api/books/", async (req, res) => {
 	try {
-		const title = req.params.title; // Get the title from the URL parameters
+		const title = req.query.title; // Get the title from the URL parameters
 
 		// Default pagination settings
 		const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
 		const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
-		const offset = (page - 1) * limit; // Calculate the offset
 
-		if (title) {
-			// If a title is provided, perform a search
-			await searchBooksByTitle(title)
-				.then((filteredBooks) => {
-					res.status(200).json(filteredBooks);
-				})
-				.catch((err) => {
-					sendError(res, 400, err);
-				});
-		} else {
-			// No title provided, return all books with pagination
-			if (Object.keys(req.query).length > 1) {
-				// If there are other query parameters (like filters), handle them
-				await getNumberOfBooks(req.query, limit, offset)
-					.then((filteredBooks) => {
-						res.status(200).json(filteredBooks);
-					})
-					.catch((err) => {
-						sendError(res, 400, err);
-					});
-			} else {
-				// Just return all books
-				await getAllBooks(limit, offset)
-					.then((allBooks) => {
-						res.status(200).json(allBooks);
-					})
-					.catch((err) => {
-						sendError(res, 400, err);
-					});
-			}
-		}
+		await getNumberOfBooks(limit, page, title)
+			.then((filteredBooks) => {
+				res.status(200).json(filteredBooks);
+			})
+			.catch((err) => {
+				sendError(res, 400, err);
+			});
 	} catch (err) {
-		sendError(res, 400, err);  // Send an error response if something goes wrong
+		sendError(res, 500, err);  // Send an error response if something goes wrong
 	}
-});
-
-/**
- * @route GET /api/books/search/:query
- * @description Search for books by title
- * @access Public
- * @param {string} query - The search query
- * @returns {object} - The filtered books
- *
-**/
-app.get('/api/books/search/:query', async (req, res) => {
-	const query = req.params.query.toLowerCase();
-	const books = await getAllBooks(); // Fonction qui récupère tous les livres
-	const filteredBooks = books.filter(book => book.title.toLowerCase().includes(query));
-	res.json(filteredBooks);
 });
 
 /**
@@ -357,11 +319,11 @@ app.get("/api/books/:id", async (req, res) => {
 	const { id } = req.params
 
 	await getBookById(id)
-	.then((result) => {
-		res.status(200).send(result)
-	}).catch((err) => {
-		sendError(res, 404, err)
-	});
+		.then((result) => {
+			res.status(200).send(result)
+		}).catch((err) => {
+			sendError(res, 404, err)
+		});
 })
 
 // BOOKS - POST
@@ -379,7 +341,7 @@ app.get("/api/books/:id", async (req, res) => {
  * @returns {object} - The new book object
  */
 app.post("/api/books", async (req, res) => {
-	const { title, author, description, years,imageURL,category } = req.body
+	const { title, author, description, years, imageURL, category } = req.body
 
 
 	if (!title || !author || !description || !years || !imageURL || !category) {
@@ -388,14 +350,14 @@ app.post("/api/books", async (req, res) => {
 	}
 
 	await addNewBook(title, author, description, years, imageURL, category)
-	.then((result) => {
-		res.status(201).send({
-			"message": "New book created",
-			"book_id": result.insertId
-		})
-	}).catch((err) => {
-		sendError(res, 404, err)
-	});
+		.then((result) => {
+			res.status(201).send({
+				"message": "New book created",
+				"book_id": result.insertId
+			})
+		}).catch((err) => {
+			sendError(res, 404, err)
+		});
 
 })
 
@@ -424,49 +386,49 @@ app.post("/api/books/:id/favorite", async (req, res) => {
 	let user_id = getUserByToken(token)
 
 	await incrementBookFavoriteCount(id)
-	.catch((err) => {
-		sendError(res, 400, err)
+		.catch((err) => {
+			sendError(res, 400, err)
 
-	});
-	await addBookToUsersFavorite(user_id, id)
-	.then(() => {
-		res.status(200).send({
-			"message": "Book has been favorited."
-		})
-	}).catch((err) => {
-		sendError(res, 400, err)
-	});
-})
-
-// BOOKS - DELETE
-app.delete("/api/books/:id", async (req, res) => {
-	const { id } = req.params;
-	const token = req.headers.authorization;
-
-	try {
-		// Vérifier si l'utilisateur est un administrateur
-		if (!await isTokenAdmin(token)) {
-			sendError(res, 403, "You must be an administator to update this user.")
-			return
-		}
-
-		// Suppression du livre
-		const result = await deleteBook(id);
-
-		// Vérification si un livre a été supprimé
-		if (result.affectedRows === 0) {
-			return sendError(res, 404, "Book does not exist.");
-		}
-
-		// Réponse de succès
-		res.status(200).send({
-			message: "Book deleted successfully."
 		});
-	} catch (error) {
-		// Gestion des erreurs
-		sendError(res, 400, error.message || "An error occurred while deleting the book.");
-	}
-});
+	await addBookToUsersFavorite(user_id, id)
+		.then(() => {
+			res.status(200).send({
+				"message": "Book has been favorited."
+			})
+		}).catch((err) => {
+			sendError(res, 400, err)
+		});
+})
+	*
+	// BOOKS - DELETE
+	app.delete("/api/books/:id", async (req, res) => {
+		const { id } = req.params;
+		const token = req.headers.authorization;
+
+		try {
+			// Vérifier si l'utilisateur est un administrateur
+			if (!await isTokenAdmin(token)) {
+				sendError(res, 403, "You must be an administator to update this user.")
+				return
+			}
+
+			// Suppression du livre
+			const result = await deleteBook(id);
+
+			// Vérification si un livre a été supprimé
+			if (result.affectedRows === 0) {
+				return sendError(res, 404, "Book does not exist.");
+			}
+
+			// Réponse de succès
+			res.status(200).send({
+				message: "Book deleted successfully."
+			});
+		} catch (error) {
+			// Gestion des erreurs
+			sendError(res, 400, error.message || "An error occurred while deleting the book.");
+		}
+	});
 
 app.delete("/api/books/:id/favorite", async (req, res) => {
 	const { id } = req.params
@@ -476,7 +438,7 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 		sendError(res, 400, "Missing book id.")
 		return
 	}
-	
+
 	if (!isTokenValid(token)) {
 		sendError(res, 400, "You must be logged in.")
 		return
@@ -485,18 +447,18 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 	let user_id = getUserByToken(token)
 
 	await decrementBookFavoriteCount(id)
-	.catch((err) => {
-		sendError(res, 400, err)
+		.catch((err) => {
+			sendError(res, 400, err)
 
-	});
+		});
 	await removeBookFromUsersFavorite(user_id, id)
-	.then(() => {
-		res.status(200).send({
-			"message": "Book has been unfavorited.",
-		})
-	}).catch((err) => {
-		throw err
-	});
+		.then(() => {
+			res.status(200).send({
+				"message": "Book has been unfavorited.",
+			})
+		}).catch((err) => {
+			throw err
+		});
 
 })
 
@@ -571,11 +533,11 @@ async function isTokenAdmin(token) {
 	let isAdmin = false
 
 	await getUserById(tk.user_id)
-	.then((result) => {
-		isAdmin = Boolean(result.role)
-	}).catch(() => {
-		isAdmin = false
-	});
+		.then((result) => {
+			isAdmin = Boolean(result.role)
+		}).catch(() => {
+			isAdmin = false
+		});
 
 	return isAdmin
 }
@@ -594,7 +556,7 @@ function generateToken(user_id) {
 		user_id: user_id,
 	}
 
-	return sign(data, jwtSecretKey, {expiresIn: '24h'})
+	return sign(data, jwtSecretKey, { expiresIn: '24h' })
 }
 
 
