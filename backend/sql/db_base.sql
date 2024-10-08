@@ -19,6 +19,7 @@ CREATE TABLE Book (
    description TEXT,
    years DATE,
    img TEXT,
+   user_id INT,
    favorites_count INT DEFAULT 0, -- Ajout d'un compteur de favoris
    search_count INT DEFAULT 0,    -- Ajout d'un compteur de recherches
    category_id INT,

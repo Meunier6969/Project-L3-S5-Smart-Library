@@ -41,15 +41,18 @@ router-link {
 }
 
 /* Styles personnalisés */
-#adminManager {
+
+
+
+.admin-header {#adminManager {
   padding: 50px;
   background-color: #f5f5f5;
-  min-height: auto;
+
+  height: 80vh;
+
+
 }
 
-
-
-.admin-header {
   grid-column: span 2;
   text-align: center;
   font-size: 24px;
@@ -57,4 +60,5 @@ router-link {
   margin-bottom: 20px;
   color: #333;
 }
+
 </style>
