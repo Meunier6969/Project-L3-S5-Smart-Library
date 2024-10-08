@@ -1,7 +1,7 @@
 <template>
   <div id="adminManager">
     <div class="admin-header">
-      <h2>Admin Manager</h2>
+      <h2 style="color:#FFFFFF">Admin Manager</h2>
     </div>
 
     <div class="" data-toggle="buttons">
