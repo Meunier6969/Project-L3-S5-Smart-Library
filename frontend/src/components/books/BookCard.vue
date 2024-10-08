@@ -5,7 +5,7 @@
         :alt="book.title"
         class="card-img-top"
     />
-    <div class="bgIcon custom-rounded" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)"  v-if="isLoggedIn">
+    <div class="bgIcon custom-rounded" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)"  @click="onFavoriteClicked" v-if="isLoggedIn">
       <div class="favorite-icon">
         <i
             :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
@@ -22,12 +22,14 @@
     <div class="card-footer" style="height: 5rem">
       <h5 class="card-title text-white text-clamp">{{ book.title }}</h5>
     </div>
-    <BookModal :book="book"></BookModal>
+    <BookModal :book="book" @click-favorite="onFavoriteClicked"></BookModal>
   </div>
 </template>
 
 <script>
 import BookModal from "@/components/books/BookModal.vue";
+import axios from "axios";
+import {useUserStore} from "@/stores/userStore.js";
 
 export default {
   components: {BookModal},
@@ -50,11 +52,35 @@ export default {
     return {
       imageLoaded: false,
       imageFailed: false,
+      API_URL: "http://localhost:1234/api",
     }
   },
   methods: {
     openBookModal() {
       $('#bookModal-' + this.book.id).modal('show');
+    },
+    onFavoriteClicked() {
+      if (this.book.isFav) {
+        this.removeRavorite();
+      }
+      else {
+        this.addFavorite();
+      }
+      this.book.isFav = !this.book.isFav;
+    },
+    async addFavorite() {
+      await axios.post(this.API_URL + '/books/' + this.book.id + '/favorite', {}, {
+        headers: {
+          'Authorization': localStorage.getItem('authToken'),
+        }
+      })
+    },
+    async removeRavorite() {
+      await axios.delete(this.API_URL + '/books/' + this.book.id + '/favorite', {
+        headers: {
+          'Authorization': localStorage.getItem('authToken'),
+        }
+      })
     },
   },
 };
