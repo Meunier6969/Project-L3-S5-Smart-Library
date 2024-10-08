@@ -291,12 +291,11 @@ app.patch("/api/users/:id", async (req, res) => {
 app.get("/api/books/", async (req, res) => {
 	try {
 		const title = req.query.title; // Get the title from the URL parameters
-
-		// Default pagination settings
 		const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
 		const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
+		const sort = req.query.sort;
 
-		await getNumberOfBooks(limit, page, title)
+		await getNumberOfBooks(req.query)
 			.then((filteredBooks) => {
 				res.status(200).json(filteredBooks);
 			})
