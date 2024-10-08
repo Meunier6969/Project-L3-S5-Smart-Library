@@ -5,7 +5,6 @@
         Most searched books
       </h3>
       <BookRow
-          :books="visibleBooks"
           :searchQuery="searchQuery"
           style="margin-bottom: 1.5rem"
       />
@@ -13,12 +12,12 @@
     <h3 class="text-white" style="text-align: start; margin-left: 10vw">
       All books
     </h3>
-    <BookGrid :books="visibleBooks" :searchQuery="searchQuery" style="height: 80vh;" />
+    <BookGrid :books="visibleBooks" :searchQuery="searchQuery" style="height: 80vh;"/>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount } from 'vue'; // Import Composition API functions
+import {onBeforeUnmount, onMounted, ref} from 'vue'; // Import Composition API functions
 import BookGrid from "@/components/books/BookGrid.vue";
 import Book from "@/models/book.js";
 import BookRow from "@/components/books/BookRow.vue";
@@ -27,7 +26,7 @@ import {useUserStore} from "@/stores/userStore.js";
 
 export default {
   name: 'Home',
-  components: { BookRow, BookGrid },
+  components: {BookRow, BookGrid},
   props: {
     searchQuery: {
       type: String,
