@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid mt-3">
+  <div id="booksManager" class="container-fluid mt-3">
     <div class="admin-books col p-3">
       <!-- Left Column: Action Buttons -->
       <div class="action-buttons">
@@ -359,6 +359,11 @@ export default {
 </script>
 
 <style scoped>
+#booksManager {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
 .admin-books {
   display: grid;
   grid-template-columns: 1fr 2fr;
