@@ -11,8 +11,14 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(['click-favorite']);
+
 function switchToLogin() {
   $("#modalLogin").modal('show');
+}
+
+function onClickFavorite() {
+  emit('click-favorite');
 }
 </script>
 <template>
@@ -63,8 +69,8 @@ function switchToLogin() {
         </div>
         <div class="modal-footer">
           <div class="col" v-if="userStore.isLoggedIn">
-            <button class="btn btn-primary" v-if="!book.isFav">Add to favorites</button>
-            <button class="btn btn-danger" v-else>Remove from favorites</button>
+            <button class="btn btn-primary" v-if="!book.isFav" @click="onClickFavorite">Add to favorites</button>
+            <button class="btn btn-danger" v-else @click="onClickFavorite">Remove from favorites</button>
           </div>
           <div class="col" v-else>
             <button class="btn btn-primary" disabled style="cursor: not-allowed;">Add to favorites</button>
