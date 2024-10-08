@@ -60,15 +60,29 @@ export async function getAllBooks() {
  * @param {number} query.page - Page number to retrieve (default is 1).
  * @returns {Promise<Array>} - A promise that resolves to an array of objects representing the books.
  */
-export async function getNumberOfBooks(plimit, ppage, ptitle) {
+export async function getNumberOfBooks(query) {
 	try {
-		const limit = parseInt(plimit) || 10;  // Default limit
-		const page = parseInt(ppage) || 1;     // Default page
-		const title = ptitle || "";          // Default title
+		const limit = parseInt(query.limit) || 10;  // Default limit
+		const page = parseInt(query.page) || 1;     // Default page
+		const title = query.title || "";          // Default title
 		const offset = (page - 1) * limit;          // Calculate the offset
+		const sort = query.sort || "book_id";          // Default sorting
 
-		const sql = `SELECT * FROM Book WHERE title LIKE '%${title}%' LIMIT ${limit} OFFSET ${offset}`; // SQL query to retrieve books with pagination
-		const [books] = await pool.query(sql); // Execute the query
+		let sorting = 'book_id'
+		switch (sort) {
+			case 'search_count':
+				sorting = 'search_count DESC'
+				break;
+
+			case 'title':
+				sorting = 'title'
+				break;
+		}
+
+		
+		const sql = `SELECT * FROM Book WHERE title LIKE CONCAT('%',?,'%') ORDER BY ${sorting} LIMIT ? OFFSET ?`; // SQL query to retrieve books with pagination
+
+		const [books] = await pool.query(sql, [title, limit, offset]); // Execute the query
 
 		return books; // Return the list of books
 	} catch (error) {
