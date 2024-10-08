@@ -47,12 +47,17 @@
 <script setup>
 import { ref } from 'vue';
 import axios from "axios";
+import {useUserStore} from "@/stores/userStore.js";
+
+const API_URL = 'http://localhost:1234/api'
 
 // Form fields
 const email = ref('');
 const password = ref('');
 const name = ref('');
 const confirm_password = ref('');
+
+const userStore = useUserStore();
 
 // Placeholder for error message
 const errorMessage = ref('');
@@ -62,14 +67,16 @@ const onSubmit = async () => {
   if (password.value !== confirm_password.value) {
     errorMessage.value = "Passwords do not match!";
   } else {
-    const response = await axios.post(API_URL + '/users/register', {
+    const {token, user} = (await axios.post(API_URL + '/users/register', {
       pseudo: name.value,
       email: email.value,
       pwd: password.value
-    });
+    })).data;
+    localStorage.setItem('authToken', token);
+    userStore.login(user.user_id, user.pseudo, user.email, '', user.role === 1);
+    $("#modalSignUp").modal('hide')
+
     errorMessage.value = "";
-
-
   }
 };
 
