@@ -25,7 +25,7 @@ const fetchSortedBooks = async () => {
     "Historical",
     "Educational"
   ];
-  const favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data;
+  const favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data.favorites;
   const response = await axios.get(API_URL + '/books', {
     params: {
       limit: 10,

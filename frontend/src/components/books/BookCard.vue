@@ -61,7 +61,7 @@ export default {
     },
     onFavoriteClicked() {
       if (this.book.isFav) {
-        this.removeRavorite();
+        this.removeFavorite();
       }
       else {
         this.addFavorite();
@@ -75,7 +75,7 @@ export default {
         }
       })
     },
-    async removeRavorite() {
+    async removeFavorite() {
       await axios.delete(this.API_URL + '/books/' + this.book.id + '/favorite', {
         headers: {
           'Authorization': localStorage.getItem('authToken'),

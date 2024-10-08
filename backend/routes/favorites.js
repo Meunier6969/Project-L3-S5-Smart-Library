@@ -17,9 +17,11 @@ export async function getUsersFavorites(user_id) {
 		if (!await getUserById(user_id)) throw new Error("User Not found");
 
 		const sql = 'SELECT Favorites.book_id FROM Favorites INNER JOIN Book ON Book.book_id=Favorites.book_id WHERE Favorites.user_id=?;'
-		const [favorites] = await pool.query(sql, [user_id]);
+		let [favorites] = await pool.query(sql, [user_id]);
+
+		favorites = favorites.map((book) => book.book_id)
 	
-		return favorites
+		return {'favorites' : favorites}
 	} catch (error) {
 		throw error;
 	}
