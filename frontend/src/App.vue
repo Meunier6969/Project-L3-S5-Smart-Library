@@ -44,6 +44,7 @@ export default {
   text-align: center;
   color: #2c3e50;
   padding: 2rem;
+  background-color: rgb(24, 24, 24);
 }
 
 .modal {
