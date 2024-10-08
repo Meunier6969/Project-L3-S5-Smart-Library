@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DatabaseToolSources">
+    <data-source name="localhost" uuid="a296d7e7-4c91-4a82-a91c-88a993b2852e" type="MYSQL">
+      <base-info connect-type="DB_DEFAULT" product="MySQL" version="9.0.1" major-version="9" minor-version="0" jdbc-name="MySQL Connector/J" jdbc-version="mysql-connector-j-8.2.0 (Revision: 06a1f724497fd81c6a659131fda822c9e5085b6c)" jdbc-major-version="8" jdbc-minor-version="2" />
+      <user-name>root</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema">
+            <name qname="Library" operator="@" />
+            <name qname="mysql" operator="@" />
+            <name qname="performance_schema" operator="@" />
+            <name qname="sys" operator="@" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+      <choose-schema-mapping>
+        <introspection-scope>
+          <node kind="schema">
+            <name qname="Library" operator="@" />
+          </node>
+        </introspection-scope>
+      </choose-schema-mapping>
+      <url>jdbc:mysql://localhost:3306/Library</url>
+      <remarks />
+      <vm-options />
+      <driver-info id="mysql8" />
+      <ssh-properties enabled="false" />
+      <jdbc-additional-properties>
+        <property name="characterSetResults" value="utf8" />
+        <property name="serverTimezone" value="America/Toronto" />
+        <property name="zeroDateTimeBehavior" value="CONVERT_TO_NULL" />
+        <property name="characterEncoding" value="utf8" />
+        <property name="useTimezone" value="true" />
+        <property name="yearIsDateType" value="false" />
+      </jdbc-additional-properties>
+      <ssl-config enabled="false">
+        <uuid />
+        <caFile />
+        <clientCertificateFile />
+        <clientKeyFile />
+        <sslMode>REQUIRE</sslMode>
+      </ssl-config>
+    </data-source>
+  </component>
+</project>

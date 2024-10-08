@@ -16,7 +16,7 @@ export async function getUsersFavorites(user_id) {
 	try {
 		if (!await getUserById(user_id)) throw new Error("User Not found");
 
-		const sql = 'SELECT Favorites.book_id, Book.title FROM Favorites INNER JOIN Book ON Book.book_id=Favorites.book_id WHERE Favorites.user_id=?;'
+		const sql = 'SELECT Favorites.book_id FROM Favorites INNER JOIN Book ON Book.book_id=Favorites.book_id WHERE Favorites.user_id=?;'
 		const [favorites] = await pool.query(sql, [user_id]);
 	
 		return favorites
