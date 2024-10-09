@@ -11,17 +11,17 @@ export const useFilterStore = defineStore('filterStore', {
             fav:false,
         },
         favOnly: false,
+        fromAtoZ: false,
+        fromZtoA: false,
     }),
     actions : {
         updateCategory(category, value) {
             this.categories[category] = value;
 
-
-
         },
         updateFaveOnly(value) {
             console.log(value);
             this.favOnly = value;
-        }
+        },
     },
 })
