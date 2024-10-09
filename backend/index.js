@@ -301,6 +301,7 @@ app.get("/api/books/", async (req, res) => {
         const title = req.query.title; // Get the title from the URL parameters
         const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
         const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
+        const category = req.query.category ? parseInt(req.query.category) : 10; // Default to 10 books per page if not provided
         const sort = req.query.sort;
 
         await getNumberOfBooks(req.query)
