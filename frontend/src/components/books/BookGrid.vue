@@ -28,6 +28,7 @@ const userStore = useUserStore();
 <script>
 import BookCard from "@/components/books/BookCard.vue";
 import {useFilterStore} from "@/stores/filterStore.js";
+import {useUserStore} from "@/stores/userStore.js";
 
 export default {
   components: {BookCard},
@@ -52,7 +53,7 @@ export default {
 
       if (this.filterStore.favOnly) {
         filteredBooks = this.books.filter(book => {
-          return book.isFav;
+          return useUserStore().isFavorite(book.id);
         });
       }
 

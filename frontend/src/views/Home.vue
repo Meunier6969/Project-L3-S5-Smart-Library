@@ -133,17 +133,12 @@ export default {
             categories[book.category_id - 1],
             book.description || '',
         ));
-        console.log(newBooks);
 
         const uniqueBooks = newBooks.filter(book => !visibleBooks.value.some(existingBook => existingBook.id === book.id));
-        console.log(uniqueBooks);
 
         visibleBooks.value = [...visibleBooks.value, ...uniqueBooks];
 
         currentPage.value += 1;
-
-        console.log("=================");
-
 
       } finally {
         isLoading.value = false;  // Libérer l'indicateur de chargement
