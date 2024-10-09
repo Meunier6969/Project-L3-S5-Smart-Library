@@ -79,9 +79,15 @@ export default {
         const uniqueBooks = newBooks.filter(book => !visibleBooks.value.some(existingBook => existingBook.id === book.id));
 
         visibleBooks.value = [...visibleBooks.value, ...uniqueBooks];
+
         currentPage.value += 1;
+
+
       } finally {
         isLoading.value = false;  // Libérer l'indicateur de chargement
+        if (visibleBooks.value.length <8) {
+          await fetchBooks()
+        }
       }
     };
 
