@@ -40,7 +40,6 @@ export default {
     },
   },
   setup(props) {
-    const bookList = ref([]);       // Liste complète des livres
     const visibleBooks = ref([]);   // Livres visibles à l'utilisateur
     const booksPerPage = 8;        // Nombre de livres par chargement
     const currentPage = ref(0);     // Page actuelle
@@ -77,7 +76,7 @@ export default {
             Boolean(favList.includes(book.book_id))
         ));
 
-        const uniqueBooks = newBooks.filter(book => !visibleBooks.value.some(existingBook => existingBook.book_id === book.book_id));
+        const uniqueBooks = newBooks.filter(book => !visibleBooks.value.some(existingBook => existingBook.id === book.id));
 
         visibleBooks.value = [...visibleBooks.value, ...uniqueBooks];
         currentPage.value += 1;
