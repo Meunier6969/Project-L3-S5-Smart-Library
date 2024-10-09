@@ -23,10 +23,24 @@
 import express, {json} from "express";
 import {config} from 'dotenv';
 
+import crypto from 'crypto'
 import jwtpkg from 'node-jsonwebtoken';
 import corspkg from 'cors'; // Fixing some potential network errors
-import {addNewUser, deleteUser, editUser, getAllUsers, getPassword, getUserById} from "./routes/users.js"
-import {addNewBook, deleteBook, editBook, getBookById, getNumberOfBooks,} from "./routes/books.js"
+import {
+	addNewUser, 
+	deleteUser, 
+	editUser, 
+	getAllUsers, 
+	getPassword, 
+	getUserById
+} from "./routes/users.js"
+import {
+	addNewBook, 
+	deleteBook, 
+	editBook, 
+	getBookById, 
+	getNumberOfBooks,
+} from "./routes/books.js"
 import {
     addBookToUsersFavorite,
     decrementBookFavoriteCount,
@@ -128,7 +142,6 @@ app.get("/api/users/:id/favorites", async (req, res) => {
 })
 
 // USERS - POST
-
 /**
  * @route POST /api/users/register
  * @description Register a new user
@@ -143,10 +156,12 @@ app.post("/api/users/register", async (req, res) => {
         return
     }
 
+	let hashedpwd = crypto.createHash('sha256').update(pwd).digest('hex')
+
     let user_id
     let user
 
-    await addNewUser(pseudo, email, pwd, role)
+	await addNewUser(pseudo, email, hashedpwd, role)
         .then((result) => {
             user_id = result.insertId
         }).catch((err) => {
@@ -188,6 +203,8 @@ app.post("/api/users/login", async (req, res) => {
         return
     }
 
+	let hashedpwd = crypto.createHash('sha256').update(pwd).digest('hex')
+
     let user
 
     await getPassword(email)
@@ -198,7 +215,7 @@ app.post("/api/users/login", async (req, res) => {
         });
 
     if (user === undefined) return;
-    if (user.pwd !== pwd) {
+	if (user.pwd !== hashedpwd) {
         sendError(res, 400, "Wrong login information.")
         return
     }
@@ -380,6 +397,9 @@ app.post("/api/books/:id/favorite", async (req, res) => {
             sendError(res, 400, err)
 
         });
+
+	// TODO: check if incrementBookFavoriteCount worked
+
     await addBookToUsersFavorite(user_id, id)
         .then(() => {
             res.status(200).send({
