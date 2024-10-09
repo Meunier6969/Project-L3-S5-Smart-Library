@@ -6,6 +6,7 @@ const userStore = useUserStore();
 <template>
   <div class="container grid-container">
     <div class="row" v-if="filteredBooks.length > 0">
+      <TransitionGroup>
       <div
           v-for="(book, index) in filteredBooks"
           :key="book.id"
@@ -13,8 +14,10 @@ const userStore = useUserStore();
           'col-12 col-md-6 col-lg-3 mb-4',
         ]"
       >
-        <BookCard :book="book" :isLoggedIn="userStore.isLoggedIn"></BookCard>
+          <BookCard :book="book" :isLoggedIn="userStore.isLoggedIn"></BookCard>
+
       </div>
+      </TransitionGroup>
     </div>
     <div class="text-center text-white" v-else>
       <h5>Sorry, no results were found.<br>Try out a different search or change your filters.</h5>
@@ -74,5 +77,15 @@ export default {
   padding-left: 0;
   padding-right: 0;
   max-width: 80%;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
