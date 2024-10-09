@@ -81,11 +81,12 @@ export default {
 
 .v-enter-active,
 .v-leave-active {
-  transition: opacity 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+  transform: translateY(20%);
 }
 </style>
