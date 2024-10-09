@@ -51,14 +51,14 @@ export default {
           "Historical",
           "Educational"
         ];
-        const API_URL = "http://localhost:1234/api/books";
-        let favList = [];
-
-        if (localStorage.getItem("authToken")) {
-          favList = (await axios.get(`${API_URL}/users/${useUserStore().user.id}/favorites`)).data.favorites;
+        const API_URL = "http://localhost:1234/api";
+        let favList =[]
+        if(localStorage.getItem("authToken")) {
+          favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data.favorites;
         }
 
-        const response = await axios.get(`${API_URL}?page=${currentPage.value + 1}&limit=${booksPerPage}`);
+
+        const response = await axios.get(`${API_URL}/books?page=${currentPage.value + 1}&limit=${booksPerPage}`);
         const newBooks = response.data.map(book => new Book(
             book.book_id,
             book.title,
@@ -72,7 +72,6 @@ export default {
 
         bookList.value = [...bookList.value, ...newBooks];
         visibleBooks.value = [...visibleBooks.value, ...newBooks];
-        console.log(visibleBooks.value)
         currentPage.value += 1;
       } finally {
         isLoading.value = false;  // Libérer l'indicateur de chargement
