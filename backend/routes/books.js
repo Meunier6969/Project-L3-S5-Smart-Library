@@ -75,8 +75,12 @@ export async function getNumberOfBooks(query) {
 				sorting = 'search_count DESC'
 				break;
 
-			case 'title':
+			case 'atoz':
 				sorting = 'title'
+				break;
+
+			case 'ztoa':
+				sorting = 'title DESC'
 				break;
 		}
 		
