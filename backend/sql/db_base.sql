@@ -1,4 +1,4 @@
-CREATE DATABASE Library;
+
 USE Library;
 
 -- Table des utilisateurs

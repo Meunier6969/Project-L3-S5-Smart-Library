@@ -17,95 +17,89 @@
 </template>
 
 <script>
-import {onBeforeUnmount, onMounted, ref} from 'vue'; // Import Composition API functions
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import BookGrid from "@/components/books/BookGrid.vue";
 import Book from "@/models/book.js";
 import BookRow from "@/components/books/BookRow.vue";
 import axios from "axios";
-import {useUserStore} from "@/stores/userStore.js";
+import { useUserStore } from "@/stores/userStore.js";
 
 export default {
   name: 'Home',
-  components: {BookRow, BookGrid},
+  components: { BookRow, BookGrid },
   props: {
     searchQuery: {
       type: String,
-      required: true,
+      required: true
     }
   },
   setup(props) {
-    const bookList = ref([]);
-    const visibleBooks = ref([]);  // Books to display
-    const booksPerPage = 8;
-    const currentPage = ref(0);
-
+    const bookList = ref([]);       // Liste complète des livres
+    const visibleBooks = ref([]);   // Livres visibles à l'utilisateur
+    const booksPerPage = 8;        // Nombre de livres par chargement
+    const currentPage = ref(0);     // Page actuelle
+    const isLoading = ref(false);
+    // Fonction pour récupérer les livres avec pagination
     const fetchBooks = async () => {
-      const categories = [
-        "Science Fiction",
-        "Mystery and Thriller",
-        "Children's Book",
-        "Historical",
-        "Educational"
-      ];
-      const API_URL = "http://localhost:1234/api";
-      let favList=[];
-      if (localStorage.getItem("authToken")) {
-        // Fetching user's favorite book list
-        favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data.favorites;
-      }
-      // Fetching books
-      fetch(`${API_URL}/books`)
-          .then(response => response.json())
-          .then(data => {
-            bookList.value = data.map(book => new Book(
-                book.book_id,
-                book.title,
-                book.author,
-                book.img,
-                categories[book.category_id - 1],
-                book.description || '',
-                Boolean(favList.includes(book.book_id))
-            ));
-            console.log(bookList.value);
-            loadMoreBooks();  // Initial load of 8 books
-          });
-    };
+      if (isLoading.value) return;
+      isLoading.value = true;
+      try {
+        const categories = [
+          "Science Fiction",
+          "Mystery and Thriller",
+          "Children's Book",
+          "Historical",
+          "Educational"
+        ];
+        const API_URL = "http://localhost:1234/api";
+        let favList =[]
+        if(localStorage.getItem("authToken")) {
+          favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data.favorites;
+        }
 
-    const loadMoreBooks = () => {
-      const start = currentPage.value * booksPerPage;
-      const end = Math.min(start + booksPerPage, bookList.value.length); // Ensure not to exceed array length
-      const newBooks = bookList.value.slice(start, end);
-      visibleBooks.value = [...visibleBooks.value, ...newBooks];
-      currentPage.value += 1;
 
-      if (end >= bookList.value.length) {
-        // Optionally disable scroll if necessary
-        window.removeEventListener('scroll', handleScroll);
+        const response = await axios.get(`${API_URL}/books?page=${currentPage.value + 1}&limit=${booksPerPage}`);
+        const newBooks = response.data.map(book => new Book(
+            book.book_id,
+            book.title,
+            book.author,
+            book.img,
+            categories[book.category_id - 1],
+            book.description || '',
+            Boolean(favList.includes(book.book_id))
+        ));
+
+
+        bookList.value = [...bookList.value, ...newBooks];
+        visibleBooks.value = [...visibleBooks.value, ...newBooks];
+        currentPage.value += 1;
+      } finally {
+        isLoading.value = false;  // Libérer l'indicateur de chargement
       }
     };
 
+    // Fonction de détection du défilement et chargement des livres
     const handleScroll = () => {
-      const bottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50; // Add a 50px offset
-      if (bottom && currentPage.value * booksPerPage < bookList.value.length) {
-        loadMoreBooks();
+      const bottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
+      if (bottom) {
+        fetchBooks();  // Charger plus de livres lorsqu'on atteint le bas de la page
       }
     };
 
+    // Ajouter un écouteur de défilement lorsque le composant est monté
     onMounted(() => {
       window.addEventListener('scroll', handleScroll);
-      fetchBooks();
+      fetchBooks();  // Charger les premiers livres au démarrage
     });
 
+    // Retirer l'écouteur de défilement lors du démontage du composant
     onBeforeUnmount(() => {
       window.removeEventListener('scroll', handleScroll);
     });
 
     return {
-      bookList,
       visibleBooks,
-      fetchBooks,
-      loadMoreBooks,
-      handleScroll
+      fetchBooks
     };
   }
 };
