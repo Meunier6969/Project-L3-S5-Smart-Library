@@ -6,6 +6,5 @@ export default class Book {
         this.cover = cover;
         this.categories = categories;
         this.description = description;
-        this.isFav = isFav;
     }
 }
