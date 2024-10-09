@@ -64,6 +64,7 @@ export async function getNumberOfBooks(query) {
 	try {
 		const limit = parseInt(query.limit) || 10;  // Default limit
 		const page = parseInt(query.page) || 1;     // Default page
+		const category = parseInt(query.category) || 0;     // Default category
 		const title = query.title || "";          // Default title
 		const offset = (page - 1) * limit;          // Calculate the offset
 		const sort = query.sort || "book_id";          // Default sorting
@@ -78,9 +79,14 @@ export async function getNumberOfBooks(query) {
 				sorting = 'title'
 				break;
 		}
-
 		
-		const sql = `SELECT * FROM Book WHERE title LIKE CONCAT('%',?,'%') ORDER BY ${sorting} LIMIT ? OFFSET ?`; // SQL query to retrieve books with pagination
+		let cat = ""
+		if (category <= 5 && category > 0) {
+			cat = "AND category_id=" + String(category)
+		}
+
+		console.log(`SELECT * FROM Book WHERE title LIKE CONCAT('%',?,'%') ${cat} ORDER BY ${sorting} LIMIT ? OFFSET ?`)
+		const sql = `SELECT * FROM Book WHERE title LIKE CONCAT('%',?,'%') ${cat} ORDER BY ${sorting} LIMIT ? OFFSET ?`; // SQL query to retrieve books with pagination
 
 		const [books] = await pool.query(sql, [title, limit, offset]); // Execute the query
 
