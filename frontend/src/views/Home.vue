@@ -33,6 +33,12 @@ export default {
       required: true
     }
   },
+  watch: {
+    searchQuery(newVal, oldVal) {
+      this.resetPage();
+      this.fetchBooks();
+    },
+  },
   setup(props) {
     const bookList = ref([]);       // Liste complète des livres
     const visibleBooks = ref([]);   // Livres visibles à l'utilisateur
@@ -57,8 +63,10 @@ export default {
           favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data.favorites;
         }
 
-
-        const response = await axios.get(`${API_URL}/books?page=${currentPage.value + 1}&limit=${booksPerPage}`);
+        let request = API_URL + '/books?page=' + (currentPage.value + 1).toString() + '&limit=' + booksPerPage.toString();
+        if (props.searchQuery !== '') request += '&title=' + props.searchQuery;
+        console.log(request)
+        const response = await axios.get(request);
         const newBooks = response.data.map(book => new Book(
             book.book_id,
             book.title,
@@ -69,9 +77,9 @@ export default {
             Boolean(favList.includes(book.book_id))
         ));
 
+        const uniqueBooks = newBooks.filter(book => !visibleBooks.value.some(existingBook => existingBook.book_id === book.book_id));
 
-        bookList.value = [...bookList.value, ...newBooks];
-        visibleBooks.value = [...visibleBooks.value, ...newBooks];
+        visibleBooks.value = [...visibleBooks.value, ...uniqueBooks];
         currentPage.value += 1;
       } finally {
         isLoading.value = false;  // Libérer l'indicateur de chargement
@@ -86,8 +94,13 @@ export default {
       }
     };
 
+    const resetPage = () => {
+      currentPage.value = 0;
+    }
+
     // Ajouter un écouteur de défilement lorsque le composant est monté
     onMounted(() => {
+      console.log("mounted")
       window.addEventListener('scroll', handleScroll);
       fetchBooks();  // Charger les premiers livres au démarrage
     });
@@ -99,7 +112,8 @@ export default {
 
     return {
       visibleBooks,
-      fetchBooks
+      fetchBooks,
+      resetPage,
     };
   }
 };

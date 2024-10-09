@@ -60,9 +60,7 @@ export default {
 
       return filteredBooks.filter(book =>
           book.title.toLowerCase().includes(query) ||
-          book.categories.some(category =>
-              category.toLowerCase().includes(query)
-          )
+          book.categories.toLowerCase().includes(query)
       );
     }
   }
