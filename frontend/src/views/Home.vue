@@ -1,32 +1,49 @@
 <template>
   <div>
-    <div v-if="searchQuery === ''">
-      <h3 class="text-white" style="text-align: start; margin-left: 10vw">
-        Most searched books
-      </h3>
-      <BookRow
-          :searchQuery="searchQuery"
-          style="margin-bottom: 1.5rem"
-      />
-    </div>
+    <Transition name="row" @before-leave="animateGrid" @after-leave="resetGrid">
+      <div v-if="searchQuery === ''">
+        <h3 class="text-white" style="text-align: start; margin-left: 10vw">
+          Most searched books
+        </h3>
+        <BookRow
+            :searchQuery="searchQuery"
+            style="margin-bottom: 1.5rem"
+        />
+      </div>
+    </Transition>
+    <div ref="grid">
     <h3 class="text-white" style="text-align: start; margin-left: 10vw">
       All books
     </h3>
     <BookGrid :books="visibleBooks" :searchQuery="searchQuery" style="height: 80vh;"/>
+    </div>
   </div>
 </template>
 
+<style scoped>
+.row-enter-active,
+.row-leave-active {
+  transition: all 0.25s ease;
+}
+
+.row-enter-from,
+.row-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+</style>
+
 <script>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import {onBeforeUnmount, onMounted, ref} from 'vue';
 import BookGrid from "@/components/books/BookGrid.vue";
 import Book from "@/models/book.js";
 import BookRow from "@/components/books/BookRow.vue";
 import axios from "axios";
-import { useUserStore } from "@/stores/userStore.js";
+import {useUserStore} from "@/stores/userStore.js";
 
 export default {
   name: 'Home',
-  components: { BookRow, BookGrid },
+  components: {BookRow, BookGrid},
   props: {
     searchQuery: {
       type: String,
@@ -38,6 +55,31 @@ export default {
       this.resetPage();
       this.fetchBooks();
     },
+  },
+  methods : {
+    animateGrid() {
+      // Manually trigger an animation on Component B
+      const grid = this.$refs.grid;
+      console.log(grid);
+
+      // Reset animation (if needed)
+      grid.style.transition = 'none';
+      grid.style.transform = 'translateY(0)';
+
+      // Trigger the animation
+      requestAnimationFrame(() => {
+        grid.style.transition = 'transform 0.5s ease';
+        grid.style.transform = 'translateY(-90%)'; // Moves Component B up
+      });
+    },
+    resetGrid() {
+      requestAnimationFrame(() => {
+        const grid = this.$refs.grid;
+
+        grid.style.transition = 'none';
+        grid.style.transform = 'translateY(0)';
+      });
+    }
   },
   setup(props) {
     const visibleBooks = ref([]);   // Livres visibles à l'utilisateur
@@ -81,7 +123,7 @@ export default {
 
       } finally {
         isLoading.value = false;  // Libérer l'indicateur de chargement
-        if (visibleBooks.value.length <8) {
+        if (visibleBooks.value.length < 8) {
           await fetchBooks()
         }
       }
