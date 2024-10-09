@@ -5,11 +5,11 @@
         :alt="book.title"
         class="card-img-top"
     />
-    <div class="bgIcon custom-rounded" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)"  @click="onFavoriteClicked" v-if="isLoggedIn">
+    <div class="bgIcon custom-rounded" style="height: 35px; width: 45px; background-color: hsla(240,10%,20%,0.7)"  @click="onFavoriteClicked(true)" v-if="isLoggedIn">
       <div class="favorite-icon">
         <i
-            :class="[book.isFav ? 'bi-heart-fill' : 'bi-heart']"
-            :style="{ color: book.isFav ? 'red' : 'white' }"
+            :class="[ userStore.isFavorite(book.id) ? 'bi-heart-fill' : 'bi-heart']"
+            :style="{ color: userStore.isFavorite(book.id) ? 'red' : 'white' }"
             aria-hidden="true"
         ></i>
       </div>
@@ -53,34 +53,22 @@ export default {
       imageLoaded: false,
       imageFailed: false,
       API_URL: "http://localhost:1234/api",
+      clickedFavorite: false,
+      userStore: useUserStore(),
     }
   },
   methods: {
     openBookModal() {
+      if (this.clickedFavorite) {
+        this.clickedFavorite = false;
+        return;
+      }
       $('#bookModal-' + this.book.id).modal('show');
     },
-    onFavoriteClicked() {
-      if (this.book.isFav) {
-        this.removeFavorite();
-      }
-      else {
-        this.addFavorite();
-      }
-      this.book.isFav = !this.book.isFav;
-    },
-    async addFavorite() {
-      await axios.post(this.API_URL + '/books/' + this.book.id + '/favorite', {}, {
-        headers: {
-          'Authorization': localStorage.getItem('authToken'),
-        }
-      })
-    },
-    async removeFavorite() {
-      await axios.delete(this.API_URL + '/books/' + this.book.id + '/favorite', {
-        headers: {
-          'Authorization': localStorage.getItem('authToken'),
-        }
-      })
+    onFavoriteClicked(fromButton = false) {
+      if (fromButton) this.clickedFavorite = true;
+
+      this.userStore.toggleFavorite(this.book.id);
     },
   },
 };

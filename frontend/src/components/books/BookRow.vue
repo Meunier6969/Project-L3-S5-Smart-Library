@@ -25,10 +25,6 @@ const fetchSortedBooks = async () => {
     "Historical",
     "Educational"
   ];
-  let favList =[]
-  if(localStorage.getItem("authToken")) {
-    favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data.favorites;
-  }
 
   const response = await axios.get(API_URL + '/books', {
     params: {
@@ -43,8 +39,7 @@ const fetchSortedBooks = async () => {
       book.author,
       book.img,
       categories[book.category_id - 1],
-      book.description || '',
-      Boolean(favList.includes(book.book_id))
+      book.description || ''
   ));
 }
 
