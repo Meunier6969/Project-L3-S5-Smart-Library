@@ -7,7 +7,7 @@ CREATE TABLE Users (
    pseudo VARCHAR(50),
    email VARCHAR(50),
    role BOOLEAN, 
-   pwd VARCHAR(50),
+   pwd VARCHAR(70),
    PRIMARY KEY(user_id)
 );
 
