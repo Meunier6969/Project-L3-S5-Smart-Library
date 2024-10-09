@@ -139,7 +139,10 @@ app.get("/api/users/:id/favorites", async (req, res) => {
         .then((result) => {
             res.status(200).send(result)
         }).catch((err) => {
-            sendError(res, 404, err)
+			if (err == "User Not found.")
+				sendError(res, 404, err)
+			else
+				sendError(res, 500, err)
         });
 
 })
@@ -168,8 +171,10 @@ app.post("/api/users/register", async (req, res) => {
         .then((result) => {
             user_id = result.insertId
         }).catch((err) => {
-            sendError(res, 400, err)
-
+			if (err == "User already exist")
+				sendError(res, 403, err)
+			else
+				sendError(res, 500, err)
         });
 
     if (user_id === undefined) return
@@ -179,7 +184,6 @@ app.post("/api/users/register", async (req, res) => {
             user = result
         }).catch((err) => {
             sendError(res, 500, err)
-
         });
 
     if (user === undefined) return
@@ -214,12 +218,15 @@ app.post("/api/users/login", async (req, res) => {
         .then((result) => {
             user = result
         }).catch((err) => {
-            sendError(res, 404, err)
+			if (err == "User not found")
+				sendError(res, 404, err)
+			else
+				sendError(res, 500, err)
         });
 
     if (user === undefined) return;
 	if (user.pwd !== hashedpwd) {
-        sendError(res, 400, "Wrong login information.")
+        sendError(res, 403, "Wrong login information.")
         return
     }
 
@@ -252,7 +259,10 @@ app.delete("/api/users/:id", async (req, res) => {
                 "message": "User deleted"
             })
         }).catch((err) => {
-            sendError(res, 400, err)
+			if (err == "User not found")
+				sendError(res, 404, err)
+			else
+				sendError(res, 500, err)
         });
 })
 
@@ -285,7 +295,12 @@ app.patch("/api/users/:id", async (req, res) => {
                 "message": "User updated succesfuly"
             })
         }).catch((err) => {
-            sendError(res, 400, err)
+			if (err == "User not found")
+				sendError(res, 404, err)
+			else if (err == "No fields to change")
+				sendError(res, 400, err)
+			else
+				sendError(res, 500, err)
         });
 })
 
@@ -312,7 +327,7 @@ app.get("/api/books/", async (req, res) => {
                 res.status(200).json(filteredBooks);
             })
             .catch((err) => {
-                sendError(res, 400, err);
+                sendError(res, 500, err);
             });
     } catch (err) {
         sendError(res, 500, err);  // Send an error response if something goes wrong
@@ -333,7 +348,10 @@ app.get("/api/books/:id", async (req, res) => {
         .then((result) => {
             res.status(200).send(result)
         }).catch((err) => {
-            sendError(res, 404, err)
+			if (err == "Book not found")
+				sendError(res, 404, err)
+			else
+				sendError(res, 500, err)
         });
 })
 
@@ -367,7 +385,10 @@ app.post("/api/books", async (req, res) => {
                 "book_id": result.insertId
             })
         }).catch((err) => {
-            sendError(res, 404, err)
+			if (err == "Book already exists.")
+				sendError(res, 403, err)
+			else
+				sendError(res, 500, err)
         });
 
 })
@@ -390,18 +411,20 @@ app.post("/api/books/:id/favorite", async (req, res) => {
     }
 
     if (!isTokenValid(token)) {
-        sendError(res, 400, "You must be logged in.")
+        sendError(res, 401, "You must be logged in.")
         return
     }
 
     let user_id = getUserByToken(token)
 
+	let error_check = false
     await incrementBookFavoriteCount(id)
         .catch((err) => {
-            console.log(err)
-            sendError(res, 400, err)
-
+            sendError(res, 500, err)
+			error_check = true
         });
+
+	if (error_check) return;
 
     await addBookToUsersFavorite(user_id, id)
         .then(() => {
@@ -409,7 +432,7 @@ app.post("/api/books/:id/favorite", async (req, res) => {
                 "message": "Book has been favorited."
             })
         }).catch((err) => {
-            sendError(res, 400, err)
+            sendError(res, 500, err)
         });
 })
 // BOOKS - DELETE
@@ -438,7 +461,7 @@ app.delete("/api/books/:id", async (req, res) => {
         });
     } catch (error) {
         // Gestion des erreurs
-        sendError(res, 400, error.message || "An error occurred while deleting the book.");
+        sendError(res, 500, error);
     }
 });
 
@@ -458,20 +481,23 @@ app.delete("/api/books/:id/favorite", async (req, res) => {
 
     let user_id = getUserByToken(token)
 
+	let error_check = false
     await decrementBookFavoriteCount(id)
         .catch((err) => {
-            sendError(res, 400, err)
-
+            sendError(res, 500, err)
+			error_check = true
         });
+
+	if (error_check) return;
+	
     await removeBookFromUsersFavorite(user_id, id)
         .then(() => {
             res.status(200).send({
                 "message": "Book has been unfavorited.",
             })
         }).catch((err) => {
-            throw err
+            sendError(res, 500, error)
         });
-
 })
 
 // BOOKS - PATCH
@@ -479,24 +505,22 @@ app.patch("/api/books/:id", async (req, res) => {
     const {id} = req.params;
     const {title, author, description, years, category_id} = req.body;
 
-    console.log("Received data:", {title, author, description, years, category_id});
-
     if (!id) {
         return sendError(res, 400, "Missing book id.");
+		return
     }
-    try {
-        const result = await editBook(id, title, author, description, years, category_id);
-        console.log("Update result:", result);
-
-        res.status(200).json({
-            success: true,
-            message: "Book updated successfully",
-            result
-        });
-    } catch (err) {
-        console.error("Error updating book:", err); // Log the error
-        sendError(res, 400, err.message);
-    }
+	
+    await editBook(id, title, author, description, years, category_id)
+    .then((result) => {
+	    res.status(200).send({
+	        "message": "Book updated successfully",
+	    });
+	}).catch((err) => {
+		if (err == "Book does not exist")
+	    	sendError(res, 404, err.message);
+		else
+			sendError(res, 500, err.message);
+	});
 });
 
 

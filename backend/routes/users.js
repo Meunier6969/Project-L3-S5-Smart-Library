@@ -58,7 +58,7 @@ export async function deleteUser(user_id) {
 	
 		const [result, fields] = await pool.execute(sql, values);
 	
-		if (result.affectedRows == 0) throw new Error("User does not exist.");
+		if (result.affectedRows == 0) throw new Error("User not found");
 	
 		return result
 	} catch (error) {
@@ -116,7 +116,7 @@ export async function editUser(user_id, pseudo = undefined, email = undefined, p
 
 		const [result, fields] = await pool.execute(sql, values);
 
-		if (result.affectedRows === 0) throw new Error("User does not exist.");
+		if (result.affectedRows === 0) throw new Error("User not found");
 
 		return result
 	} catch (error) {

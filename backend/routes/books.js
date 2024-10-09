@@ -132,25 +132,15 @@ export async function getBookById(id) {
  */
 export async function addNewBook(title, author, description, years, imageUrl, category) {
 	try {
-		console.log('Step 1: Start adding book');
-		console.log('Step 2: Checking if book exists...');
 		if (await doesBookExist(title)) throw new Error("Book already exists."); // Check if the book exists
 
-		console.log('Step 3: Preparing SQL...');
 		const sql = 'INSERT INTO Book (title, author, description, years, img, category_id) VALUES (?, ?, ?, ?, ?, ?)'; // SQL query to insert a new book
-		console.log('Step 4: Preparing values...');
 		const values = [title, author, description, years, imageUrl, category]; // Values to insert
 
-		console.log('Step 5: Executing SQL query...');
 		const [result, fields] = await pool.execute(sql, values); // Execute the query
 
-		console.log('Step 6: SQL query executed successfully.');
 		return result; // Return the result of the addition
 	} catch (error) {
-		// Display more details about the error
-		console.log('MySQL error code:', error.code);
-		console.log('MySQL error message:', error.sql);
-		console.error("Error adding new book:", error.message, error.stack);
 		throw error; // Throw an error if it fails
 	}
 }
@@ -187,6 +177,7 @@ export async function deleteBook(book_id) {
 		throw error; // Throw an error if it fails
 	}
 }
+
 function formatDateToMySQL(dateString) {
 	const date = new Date(dateString);
 	return date.toISOString().slice(0, 19).replace('T', ' '); // Format 'YYYY-MM-DD HH:MM:SS'
@@ -236,11 +227,10 @@ export async function editBook(book_id, title = undefined, author = undefined, d
 		values.push(book_id); // Add the book ID to the values list
 
 		const [result] = await pool.execute(sql, values);
-		if (result.affectedRows === 0) throw new Error("Book does not exist.");
+		if (result.affectedRows === 0) throw new Error("Book does not exist");
 
 		return result; // Return the result of the edit
 	} catch (error) {
-		console.error("Error in editBook:", error.message); // Log the error for debugging
 		throw error; // Throw an error if it fails
 	}
 }
@@ -257,7 +247,6 @@ async function doesBookExist(title) {
 
 		return result.length > 0; // Return true if the book exists, otherwise false
 	} catch (error) {
-		console.error("Error checking book existence:", error.message); // Log the error for debugging
 		throw error; // Throw an error if it fails
 	}
 }
