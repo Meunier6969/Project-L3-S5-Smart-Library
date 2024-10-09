@@ -1,7 +1,13 @@
 <script setup>
-import {useUserStore} from "@/stores/userStore.js";
+import { useUserStore } from "@/stores/userStore";
+import { useFilterStore } from "@/stores/filterStore";
 
+// Accéder aux stores nécessaires
 const userStore = useUserStore();
+const filterStore = useFilterStore();
+
+// Déclare les événements émis par le composant (openLogin, search)
+const emit = defineEmits(['openLogin', 'search']);
 </script>
 
 <template>
@@ -71,37 +77,37 @@ const userStore = useUserStore();
             Filters
           </a>
 
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <label class="dropdown-item">
+            Science Fiction <input type="checkbox" v-model="filterStore.categories.sf" @change="filterStore.updateCategory('sf', filterStore.categories.sf)">
+          </label>
+          <label class="dropdown-item">
+            Mystery & Thriller <input type="checkbox" v-model="filterStore.categories.mystery" @change="filterStore.updateCategory('mystery', filterStore.categories.mystery)">
+          </label>
+          <label class="dropdown-item">
+            Historical <input type="checkbox" v-model="filterStore.categories.history" @change="filterStore.updateCategory('history', filterStore.categories.history)">
+          </label>
+          <label class="dropdown-item">
+            Educational <input type="checkbox" v-model="filterStore.categories.education" @change="filterStore.updateCategory('education', filterStore.categories.education)">
+          </label>
+          <label class="dropdown-item">
+            For Children <input type="checkbox" v-model="filterStore.categories.children" @change="filterStore.updateCategory('children', filterStore.categories.children)">
+          </label>
+          <div v-if="userStore.isLoggedIn">
+            <div class="dropdown-divider"></div>
             <label class="dropdown-item">
-              Science Fiction <input type="checkbox" v-model="filters.sf">
+              Favorites <input type="checkbox" v-model="favOnlyBinding">
             </label>
-            <label class="dropdown-item">
-              Mystery & Thriller <input type="checkbox" v-model="filters.mystery">
-            </label>
-            <label class="dropdown-item">
-              Historical <input type="checkbox" v-model="filters.history">
-            </label>
-            <label class="dropdown-item">
-              Educational <input type="checkbox" v-model="filters.education">
-            </label>
-            <label class="dropdown-item">
-              For Children <input type="checkbox" v-model="filters.children">
-            </label>
-            <div v-if="userStore.isLoggedIn">
-              <div class="dropdown-divider"></div>
-              <label class="dropdown-item">
-                Favorites <input type="checkbox" v-model="favOnlyBinding">
-              </label>
-            </div>
           </div>
         </div>
       </div>
+      </div>
     </div>
-    <!--Admin panel-->
-    <div class="align-items-center justify-content-center admin-panel" v-if="userStore.isAdmin">
-      <a href="/home" class="btn btn-secondary" v-if="useRoute().path.includes('admin')">Home Page</a>
-      <a href="/admin" class="btn btn-secondary" v-else>Administration</a>
-    </div>
+      <!--Admin panel-->
+      <div class="align-items-center justify-content-center admin-panel" v-if="userStore.isAdmin">
+        <a href="/home" class="btn btn-secondary" v-if="useRoute().path.includes('admin')">Home Page</a>
+        <a href="/admin" class="btn btn-secondary" v-else>Administration</a>
+      </div>
   </nav>
   <ModalLogin></ModalLogin>
   <ModalProfile></ModalProfile>
@@ -111,9 +117,7 @@ const userStore = useUserStore();
 import ModalLogin from '@/components/Login.vue';
 import ModalProfile from '@/components/Profile.vue';
 
-import {useFilterStore} from "@/stores/filterStore.js";
 import {useRoute} from "vue-router";
-
 export default {
   components: {
     ModalLogin,
@@ -154,6 +158,10 @@ export default {
     window.removeEventListener("keydown", this.focusSearchInput);
   },
   methods: {
+    test(category) {
+      this.$emit("")
+    },
+
     onSearch() {
       this.$emit('search', this.searchTerm);
     },

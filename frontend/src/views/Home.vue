@@ -40,6 +40,7 @@ import Book from "@/models/book.js";
 import BookRow from "@/components/books/BookRow.vue";
 import axios from "axios";
 import {useUserStore} from "@/stores/userStore.js";
+import {useFilterStore} from "@/stores/filterStore.js";
 
 export default {
   name: 'Home',
@@ -50,6 +51,7 @@ export default {
       required: true
     }
   },
+
   watch: {
     searchQuery(newVal, oldVal) {
       this.resetPage();
