@@ -68,6 +68,13 @@ export default {
     'filterStore.fromZtoA'() {
       this.resetPage();
       this.fetchBooks();
+    },
+    'filterStore.categories': {
+      handler() {
+        this.resetPage();
+        this.fetchBooks();
+      },
+      deep: true
     }
   },
   methods : {
@@ -122,6 +129,26 @@ export default {
           request += '&sort=atoz';
         } else if (useFilterStore().fromZtoA) {
           request += '&sort=ztoa';
+        }
+
+        const selectCategories = useFilterStore().categories;
+        let trueKey = Object.keys(selectCategories).find(key => categories[key] === true);
+        console.log(trueKey);
+        console.log(selectCategories);
+        if (trueKey !== undefined) {
+          request += '&category' + trueKey.toString();
+        }
+
+        if (selectCategories.sf) {
+          request += '&category=1';
+        } else if (selectCategories.mystery) {
+          request += '&category=2';
+        } else if (selectCategories.children) {
+          request += '&category=3';
+        } else if (selectCategories.history) {
+          request += '&category=4';
+        } else if (selectCategories.education) {
+          request += '&category=5';
         }
 
         const response = await axios.get(request);
