@@ -26,7 +26,7 @@ function onClickFavorite() {
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header text-center align-items-center">
-          <i v-if="userStore.isLoggedIn && book.isFav"
+          <i v-if="userStore.isLoggedIn && userStore.isFavorite(book.id)"
              class="bi-heart-fill"
              style="margin-right: auto; color: red"
              aria-hidden="true"
@@ -69,7 +69,7 @@ function onClickFavorite() {
         </div>
         <div class="modal-footer">
           <div class="col" v-if="userStore.isLoggedIn">
-            <button class="btn btn-primary" v-if="!book.isFav" @click="onClickFavorite">Add to favorites</button>
+            <button class="btn btn-primary" v-if="!userStore.isFavorite(book.id)" @click="onClickFavorite">Add to favorites</button>
             <button class="btn btn-danger" v-else @click="onClickFavorite">Remove from favorites</button>
           </div>
           <div class="col" v-else>

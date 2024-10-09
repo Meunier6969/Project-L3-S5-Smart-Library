@@ -57,14 +57,11 @@ export default {
           "Educational"
         ];
         const API_URL = "http://localhost:1234/api";
-        let favList =[]
-        if(localStorage.getItem("authToken")) {
-          favList = (await axios.get(API_URL + '/users/' + useUserStore().user.id + '/favorites')).data.favorites;
-        }
+        await useUserStore().fetchFavorites();
 
         let request = API_URL + '/books?page=' + (currentPage.value + 1).toString() + '&limit=' + booksPerPage.toString();
         if (props.searchQuery !== '') request += '&title=' + props.searchQuery;
-        console.log(request)
+
         const response = await axios.get(request);
         const newBooks = response.data.map(book => new Book(
             book.book_id,
@@ -73,7 +70,6 @@ export default {
             book.img,
             categories[book.category_id - 1],
             book.description || '',
-            Boolean(favList.includes(book.book_id))
         ));
 
         const uniqueBooks = newBooks.filter(book => !visibleBooks.value.some(existingBook => existingBook.id === book.id));
