@@ -394,11 +394,10 @@ app.post("/api/books/:id/favorite", async (req, res) => {
 
     await incrementBookFavoriteCount(id)
         .catch((err) => {
+            console.log(err)
             sendError(res, 400, err)
 
         });
-
-	// TODO: check if incrementBookFavoriteCount worked
 
     await addBookToUsersFavorite(user_id, id)
         .then(() => {

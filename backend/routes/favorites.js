@@ -59,7 +59,7 @@ export async function removeBookFromUsersFavorite(user_id, book_id) {
 
 export async function decrementBookFavoriteCount(id) {
 	try {
-		const sql = 'UPDATE book SET favorites_count = favorites_count - 1 WHERE book_id=?'
+		const sql = 'UPDATE Book SET favorites_count = favorites_count - 1 WHERE book_id=?'
 		const [result] = await pool.execute(sql, [id]);
 
 		return result
@@ -70,7 +70,7 @@ export async function decrementBookFavoriteCount(id) {
 
 export async function incrementBookFavoriteCount (id) {
 	try {
-		const sql = 'UPDATE book SET favorites_count = favorites_count + 1 WHERE book_id=?'
+		const sql = 'UPDATE Book SET favorites_count = favorites_count + 1 WHERE book_id=?'
 		const [result] = await pool.execute(sql, [id]);
 
 		return result
