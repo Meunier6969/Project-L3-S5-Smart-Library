@@ -51,12 +51,24 @@ export default {
       required: true
     }
   },
-
+  data() {
+    return {
+      filterStore: useFilterStore(),
+    }
+  },
   watch: {
     searchQuery(newVal, oldVal) {
       this.resetPage();
       this.fetchBooks();
     },
+    'filterStore.fromAtoZ'() {
+      this.resetPage();
+      this.fetchBooks();
+    },
+    'filterStore.fromZtoA'() {
+      this.resetPage();
+      this.fetchBooks();
+    }
   },
   methods : {
     animateGrid() {
@@ -106,6 +118,12 @@ export default {
         let request = API_URL + '/books?page=' + (currentPage.value + 1).toString() + '&limit=' + booksPerPage.toString();
         if (props.searchQuery !== '') request += '&title=' + props.searchQuery;
 
+        if (useFilterStore().fromAtoZ) {
+          request += '&sort=atoz';
+        } else if (useFilterStore().fromZtoA) {
+          request += '&sort=ztoa';
+        }
+
         const response = await axios.get(request);
         const newBooks = response.data.map(book => new Book(
             book.book_id,
@@ -121,7 +139,6 @@ export default {
         visibleBooks.value = [...visibleBooks.value, ...uniqueBooks];
 
         currentPage.value += 1;
-
 
       } finally {
         isLoading.value = false;  // Libérer l'indicateur de chargement
@@ -140,6 +157,7 @@ export default {
     };
 
     const resetPage = () => {
+      visibleBooks.value = [];
       currentPage.value = 0;
     }
 

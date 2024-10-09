@@ -63,10 +63,10 @@ const emit = defineEmits(['openLogin', 'search']);
 
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
           <label class="dropdown-item">
-            De A à Z
+            De A à Z <input type='checkbox' v-model="filterStore.fromAtoZ">
           </label>
-          <label class="dropdown-item">
-            De Z à A
+          <label class="dropdown-item" >
+            De Z à A <input v-model="filterStore.fromZtoA" type='checkbox'>
           </label>
         </div>
       </div>
