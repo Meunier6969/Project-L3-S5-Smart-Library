@@ -104,7 +104,7 @@ app.get("/api/users/", async (req, res) => {
         .then((result) => {
             res.status(200).send(result)
         }).catch((err) => {
-            sendError(res, 400, err)
+            sendError(res, 500, err)
         })
 })
 
@@ -120,7 +120,10 @@ app.get("/api/users/:id", async (req, res) => {
         .then((result) => {
             res.status(200).send(result)
         }).catch((err) => {
-            sendError(res, 404, err)
+			if (err == "User Not found.")
+	            sendError(res, 404, err)
+			else 
+				sendError(res, 500, err)
         })
 })
 
