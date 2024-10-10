@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-dark" @click="openBookModal()">
+  <div class="card bg-dark hover-grow" @click="openBookModal()">
     <img
         :src="book.cover"
         :alt="book.title"
@@ -128,4 +128,6 @@ export default {
 .text-bronze {
   color: chocolate;
 }
+
+
 </style>

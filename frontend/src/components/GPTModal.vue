@@ -22,7 +22,7 @@
           <div class="modal-body">
             <div class="chatbox-body"><!-- Chat history -->
               <div class="chat-history mt-3" v-for="(message, index) in messages.slice(1)" :key="index">
-                <p><strong v-if="message.role === 'user'">You:</strong><strong v-else-if="message.role === 'assistant'">AI:</strong><strong v-else>System:</strong> {{ message.content }}</p>
+                <p><strong v-if="message.role === 'user'">You:</strong><strong v-else-if="message.role === 'assistant'"></strong><strong v-else>System:</strong> {{ message.content }}</p>
               </div>
             </div>
             <!-- Message Input -->
@@ -78,8 +78,14 @@ const messages = ref([systemPrompt, {role: 'assistant', content: 'Hello! How can
 
 // Open modal
 function openChatboxModal() {
+  // Fermer tous les modals
+  $('.modal').modal('hide');
+
+  // Ouvrir le modal de la chatbox
   $('#chatboxModal').modal('show');
 }
+
+
 
 function scrollToBottom() {
   const chatHistory = document.querySelector('.chatbox-body');
@@ -87,7 +93,7 @@ function scrollToBottom() {
 }
 
 function clear() {
-  messages.value = [systemPrompt];
+  messages.value = [systemPrompt,  {role: 'assistant', content: 'Hello! How can I assist you today? Are you looking for book recommendations or help with something else?'}];
 }
 
 // Send message to OpenAI API and include the entire conversation history
@@ -97,7 +103,6 @@ async function sendMessage() {
   // Append the user message to the chat
   messages.value.push({ role: 'user', content: userMessage.value });
 
-  console.log(import.meta.env.VITE_API_KEY)
   try {
     const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',

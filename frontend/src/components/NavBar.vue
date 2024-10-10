@@ -1,6 +1,7 @@
 <script setup>
 import { useUserStore } from "@/stores/userStore";
 import { useFilterStore } from "@/stores/filterStore";
+import GPTModal from "@/components/GPTModal.vue";
 
 // Accéder aux stores nécessaires
 const userStore = useUserStore();
