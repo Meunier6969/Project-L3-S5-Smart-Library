@@ -311,6 +311,7 @@ export default {
             if (!response.ok) {
               throw new Error(`Failed to add book: ${response.statusText}`);
             }
+            alert("Book added successfully")
             return response.json();
           })
           .then(data => {
