@@ -14,7 +14,7 @@ const userStore = useUserStore();
           'col-12 col-md-6 col-lg-3 mb-4',
         ]"
       >
-          <BookCard :book="book" :isLoggedIn="userStore.isLoggedIn"></BookCard>
+          <BookCard class="hover-grow" :book="book" :isLoggedIn="userStore.isLoggedIn"></BookCard>
 
       </div>
       </TransitionGroup>
@@ -89,5 +89,13 @@ export default {
 .v-leave-to {
   opacity: 0;
   transform: translateY(20%);
+}
+
+.hover-grow {
+  transition: transform 0.3s ease; /* Smooth animation */
+}
+
+.hover-grow:hover {
+  transform: scale(1.04); /* Slightly increase the size */
 }
 </style>

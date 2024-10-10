@@ -1,7 +1,7 @@
 <template>
   <div>
     <Transition name="row" @before-leave="animateGrid" @after-leave="resetGrid">
-      <div v-if="searchQuery === ''">
+      <div v-if="searchQuery === '' && !filterStore.favOnly">
         <h3 class="text-white" style="text-align: start; margin-left: 10vw">
           Most searched books
         </h3>
