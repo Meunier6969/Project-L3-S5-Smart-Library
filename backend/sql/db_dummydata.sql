@@ -119,9 +119,6 @@ INSERT INTO Book (title, author, description, years, img, search_count, category
 VALUES ('Beloved', 'Toni Morrison', '"Beloved" is a haunting and powerful novel that tells the story of Sethe, an escaped slave haunted by the ghost of her dead daughter. Through magical realism, Morrison explores the trauma of slavery and its lasting effects on individuals and communities, crafting a tale of grief, memory, and the need for healing.', '1987-09-16', 'https://m.media-amazon.com/images/I/71fZRqanSvL._SY522_.jpg', 350000, 4);
 
 INSERT INTO Book (title, author, description, years, img, search_count, category_id)
-VALUES ('Maus', 'Art Spiegelman', '"Maus" is a graphic novel that recounts the experiences of the author’s father, a Holocaust survivor, using animals to represent different races and nationalities. Jews are depicted as mice, Germans as cats, and so on. The novel is a poignant exploration of trauma, memory, and survival, combining the personal and historical in a unique narrative.', '1991-11-01', 'https://m.media-amazon.com/images/I/A1pUyqvAOwL._SY522_.jpg', 320000, 2);
-
-INSERT INTO Book (title, author, description, years, img, search_count, category_id)
 VALUES ('The Hitchhiker''s Guide to the Galaxy', 'Douglas Adams', '"The Hitchhiker''s Guide to the Galaxy" is a comedic science fiction novel that follows Arthur Dent, an ordinary human, as he is whisked off Earth moments before its destruction. Accompanied by a cast of quirky characters, Arthur explores the absurdities of the universe. Full of wit and humor, the novel is a cult classic for its satirical take on life, the universe, and everything.', '1979-10-12', 'https://m.media-amazon.com/images/I/91pUhA4qZnL._SY522_.jpg', 580000, 1);
 
 INSERT INTO Book (title, author, description, years, img, search_count, category_id)
