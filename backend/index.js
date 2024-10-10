@@ -289,7 +289,9 @@ app.patch("/api/users/:id", async (req, res) => {
         return
     }
 
-    await editUser(id, pseudo, email, pwd ,role)
+	let hashedpwd = crypto.createHash('sha256').update(pwd).digest('hex')
+
+	await editUser(id, pseudo, email, hashedpwd, role)
         .then(() => {
             res.status(200).send({
                 "message": "User updated succesfuly"

@@ -95,7 +95,6 @@ export async function editUser(user_id, pseudo = undefined, email = undefined, p
 			if (email || pwd ||role ) sql += ", "
 		}
 		
-		
 		if (email) {
 			sql += "email=? "
 			values.push(email)
@@ -107,10 +106,12 @@ export async function editUser(user_id, pseudo = undefined, email = undefined, p
 			values.push(pwd)
 			if(role) sql += ", "
 		}
+		
 		if (role) {
 			sql += "role=? "
 			values.push(role)
 		}
+		
 		sql += "WHERE user_id=?;"
 		values.push(user_id)
 
