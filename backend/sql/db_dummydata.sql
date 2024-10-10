@@ -1,6 +1,6 @@
 USE Library;
 
--- Users
+-- User
 INSERT INTO Users (pseudo, email, role, pwd) VALUES ('Meunier', 'meunier@efrei.net', 0, 'ff2f12ec5c6a2e9ef6b61c958ed701c327469190a18075fd909ec2a9b42b94f2'); -- secure_password
 INSERT INTO Users (pseudo, email, role, pwd) VALUES ('Aloe', 'aloe@vera.com', 0, '7de1980b3d7c810a80f9b61e950a3e2d959510434b09cebab58a6644e31414b7'); -- the_password_should
 INSERT INTO Users (pseudo, email, role, pwd) VALUES ('Obama', 'barackobama@usa.gouv', 0, 'a4849eec660620f498180134b28cb99116d15696894de2b90f2b3eb2535e2fc3'); -- be_hashes_im
