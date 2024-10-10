@@ -2,7 +2,7 @@
 ---
 
 # 📚 Smart Library
-
+![Capture d’écran du 2024-10-10 15-16-57.png](img/Capture%20d%E2%80%99%C3%A9cran%20du%202024-10-10%2015-16-57.png)
 ---
 
 ### Full-Stack Library Management System
@@ -11,11 +11,13 @@
 
 ## 👥 Contributors
 
-- [Meunier A.](https://github.com/Meunier6969)
-- [Corentin_k_](https://github.com/Corentin-k)
-- [Benjamin Arbousset](https://github.com/benjidsv)
-- [Mailinh](https://github.com/MailinhTA)
-- [Lolo2109](https://github.com/lolo2109)
+## 👥 Contributors
+
+- ![Meunier A.](https://github.com/Meunier6969.png?size=40) [Meunier A.](https://github.com/Meunier6969)
+- ![Corentin_k_](https://github.com/Corentin-k.png?size=40) [Corentin_k_](https://github.com/Corentin-k)
+- ![Benjamin Arbousset](https://github.com/benjidsv.png?size=40) [Benjamin Arbousset](https://github.com/benjidsv)
+- ![Mailinh](https://github.com/MailinhTA.png?size=40) [Mailinh](https://github.com/MailinhTA)
+- ![Lolo2109](https://github.com/lolo2109.png?size=40) [Lolo2109](https://github.com/lolo2109)
 
 ---
 
@@ -155,19 +157,31 @@ git clone https://github.com/Meunier6969/Project-L3-S5-Smart-Library.git
    ```bash
    npm start
    ```
-You can create a link to the `databaseREADME.md` file within your main README by using Markdown syntax. Here’s how you can integrate that link into the **Database Setup** section of your README. I'll add a brief mention at the beginning of the section to point users to the detailed instructions in the separate file.
 
 ---
 
 ### 🗄️ Database Setup
 
-For detailed instructions on setting up the database, please refer to the [databaseREADME.md](./path/to/databaseREADME.md) file.
+For detailed instructions on setting up the database, please refer to the [databaseREADME.md](./databaseREADME.md) file.
 
 
 ---
 
 ## 📷 Screenshots
 
-*Screenshots will be added soon.*
+The main page:
+![Capture d’écran du 2024-10-10 15-16-57.png](img/Capture%20d%E2%80%99%C3%A9cran%20du%202024-10-10%2015-16-57.png)
+
+PopUp Book:
+![Capture d’écran du 2024-10-10 15-18-33.png](img/Capture%20d%E2%80%99%C3%A9cran%20du%202024-10-10%2015-18-33.png)
+
+Favorite Books :
+![Capture d’écran du 2024-10-10 15-20-10.png](img/Capture%20d%E2%80%99%C3%A9cran%20du%202024-10-10%2015-20-10.png)
+
+Chat Box:
+![Capture d’écran du 2024-10-10 15-17-52.png](img/Capture%20d%E2%80%99%C3%A9cran%20du%202024-10-10%2015-17-52.png)
+
+Admin view:
+![Capture d’écran du 2024-10-10 15-20-33.png](img/Capture%20d%E2%80%99%C3%A9cran%20du%202024-10-10%2015-20-33.png)
 
 ---
