@@ -125,7 +125,6 @@ export async function editUser(user_id, pseudo = undefined, email = undefined, p
 	}
 }
 
-
 export async function doesUserExistPseudo(pseudo) {
 	try {
 		const sql = 'SELECT user_id, pseudo, email, role FROM Users WHERE pseudo=?;'

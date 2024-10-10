@@ -14,8 +14,6 @@
 // - doesBookExist: Checks if a book exists in the database.
 // - modifyBookById: Modifies the information of a book by its ID.
 
-
-
 //==============IMPORT============================
 
 import mysql from 'mysql2'
@@ -43,13 +41,13 @@ const pool = mysql.createPool({
  */
 export async function getAllBooks() {
 	try {
-		const sql = 'SELECT * FROM Book' // SQL query to retrieve all books
+		const sql = 'SELECT * FROM Book'
 
-		const [books] = await pool.query(sql); // Execute the query
-		// console.log(books)
-		return books // Return the list of books
+		const [books] = await pool.query(sql);
+
+		return books
 	} catch (error) {
-		throw error // Throw an error if it fails
+		throw error
 	}
 }
 
@@ -66,8 +64,8 @@ export async function getNumberOfBooks(query) {
 		const page = parseInt(query.page) || 1;     // Default page
 		const category = parseInt(query.category) || 0;     // Default category
 		const title = query.title || "";          // Default title
-		const offset = (page - 1) * limit;          // Calculate the offset
 		const sort = query.sort || "book_id";          // Default sorting
+		const offset = (page - 1) * limit;          // Calculate the offset
 
 		let sorting = 'book_id'
 		switch (sort) {
@@ -89,14 +87,13 @@ export async function getNumberOfBooks(query) {
 			cat = "AND category_id=" + String(category)
 		}
 
-		console.log(`SELECT * FROM Book WHERE title LIKE CONCAT('%',?,'%') ${cat} ORDER BY ${sorting} LIMIT ? OFFSET ?`)
-		const sql = `SELECT * FROM Book WHERE title LIKE CONCAT('%',?,'%') ${cat} ORDER BY ${sorting} LIMIT ? OFFSET ?`; // SQL query to retrieve books with pagination
+		const sql = `SELECT * FROM Book WHERE title LIKE CONCAT('%',?,'%') ${cat} ORDER BY ${sorting} LIMIT ? OFFSET ?`;
 
-		const [books] = await pool.query(sql, [title, limit, offset]); // Execute the query
+		const [books] = await pool.query(sql, [title, limit, offset]); 
 
-		return books; // Return the list of books
+		return books; 
 	} catch (error) {
-		throw error; // Throw an error if it fails
+		throw error; 
 	}
 }
 
@@ -108,14 +105,14 @@ export async function getNumberOfBooks(query) {
  */
 export async function getBookById(id) {
 	try {
-		const sql = 'SELECT * FROM Book WHERE book_id=?' // SQL query to retrieve a book by ID
-		const [book] = await pool.query(sql, [id]); // Execute the query
+		const sql = 'SELECT * FROM Book WHERE book_id=?'
+		const [book] = await pool.query(sql, [id]); 
 
-		if (!book[0]) throw new Error("Book not found"); // Throw an error if the book does not exist
+		if (!book[0]) throw new Error("Book not found"); 
 
-		return book[0] // Return the object representing the book
+		return book[0] 
 	} catch (error) {
-		throw error // Throw an error if it fails
+		throw error
 	}
 }
 
@@ -132,16 +129,16 @@ export async function getBookById(id) {
  */
 export async function addNewBook(title, author, description, years, imageUrl, category) {
 	try {
-		if (await doesBookExist(title)) throw new Error("Book already exists."); // Check if the book exists
+		if (await doesBookExist(title)) throw new Error("Book already exists."); 
 
-		const sql = 'INSERT INTO Book (title, author, description, years, img, category_id) VALUES (?, ?, ?, ?, ?, ?)'; // SQL query to insert a new book
-		const values = [title, author, description, years, imageUrl, category]; // Values to insert
+		const sql = 'INSERT INTO Book (title, author, description, years, img, category_id) VALUES (?, ?, ?, ?, ?, ?)'; 
+		const values = [title, author, description, years, imageUrl, category]; 
 
-		const [result, fields] = await pool.execute(sql, values); // Execute the query
+		const [result, fields] = await pool.execute(sql, values); 
 
-		return result; // Return the result of the addition
+		return result; 
 	} catch (error) {
-		throw error; // Throw an error if it fails
+		throw error; 
 	}
 }
 
@@ -151,7 +148,7 @@ export async function addNewBook(title, author, description, years, imageUrl, ca
  * @returns {Promise<Array>} - A promise that resolves to an array of objects representing the matching books.
  */
 export async function searchBooksByTitle(title) {
-	const allBooks = await getAllBooks(); // Retrieve all books
+	const allBooks = await getAllBooks();
 	return allBooks.filter(book => book.title.toLowerCase().includes(title.toLowerCase())); // Filter books by title
 }
 
@@ -163,18 +160,18 @@ export async function searchBooksByTitle(title) {
  */
 export async function deleteBook(book_id) {
 	try {
-		const sql = "DELETE FROM Book WHERE book_id = ?"; // SQL query to delete a book by ID
-		const values = [book_id]; // Values to pass to the query
+		const sql = "DELETE FROM Book WHERE book_id = ?"; 
+		const values = [book_id]; 
 
-		const [result] = await pool.execute(sql, values); // Execute the query
+		const [result] = await pool.execute(sql, values); 
 
 		if (result.affectedRows === 0) {
-			throw new Error("Book does not exist."); // Throw an error if the book does not exist
+			throw new Error("Book does not exist."); 
 		}
 
-		return result; // Return the result of the deletion
+		return result;
 	} catch (error) {
-		throw error; // Throw an error if it fails
+		throw error
 	}
 }
 
@@ -195,7 +192,7 @@ function formatDateToMySQL(dateString) {
  */
 export async function editBook(book_id, title = undefined, author = undefined, description = undefined, year = undefined, category = undefined) {
 	try {
-		let sql = "UPDATE Book SET"; // Start of the SQL update query
+		let sql = "UPDATE Book SET"; 
 		let values = []; // Values to update
 
 		if (title) {
@@ -224,14 +221,14 @@ export async function editBook(book_id, title = undefined, author = undefined, d
 		sql = sql.replace(/, $/, " ");
 
 		sql += " WHERE book_id=?;";
-		values.push(book_id); // Add the book ID to the values list
+		values.push(book_id);
 
 		const [result] = await pool.execute(sql, values);
 		if (result.affectedRows === 0) throw new Error("Book does not exist");
 
-		return result; // Return the result of the edit
+		return result;
 	} catch (error) {
-		throw error; // Throw an error if it fails
+		throw error;
 	}
 }
 
@@ -242,12 +239,12 @@ export async function editBook(book_id, title = undefined, author = undefined, d
  */
 async function doesBookExist(title) {
 	try {
-		const sql = 'SELECT * FROM Book WHERE title = ?'; // SQL query to check if a book exists by title
-		const [result] = await pool.query(sql, [title]); // Execute the query
+		const sql = 'SELECT * FROM Book WHERE title = ?';
+		const [result] = await pool.query(sql, [title]);
 
-		return result.length > 0; // Return true if the book exists, otherwise false
+		return result.length > 0; 
 	} catch (error) {
-		throw error; // Throw an error if it fails
+		throw error; 
 	}
 }
 

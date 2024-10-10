@@ -17,7 +17,6 @@
 // DELETE /api/users/:id - Delete a user
 // GET /api/test - Test route to check if the API is running
 
-
 //==============IMPORT============================
 
 import express, {json} from "express";
@@ -318,10 +317,10 @@ app.patch("/api/users/:id", async (req, res) => {
  */
 app.get("/api/books/", async (req, res) => {
     try {
-        const title = req.query.title; // Get the title from the URL parameters
-        const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
+		const page = req.query.page ? parseInt(req.query.page) : 1; // Default to page 1 if not provided
         const limit = req.query.limit ? parseInt(req.query.limit) : 10; // Default to 10 books per page if not provided
         const category = req.query.category ? parseInt(req.query.category) : 10; // Default to 10 books per page if not provided
+        const title = req.query.title; 
         const sort = req.query.sort;
 
         await getNumberOfBooks(req.query)
@@ -332,7 +331,7 @@ app.get("/api/books/", async (req, res) => {
                 sendError(res, 500, err);
             });
     } catch (err) {
-        sendError(res, 500, err);  // Send an error response if something goes wrong
+        sendError(res, 500, err);
     }
 });
 
@@ -404,7 +403,6 @@ app.post("/api/books", async (req, res) => {
  * @returns {object} - Success message
  */
 app.post("/api/books/:id/favorite", async (req, res) => {
-    // TODO: Auth user
     const {id} = req.params
     const token = req.headers.authorization
 
@@ -458,12 +456,10 @@ app.delete("/api/books/:id", async (req, res) => {
             return sendError(res, 404, "Book does not exist.");
         }
 
-        // Réponse de succès
         res.status(200).send({
             message: "Book deleted successfully."
         });
     } catch (error) {
-        // Gestion des erreurs
         sendError(res, 500, error);
     }
 });
@@ -510,7 +506,6 @@ app.patch("/api/books/:id", async (req, res) => {
 
     if (!id) {
         return sendError(res, 400, "Missing book id.");
-		return
     }
 	
     await editBook(id, title, author, description, years, category_id)
