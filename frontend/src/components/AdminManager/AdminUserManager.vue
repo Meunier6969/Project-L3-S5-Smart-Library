@@ -156,10 +156,12 @@ const openAddUserModal = () => {
 const submitAddUser = async () => {
   try {
     const response = await axios.post(`${API_URL}/users/register`, newUser.value);
+
     await fetchUsers();
     $("#modalAddUser").modal('hide');
     newUser.value = {pseudo: '', email: '', role: false, password:""};
   } catch (error) {
+    alert(error.message)
     console.error('Error adding user:', error);
   }
 };
@@ -173,16 +175,18 @@ const openEditUserModal = (user) => {
 // Fonction pour soumettre l'édition de l'utilisateur
 const submitEditUser = async () => {
   try {
-    console.log(selectedUser.value.user_id)
     const response = await axios.patch(`${API_URL}/users/${selectedUser.value.user_id}`, selectedUser.value, {
       headers: {
         'Authorization':localStorage.getItem("authToken"),
         'Content-Type': 'application/json'
       }
     });
+    alert(response.data.message);
     await fetchUsers();
+
     $("#modalEditUser").modal('hide');
   } catch (error) {
+    alert(error.message)
     console.error('Error editing user:', error);
   }
 };
@@ -198,7 +202,9 @@ const deleteUser = async (id) => {
           'Content-Type': 'application/json'
         }
       });
+
       users.value = users.value.filter(user => user.user_id !== id);
+      alert(response.data.message);
     } catch (error) {
       console.error('Error deleting user:', error);
     }

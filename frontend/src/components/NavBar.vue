@@ -79,7 +79,8 @@ const emit = defineEmits(['openLogin', 'search']);
 
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
           <label class="dropdown-item">
-            Science Fiction <input type="checkbox" v-model="filterStore.categories.sf" @change="filterStore.updateCategory('sf', filterStore.categories.sf)">
+            Science Fiction <input type="
+" v-model="filterStore.categories.sf" @change="filterStore.updateCategory('sf', filterStore.categories.sf)">
           </label>
           <label class="dropdown-item">
             Mystery & Thriller <input type="checkbox" v-model="filterStore.categories.mystery" @change="filterStore.updateCategory('mystery', filterStore.categories.mystery)">
@@ -91,7 +92,7 @@ const emit = defineEmits(['openLogin', 'search']);
             Educational <input type="checkbox" v-model="filterStore.categories.education" @change="filterStore.updateCategory('education', filterStore.categories.education)">
           </label>
           <label class="dropdown-item">
-            For Children <input type="checkbox" v-model="filterStore.categories.children" @change="filterStore.updateCategory('children', filterStore.categories.children)">
+            Children <input type="checkbox" v-model="filterStore.categories.children" @change="filterStore.updateCategory('children', filterStore.categories.children)">
           </label>
           <div v-if="userStore.isLoggedIn">
             <div class="dropdown-divider"></div>

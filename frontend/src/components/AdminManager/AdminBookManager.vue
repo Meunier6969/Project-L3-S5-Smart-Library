@@ -67,23 +67,31 @@
           <div class="book-details col p-3">
             <input
                 v-model="book.title"
-                :placeholder="isAdding ? 'Add Title' : ''"
+                :placeholder="isAdding ? 'Add Title' :'Choose Book in the search bar'"
                 class="input-field"
+                :readonly="!selectedBook && !isAdding"
+                @click="handleInputClick"
             />
             <input
                 v-model="book.author"
                 :placeholder="isAdding ? 'Add Author' : ''"
                 class="input-field"
+                :readonly="!selectedBook && !isAdding"
+                @click="handleInputClick"
             />
             <input
-                v-model="book.year"
-                :placeholder="isAdding ? 'Add publishing date' : ''"
+                v-model="book.years"
+                :placeholder="isAdding ? 'Add publishing date (XXXX-XX-XX)' : ''"
                 class="input-field"
+                :readonly="!selectedBook && !isAdding"
+                @click="handleInputClick"
             />
             <textarea
                 v-model="book.description"
                 :placeholder="isAdding ? 'Add Description' : ''"
                 class="textarea-field"
+                :readonly="!selectedBook && !isAdding"
+                @click="handleInputClick"
             ></textarea>
             <button
                 @click="
@@ -94,6 +102,7 @@
                   : confirmModifyBook()
               "
                 class="btn-black-white"
+
             >
               {{ isAdding ? "ADD" : rightButtonLabel }}
             </button>
@@ -106,10 +115,12 @@
     <div v-if="deleteMode || modifyMode" class="delete-form dropdown">
       <div class="search-content">
         <input
+            ref="searchBar"
             v-model="searchQuery"
             :placeholder="modifyMode ? 'Search for a book to modify' : 'Search for a book to delete'"
             class="form-control"
             @input="fetchBookToModify"
+
         />
 
         <!-- Dropdown des résultats -->
@@ -123,6 +134,7 @@
                   :value="foundBook"
                   v-model="selectedBook"
                   @click="selectBook(foundBook)"
+
               />
               {{ foundBook.title }}
             </label>
@@ -147,8 +159,9 @@ export default {
       book: {
         title: "",
         author: "",
-        year: null,
+        years: null,
         description: "",
+        img:"",
         category_id:null,
       },
       isAdding: true,
@@ -156,6 +169,7 @@ export default {
       modifyMode: false,
       selectedButton: "add",
       selectedCategory: null,
+
     };
   },
   methods: {
@@ -183,6 +197,7 @@ export default {
         this.addBook();
       }
     },
+
     getButtonClass(button) {
       return this.selectedButton === button ? "selected" : "";
     },
@@ -211,15 +226,13 @@ export default {
       }
     },
 
-
     selectBook(book) {
       if (book && book.book_id) {
-        this.book = { ...book }; // Remplit les détails du livre
+        this.book = { ...book };
+        this.book.years=new Date(this.book.years).toISOString().slice(0, 10);
         this.isAdding = false;
-        console.log("Selected book:", this.book);
         this.isDropdownVisible = false;
         this.searchQuery = "";
-        console.log("Category book:", this.book.category_id);
         this.selectedCategory = this.book.category_id;
       } else {
         console.error("Selected book does not have an ID.");
@@ -227,9 +240,12 @@ export default {
       }
     },
 
-
-
     confirmModifyBook() {
+      if (!this.selectedBook) {
+        this.highlightSearchBar();
+        alert("Please select a book before modifying.");
+        return;
+      }
       console.log("Modifying book:", this.book);
       if (!this.book.book_id) {
         console.error("Book ID is not defined.");
@@ -237,7 +253,7 @@ export default {
         return;
       }
       this.book.category_id = this.selectedCategory;
-      console.log("Modifying book CCCCCCCCCCC:", this.book.category_id);
+
       fetch(`http://localhost:1234/api/books/${this.book.book_id}`, {
         method: 'PATCH',
         headers: {
@@ -261,7 +277,6 @@ export default {
           });
     },
 
-
     addBook() {
       this.isAdding = true;
       this.deleteMode = false;
@@ -275,12 +290,10 @@ export default {
         author: this.book.author,
         years: this.book.year,
         description: this.book.description,
-        imageURL: "https://via.placeholder.com/150", // Valeur par défaut pour l'image
+        imageURL: this.book.img || "https://via.placeholder.com/150",
         category: this.selectedCategory,
 
       };
-
-      console.log("Step 1: New book object created:", newBook);
 
       fetch('http://localhost:1234/api/books', {
         method: 'POST',
@@ -296,17 +309,20 @@ export default {
             return response.json();
           })
           .then(data => {
-            console.log("Step 4: Book added successfully:", data);
+
             this.resetForm();
           })
           .catch(err => {
-            console.error("Step 5: Error adding book:", err.message, err.stack);
+            alert("Vérifiez les infos : " + err.message);
           });
     },
 
-
-
-    async confirmDeleteBook(book) {
+    confirmDeleteBook() {
+      if (!this.selectedBook) {
+        this.highlightSearchBar();
+        alert("Please select a book before deleting.");
+        return;
+      }
       if (!this.book.book_id) {
         console.error("Book ID is not defined.");
         alert("Please select a book to delete.");
@@ -332,6 +348,14 @@ export default {
           });
     },
 
+    highlightSearchBar() {
+      const searchBar = this.$refs.searchBar;
+      if (searchBar) {
+        searchBar.classList.add('highlight');
+        setTimeout(() => searchBar.classList.remove('highlight'), 2000); // L'effet dure 1.5 secondes
+      }
+    },
+
     uploadImage(event) {
       const file = event.target.files[0];
       console.log("Uploading image:", file);
@@ -354,6 +378,13 @@ export default {
       this.foundBooks = [];
       this.selectedCategory=null;
     },
+
+    handleInputClick() {
+      if (!this.selectedBook && !this.isAdding) {
+        this.highlightSearchBar(); // Mettre en évidence la barre de recherche
+      }
+    },
+
   },
 };
 </script>
@@ -378,10 +409,10 @@ export default {
 }
 
 .category-radio input[type="radio"] {
-  margin: 0;
   position: relative;
   top: 0; /* Assure l'alignement vertical */
-  margin-right: 10px; /* Ajoute un espace fixe entre l'icône et le texte */
+  /* Ajoute un espace fixe entre l'icône et le texte */
+  margin: 0 10px 0 0;
   flex-shrink: 0; /* Empêche l'icône de se redimensionner avec le texte */
 }
 
@@ -532,4 +563,11 @@ export default {
     flex-direction: column;
   }
 }
+
+.highlight {
+  border: 2px solid red;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  transition: border 0.3s, box-shadow 0.3s; /* Transition douce */
+}
+
 </style>

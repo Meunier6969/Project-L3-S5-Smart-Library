@@ -90,7 +90,7 @@ export default {
       // Trigger the animation
       requestAnimationFrame(() => {
         grid.style.transition = 'transform 0.5s ease';
-        grid.style.transform = 'translateY(-90%)'; // Moves Component B up
+        grid.style.transform = 'translateY(-70%)'; // Moves Component B up
       });
     },
     resetGrid() {

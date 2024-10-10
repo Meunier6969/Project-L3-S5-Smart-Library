@@ -171,7 +171,7 @@ app.post("/api/users/register", async (req, res) => {
         .then((result) => {
             user_id = result.insertId
         }).catch((err) => {
-			if (err == "User already exist")
+			if (err.message === "User already exist")
 				sendError(res, 403, err)
 			else
 				sendError(res, 500, err)
