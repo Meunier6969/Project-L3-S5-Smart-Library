@@ -78,28 +78,45 @@ const emit = defineEmits(['openLogin', 'search']);
           </a>
 
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <label class="dropdown-item">
-            Science Fiction <input type="
-" v-model="filterStore.categories.sf" @change="filterStore.updateCategory('sf', filterStore.categories.sf)">
-          </label>
-          <label class="dropdown-item">
-            Mystery & Thriller <input type="checkbox" v-model="filterStore.categories.mystery" @change="filterStore.updateCategory('mystery', filterStore.categories.mystery)">
-          </label>
-          <label class="dropdown-item">
-            Historical <input type="checkbox" v-model="filterStore.categories.history" @change="filterStore.updateCategory('history', filterStore.categories.history)">
-          </label>
-          <label class="dropdown-item">
-            Educational <input type="checkbox" v-model="filterStore.categories.education" @change="filterStore.updateCategory('education', filterStore.categories.education)">
-          </label>
-          <label class="dropdown-item">
-            Children <input type="checkbox" v-model="filterStore.categories.children" @change="filterStore.updateCategory('children', filterStore.categories.children)">
-          </label>
+
+            <label class="dropdown-item">
+              <input type="radio" name="category" value="sf" v-model="filterStore.categories.sf" @change="filterStore.updateCategory('sf', filterStore.categories.sf)" />
+              Science Fiction
+            </label>
+
+            <label class="dropdown-item">
+              <input type="radio" name="category" value="mystery" v-model="filterStore.categories.mystery" @change="filterStore.updateCategory('mystery', filterStore.categories.mystery)" />
+              Mystery & Thriller
+            </label>
+
+            <label class="dropdown-item">
+              <input type="radio" name="category" value="history" v-model="filterStore.categories.history" @change="filterStore.updateCategory('history', filterStore.categories.history)" />
+              Historical
+            </label>
+
+            <label class="dropdown-item">
+              <input type="radio" name="category" value="education" v-model="filterStore.categories.education" @change="filterStore.updateCategory('education', filterStore.categories.education)" />
+              Educational
+            </label>
+
+            <label class="dropdown-item">
+              <input type="radio" name="category" value="children" v-model="filterStore.categories.children" @change="filterStore.updateCategory('children',filterStore.categories.children)" />
+              Children
+            </label>
+
+
+
+
+
           <div v-if="userStore.isLoggedIn">
             <div class="dropdown-divider"></div>
             <label class="dropdown-item">
-              Favorites <input type="checkbox" v-model="favOnlyBinding">
+              <input type="checkbox" v-model="favOnlyBinding" />
+              Favorites
             </label>
-          </div>
+
+
+        </div>
         </div>
       </div>
       </div>
@@ -138,6 +155,7 @@ export default {
         fav: false,
       },
       favRef: undefined,
+
     };
   },
   computed: {

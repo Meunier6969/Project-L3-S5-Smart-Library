@@ -60,7 +60,7 @@
             >
             <label
             ><input type="radio" name="category" value="5" v-model="selectedCategory" />
-              For Children</label
+              Children</label
             >
           </div>
 
