@@ -1,3 +1,6 @@
+
+---
+
 # 📚 Smart Library
 
 ---
@@ -18,7 +21,7 @@
 
 ## 📖 Overview
 
-**Smart Library** is an online bookstore that allows users to browse and manage their favorite books while enabling admins to efficiently manage the book inventory. The system provides essential features such as user registration, book browsing, and administrative functionalities. The inventory contains five genres:
+**Smart Library** is an online bookstore designed for users to explore and manage their favorite books while allowing administrators to effectively oversee the book inventory. Key features include user registration, book browsing, and administrative functionalities. The inventory encompasses five genres:
 
 - Science Fiction
 - Mystery & Thriller
@@ -26,7 +29,7 @@
 - Historical
 - Educational
 
-An optional AI-driven book recommendation system is included to enhance the user experience.
+An optional AI-driven book recommendation system is integrated to enhance user experience.
 
 ---
 
@@ -35,12 +38,12 @@ An optional AI-driven book recommendation system is included to enhance the user
 ### Core Features
 
 - **User Account Management**
-    - Account registration, login, profile management, and favorite books management.
+    - Account registration, login, profile management, and favorites management.
     - Client- and server-side validation for data accuracy and security.
     - Add and remove books from a favorites list.
 
 - **Book Listing**
-    - Display books according to the five categories mentioned above.
+    - Display books categorized into the five genres mentioned above.
 
 - **Search and Browse**
     - Search for books by title, author, or category.
@@ -51,13 +54,13 @@ An optional AI-driven book recommendation system is included to enhance the user
     - Administrators can add, modify, and delete books from the system.
 
 - **Advanced Admin Mode**
-    - Access to detailed statistics on user interactions, such as book popularity.
+    - Access to detailed statistics on user interactions, including book popularity.
 
 - **User Interaction Tracking**
-    - An invisible dashboard that allows administrators to track user interactions (e.g., most viewed books, most frequent searches).
+    - An invisible dashboard enabling administrators to monitor user interactions (e.g., most viewed books, frequent searches).
 
 - **Backend Performance Optimization**
-    - Algorithms to balance server load and ensure fast site performance under high traffic.
+    - Algorithms designed to balance server load and ensure fast site performance under high traffic.
 
 ### Optional Features
 
@@ -73,7 +76,7 @@ An optional AI-driven book recommendation system is included to enhance the user
     - Responsive user interface across all device types.
 
 - **Error Monitoring and Reporting System**
-    - Internal tool to detect and log site errors or crashes in real-time, sending alerts to developers/admins.
+    - An internal tool to detect and log site errors or crashes in real-time, sending alerts to developers/admins.
 
 ---
 
@@ -119,7 +122,11 @@ git clone https://github.com/Meunier6969/Project-L3-S5-Smart-Library.git
    npm install
    ```
 
-3. Run the front-end development server:
+3. Create a `.env` file:
+    - Rename `.envexample` to `.env`.
+    - Add your own information (the OpenAI API key if you want to use the chatbox).
+
+4. Run the front-end development server:
 
    ```bash
    npm run dev
@@ -133,17 +140,29 @@ git clone https://github.com/Meunier6969/Project-L3-S5-Smart-Library.git
    cd ../backend
    ```
 
-2. Install the dependencies:
+2. Create a `.env` file:
+    - Rename `.envexample` to `.env`.
+    - Fill in the necessary information.
+
+3. Install the dependencies:
 
    ```bash
    npm install
    ```
 
-3. Run the back-end server:
+4. Run the back-end server:
 
    ```bash
    npm start
    ```
+You can create a link to the `databaseREADME.md` file within your main README by using Markdown syntax. Here’s how you can integrate that link into the **Database Setup** section of your README. I'll add a brief mention at the beginning of the section to point users to the detailed instructions in the separate file.
+
+---
+
+### 🗄️ Database Setup
+
+For detailed instructions on setting up the database, please refer to the [databaseREADME.md](./path/to/databaseREADME.md) file.
+
 
 ---
 
@@ -152,4 +171,3 @@ git clone https://github.com/Meunier6969/Project-L3-S5-Smart-Library.git
 *Screenshots will be added soon.*
 
 ---
-
