@@ -11,13 +11,11 @@
 
 ## 👥 Contributors
 
-## 👥 Contributors
-
-- ![Meunier A.](https://github.com/Meunier6969.png?size=40) [Meunier A.](https://github.com/Meunier6969)
-- ![Corentin_k_](https://github.com/Corentin-k.png?size=40) [Corentin_k_](https://github.com/Corentin-k)
-- ![Benjamin Arbousset](https://github.com/benjidsv.png?size=40) [Benjamin Arbousset](https://github.com/benjidsv)
-- ![Mailinh](https://github.com/MailinhTA.png?size=40) [Mailinh](https://github.com/MailinhTA)
-- ![Lolo2109](https://github.com/lolo2109.png?size=40) [Lolo2109](https://github.com/lolo2109)
+- [<img src="https://github.com/Meunier6969.png" width="40" height="40" style="border-radius: 50%;" alt="Meunier A." /> Meunier A.](https://github.com/Meunier6969)
+- [<img src="https://github.com/Corentin-k.png" width="40" height="40" style="border-radius: 50%;" alt="Corentin_k_" /> Corentin_k_](https://github.com/Corentin-k)
+- [<img src="https://github.com/benjidsv.png" width="40" height="40" style="border-radius: 50%;" alt="Benjamin Arbousset" /> Benjamin Arbousset](https://github.com/benjidsv)
+- [<img src="https://github.com/MailinhTA.png" width="40" height="40" style="border-radius: 50%;" alt="Mailinh" /> Mailinh](https://github.com/MailinhTA)
+- [<img src="https://github.com/lolo2109.png" width="40" height="40" style="border-radius: 50%;" alt="Lolo2109" /> Lolo2109](https://github.com/lolo2109)
 
 ---
 
