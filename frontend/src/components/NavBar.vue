@@ -129,6 +129,7 @@ const emit = defineEmits(['openLogin', 'search']);
   </nav>
   <ModalLogin></ModalLogin>
   <ModalProfile></ModalProfile>
+  <GPTModal></GPTModal>
 </template>
 
 <script>
