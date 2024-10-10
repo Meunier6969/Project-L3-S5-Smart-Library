@@ -105,6 +105,37 @@ VALUES ('The Color Purple', 'Alice Walker', '"The Color Purple" is a powerful st
 
 INSERT INTO Book (title, author, description, years, img, search_count, category_id)
 VALUES ('The Perks of Being a Wallflower', 'Stephen Chbosky', '"The Perks of Being a Wallflower" is a coming-of-age novel told through the letters of Charlie, a shy and introspective teenager who struggles to find his place in high school. As he befriends a group of misfit seniors, Charlie navigates the highs and lows of adolescence, from first love to deep emotional trauma. Chbosky''s novel is a heartfelt exploration of growing up, self-discovery, and the importance of connection.', '1999-09-01', 'https://m.media-amazon.com/images/I/51kAQABtC1L._SY445_SX342_.jpg', 490000, 5);-- Favorites
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('One Hundred Years of Solitude', 'Gabriel García Márquez', '"One Hundred Years of Solitude" tells the multi-generational story of the Buendía family, whose lives are deeply intertwined with magical realism. The novel explores themes of love, loss, and the inevitable repetition of history, offering a profound meditation on the human experience.', '1967-05-30', '', 460000, 5);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('The Handmaid''s Tale', 'Margaret Atwood', '"The Handmaid\'s Tale" is set in a dystopian future where women have lost nearly all rights and are forced into strict roles dictated by a theocratic regime. The story follows Offred, a Handmaid, whose role is to bear children for elite families, as she struggles to maintain her identity and sense of hope in a world of oppression.', '1985-08-17', '', 410000, 1);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('Slaughterhouse-Five', 'Kurt Vonnegut', '"Slaughterhouse-Five" is a science fiction novel that blends elements of time travel and anti-war commentary. It follows Billy Pilgrim, a soldier who becomes "unstuck in time," as he experiences different moments of his life, including his capture by the Germans during World War II. The novel is a powerful critique of the senselessness of war.', '1969-03-31', '', 390000, 1);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('Beloved', 'Toni Morrison', '"Beloved" is a haunting and powerful novel that tells the story of Sethe, an escaped slave haunted by the ghost of her dead daughter. Through magical realism, Morrison explores the trauma of slavery and its lasting effects on individuals and communities, crafting a tale of grief, memory, and the need for healing.', '1987-09-16', '', 350000, 4);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('Maus', 'Art Spiegelman', '"Maus" is a graphic novel that recounts the experiences of the author’s father, a Holocaust survivor, using animals to represent different races and nationalities. Jews are depicted as mice, Germans as cats, and so on. The novel is a poignant exploration of trauma, memory, and survival, combining the personal and historical in a unique narrative.', '1991-11-01', '', 320000, 2);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('The Hitchhiker''s Guide to the Galaxy', 'Douglas Adams', '"The Hitchhiker''s Guide to the Galaxy" is a comedic science fiction novel that follows Arthur Dent, an ordinary human, as he is whisked off Earth moments before its destruction. Accompanied by a cast of quirky characters, Arthur explores the absurdities of the universe. Full of wit and humor, the novel is a cult classic for its satirical take on life, the universe, and everything.', '1979-10-12', '', 580000, 1);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('The Lord of the Rings', 'J.R.R. Tolkien', '"The Lord of the Rings" is an epic high-fantasy novel that follows the quest to destroy the One Ring, an artifact of great power that could bring ruin to the world if it falls into the hands of the Dark Lord Sauron. With richly developed characters and settings, Tolkien creates a timeless adventure about courage, friendship, and the struggle between good and evil.', '1954-07-29', '', 720000, 1);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('Gone Girl', 'Gillian Flynn', '"Gone Girl" is a psychological thriller that explores the marriage of Nick and Amy Dunne, whose relationship unravels when Amy disappears on their fifth wedding anniversary. As the investigation unfolds, secrets are revealed, and nothing is as it seems. The novel keeps readers on edge with its twists and dark insights into relationships and media sensationalism.', '2012-06-05', '', 450000, 2);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('Dune', 'Frank Herbert', '"Dune" is a science fiction epic set on the desert planet Arrakis, where water is scarce, and a valuable spice called melange is the key to interstellar travel. The novel follows young Paul Atreides as he navigates political intrigue, rebellion, and prophecy. "Dune" explores themes of power, religion, and environmentalism in a rich, detailed universe.', '1965-08-01', '', 620000, 1);
+
+INSERT INTO Book (title, author, description, years, img, search_count, category_id)
+VALUES ('The Da Vinci Code', 'Dan Brown', '"The Da Vinci Code" is a fast-paced thriller that follows Harvard symbologist Robert Langdon as he unravels a series of puzzles and mysteries related to the secret of the Holy Grail. Set against a backdrop of historical intrigue and conspiracy theories, the novel blends art, religion, and cryptology into an international adventure.', '2003-03-18', '', 510000, 2);
+
 INSERT INTO Favorites (user_id, book_id) VALUES (1, 1);
 INSERT INTO Favorites (user_id, book_id) VALUES (2, 2);
 INSERT INTO Favorites (user_id, book_id) VALUES (3, 3);
