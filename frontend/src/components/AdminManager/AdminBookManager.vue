@@ -203,6 +203,7 @@ export default {
     },
 
     async fetchBookToModify() {
+      this.selectedBook=true;
       if (this.searchQuery.trim().length < 3) return; // Vérifie la longueur de la recherche
 
       try {
@@ -265,16 +266,20 @@ export default {
             if (!response.ok) {
               throw new Error(`Failed : ${response.statusText}`);
             }
+
             return response.json();
           })
           .then(data => {
             console.log("Book modified successfully:", data);
+            this.selectedBook=false;
             this.resetForm(); // Reset form after modification
+
           })
           .catch((err) => {
             console.error(`Failed to modify book ${this.book.book_id}:`, err); // Plus de détails dans les logs
             alert(`Error: ${err.message}`);
           });
+
     },
 
     addBook() {
@@ -288,7 +293,7 @@ export default {
       const newBook = {
         title: this.book.title,
         author: this.book.author,
-        years: this.book.year,
+        years: this.book.years,
         description: this.book.description,
         imageURL: this.book.img || "https://via.placeholder.com/150",
         category: this.selectedCategory,
@@ -341,11 +346,13 @@ export default {
               throw new Error(`Failed to delete book: ${response.statusText}`);
             }
             console.log("Book deleted successfully.");
+            this.selectedBook=false;
             this.resetForm(); // Reset the form after deletion
           })
           .catch(err => {
             console.error("Error deleting book:", err.message);
           });
+      this.selectedBook=false;
     },
 
     highlightSearchBar() {

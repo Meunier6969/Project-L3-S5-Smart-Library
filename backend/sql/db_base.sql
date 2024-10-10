@@ -42,17 +42,8 @@ CREATE TABLE Favorites (
    FOREIGN KEY(book_id) REFERENCES Book(book_id) ON DELETE CASCADE
 );
 
--- Table pour lier les livres aux catégories
-CREATE TABLE Book_Categories (
-   book_id INT,
-   id_category INT,
-   PRIMARY KEY(book_id, id_category),
-   FOREIGN KEY(book_id) REFERENCES Book(book_id) ON DELETE CASCADE,
-   FOREIGN KEY(id_category) REFERENCES Categories(id_category) ON DELETE CASCADE
-);
+
 
 -- Indexation des tables pour améliorer les performances
 CREATE INDEX idx_user_id ON Favorites(user_id);
 CREATE INDEX idx_book_id ON Favorites(book_id);
-CREATE INDEX idx_book_categories_book_id ON Book_Categories(book_id);
-CREATE INDEX idx_book_categories_id_category ON Book_Categories(id_category);

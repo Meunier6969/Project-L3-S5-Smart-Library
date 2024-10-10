@@ -373,7 +373,8 @@ app.post("/api/books", async (req, res) => {
     const {title, author, description, years, imageURL, category} = req.body
 
 
-    if (!title || !author || !description || !years || !imageURL || !category) {
+    if (!title || !author || !description || !years || !category) {
+        console.log(title,author,description,years,category)
         sendError(res, 400, "Missing name, author and/or description field.")
         return
     }
@@ -442,7 +443,7 @@ app.delete("/api/books/:id", async (req, res) => {
 
     try {
         // Vérifier si l'utilisateur est un administrateur
-        if (!await isTokenAdmin(token)) {
+        if (await isTokenAdmin(token)) {
             sendError(res, 403, "You must be an administator to update this user.")
             return
         }
