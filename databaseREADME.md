@@ -14,7 +14,7 @@ This document will guide you through the steps necessary to install MySQL and cr
 3. Configure the MySQL server and set a password for the `root` user.
 4. Once the installation is complete, you can use MySQL Workbench or the command line to interact with your database.
 
-### On Linux
+### On Linux (Debian based distribution)
 
 1. Open a terminal.
 2. Update your package list:
