@@ -160,6 +160,16 @@ app.post("/api/users/register", async (req, res) => {
         sendError(res, 400, "Missing pseudo, email and/or pwd field.")
         return
     }
+	
+	if (pwd.lenght < 8) {
+		sendError(res, 400, "Password should be 8 characters or more")
+		return
+	}
+
+	if (pwd.match(/[a-z]+/) || pwd.match(/[A-Z]+/) || pwd.match(/[0-9]+/) || pwd.match(/[$@#&!]+/)) {
+		sendError(res, 400, "Password should contain lowercase, uppercase, numbers, and special characters")
+		return
+	}
 
 	let hashedpwd = crypto.createHash('sha256').update(pwd).digest('hex')
 
